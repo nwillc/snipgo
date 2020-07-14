@@ -47,7 +47,7 @@ func main() {
 		os.Exit(-2)
 	}
 
-	sort.Sort(ByCategory(snippets))
+	sort.Sort(ByCategoryTitle(snippets))
 	for _, snippet := range snippets {
 		fmt.Println(snippet.String())
 	}
