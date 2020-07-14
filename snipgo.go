@@ -28,8 +28,9 @@ func main() {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
-	fmt.Printf("Opened %s\n", prefs)
+
 	defer jsonFile.Close()
+	fmt.Printf("Opened %s\n", prefs)
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
@@ -46,8 +47,8 @@ func main() {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
-	fmt.Printf("Opened %s\n", userPrefs.DefaultFile)
 	defer snippetFile.Close()
+	fmt.Printf("Opened %s\n", userPrefs.DefaultFile)
 
 	byteValue, _ = ioutil.ReadAll(snippetFile)
 	var snippets []Snippet
