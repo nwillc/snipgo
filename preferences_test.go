@@ -8,15 +8,21 @@ import (
 
 type PreferencesTestSuite struct {
 	suite.Suite
-	fileName string
+	badFilename string
 }
 
 func (suite *PreferencesTestSuite) SetupTest() {
-	suite.fileName = "foo"
+	suite.badFilename = "foo"
 }
 
 func (suite *PreferencesTestSuite) TestDoesNotExist() {
-	assert.False(suite.T(), true)
+	_, ok := getPreferences(suite.badFilename)
+	assert.NotNil(suite.T(), ok)
+}
+
+func (suite *PreferencesTestSuite) TestExist() {
+	_, ok := getPreferences(preferencesFile)
+	assert.Nil(suite.T(), ok)
 }
 
 func TestPreferencesTestSuite(t *testing.T) {
