@@ -9,5 +9,6 @@ require (
 	github.com/jroimartin/gocui v0.4.0
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/nsf/termbox-go v0.0.0-20200418040025-38ba6e5628f1 // indirect
+	github.com/stretchr/testify v1.6.1
 	honnef.co/go/tools v0.0.1-2020.1.4 // indirect
 )

@@ -1,34 +1,44 @@
 package main
 
 import (
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-func TestDummy(t *testing.T) {
-	low := Snippet{
-		Category: "A",
-		Title:    "A",
-	}
+type SnippetsTestSuite struct {
+	suite.Suite
+	snippets ByCategoryTitle
+}
 
-	high := Snippet{
-		Category: "A",
-		Title:    "B",
+func (suite *SnippetsTestSuite) SetupTest() {
+	suite.snippets = []Snippet{
+		{
+			Category: "A",
+			Title:    "A",
+		},
+		{
+			Category: "A",
+			Title:    "B",
+		},
 	}
+}
 
-	snippets := ByCategoryTitle([]Snippet{low, high})
-	if snippets[0].Category > snippets[1].Category {
-		t.Error("Out of order")
-	}
-	if snippets[0].Title > snippets[1].Title {
-		t.Error("Out of order")
-	}
+func (suite *SnippetsTestSuite) TestLen() {
+	assert.Equal(suite.T(), 2, suite.snippets.Len())
+}
 
-	if !snippets.Less(0, 1) {
-		t.Error("Less failed")
-	}
+func (suite *SnippetsTestSuite) TestLess() {
+	assert.LessOrEqual(suite.T(), suite.snippets[0].Category, suite.snippets[1].Category)
+	assert.LessOrEqual(suite.T(), suite.snippets[0].Title, suite.snippets[1].Title)
+	assert.True(suite.T(), suite.snippets.Less(0, 1))
+}
 
-	snippets.Swap(0, 1)
-	if snippets.Less(0, 1) {
-		t.Error("Swap failed")
-	}
+func (suite *SnippetsTestSuite) TestSwap() {
+	suite.snippets.Swap(0, 1)
+	assert.False(suite.T(), suite.snippets.Less(0, 1))
+}
+
+func TestSnippetsTestSuite(t *testing.T) {
+	suite.Run(t, new(SnippetsTestSuite))
 }

@@ -1,11 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/jroimartin/gocui"
-	"io/ioutil"
-	"os"
 )
 
 func main() {
@@ -25,7 +22,7 @@ func main() {
 			log.Panicln(err)
 		}
 	*/
-	preferences, err := getPreferences()
+	preferences, err := getPreferences(preferencesFile)
 	if err != nil {
 		panic("Could not get preferences")
 	}
@@ -88,24 +85,4 @@ func layout(g *gocui.Gui) error {
 
 func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
-}
-
-func getPreferences() (*Preferences, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
-	path := fmt.Sprintf("%s/%s", home, preferencesFile)
-	jsonFile, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer jsonFile.Close()
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	var preferences Preferences
-	err = json.Unmarshal(byteValue, &preferences)
-	if err != nil {
-		return nil, err
-	}
-	return &preferences, nil
 }
