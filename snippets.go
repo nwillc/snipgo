@@ -17,6 +17,7 @@ type Snippet struct {
 	Body     string `json:"body"`
 }
 
+// Implement Stringer
 func (s Snippet) String() string { return fmt.Sprintf("%s: %s", s.Category, s.Title) }
 
 type ByCategoryTitle []Snippet
