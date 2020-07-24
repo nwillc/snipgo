@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -13,6 +14,8 @@ type Snippet struct {
 	Title    string `json:"title"`
 	Body     string `json:"body"`
 }
+// Snippet implements fmt.Stringer
+var _ fmt.Stringer = (*Snippet)(nil)
 
 func ReadSnippets(filename string) ([]Snippet, error) {
 	snippetFile, err := os.Open(filename)
@@ -31,10 +34,11 @@ func ReadSnippets(filename string) ([]Snippet, error) {
 	return snippets, nil
 }
 
-// Implement Stringer
 func (s Snippet) String() string { return fmt.Sprintf("%s: %s", s.Category, s.Title) }
 
 type ByCategoryTitle []Snippet
+// ByCategoryTitle implements sort.Interface
+var _ sort.Interface = (*ByCategoryTitle)(nil)
 
 // Implement sort interface
 func (s ByCategoryTitle) Len() int      { return len(s) }
