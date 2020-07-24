@@ -2,18 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 )
 
 func getPreferences(filename string) (*Preferences, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
-	path := fmt.Sprintf("%s/%s", home, filename)
-	jsonFile, err := os.Open(path)
+	jsonFile, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
