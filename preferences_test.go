@@ -20,12 +20,12 @@ func (suite *PreferencesTestSuite) SetupTest() {
 }
 
 func (suite *PreferencesTestSuite) TestNonExistPrefs() {
-	_, ok := getPreferences(suite.badFilename)
+	_, ok := ReadPreferences(suite.badFilename)
 	assert.NotNil(suite.T(), ok)
 }
 
 func (suite *PreferencesTestSuite) TestExistPrefs() {
-	_, ok := getPreferences(suite.goodFilename)
+	_, ok := ReadPreferences(suite.goodFilename)
 	assert.Nil(suite.T(), ok)
 }
 

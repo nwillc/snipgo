@@ -1,15 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 )
-
-const preferencesFile = ".snippets.json"
-
-type Preferences struct {
-	DefaultFile string `json:"defaultFile"`
-}
 
 type Snippet struct {
 	Category string `json:"category"`
@@ -17,11 +14,29 @@ type Snippet struct {
 	Body     string `json:"body"`
 }
 
+func ReadSnippets(filename string) ([]Snippet, error) {
+	snippetFile, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer snippetFile.Close()
+	byteValue, err := ioutil.ReadAll(snippetFile)
+	if err != nil {
+		return nil, err
+	}
+	var snippets []Snippet
+	if err = json.Unmarshal(byteValue, &snippets); err != nil {
+		return nil, err
+	}
+	return snippets, nil
+}
+
 // Implement Stringer
 func (s Snippet) String() string { return fmt.Sprintf("%s: %s", s.Category, s.Title) }
 
 type ByCategoryTitle []Snippet
 
+// Implement sort interface
 func (s ByCategoryTitle) Len() int      { return len(s) }
 func (s ByCategoryTitle) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 func (s ByCategoryTitle) Less(i, j int) bool {

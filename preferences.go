@@ -6,7 +6,13 @@ import (
 	"os"
 )
 
-func getPreferences(filename string) (*Preferences, error) {
+const preferencesFile = ".snippets.json"
+
+type Preferences struct {
+	DefaultFile string `json:"defaultFile"`
+}
+
+func ReadPreferences(filename string) (*Preferences, error) {
 	jsonFile, err := os.Open(filename)
 	if err != nil {
 		return nil, err

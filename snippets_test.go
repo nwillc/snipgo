@@ -6,9 +6,13 @@ import (
 	"testing"
 )
 
+const testSnippetsFile = "test/files/snippets.json"
+
 type SnippetsTestSuite struct {
 	suite.Suite
 	snippets ByCategoryTitle
+	badFilename string
+	goodFilename string
 }
 
 func (suite *SnippetsTestSuite) SetupTest() {
@@ -22,6 +26,18 @@ func (suite *SnippetsTestSuite) SetupTest() {
 			Title:    "B",
 		},
 	}
+	suite.badFilename = "foo"
+	suite.goodFilename = testSnippetsFile
+}
+
+func (suite *SnippetsTestSuite) TestNonExist() {
+	_, ok := ReadSnippets(suite.badFilename)
+	assert.NotNil(suite.T(), ok)
+}
+
+func (suite *SnippetsTestSuite) TestExist() {
+	_, ok := ReadSnippets(suite.goodFilename)
+	assert.Nil(suite.T(), ok)
 }
 
 func (suite *SnippetsTestSuite) TestLen() {

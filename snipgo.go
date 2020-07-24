@@ -22,7 +22,7 @@ func main() {
 			log.Panicln(err)
 		}
 	*/
-	preferences, err := getPreferences(preferencesFile)
+	preferences, err := ReadPreferences(preferencesFile)
 	if err != nil {
 		panic("Could not get preferences")
 	}
