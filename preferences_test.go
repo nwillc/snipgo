@@ -10,7 +10,7 @@ const testPrefFile = "test/files/preferences.json"
 
 type PreferencesTestSuite struct {
 	suite.Suite
-	badFilename string
+	badFilename  string
 	goodFilename string
 }
 
