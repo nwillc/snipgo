@@ -16,6 +16,19 @@ type HelpWidget struct {
 	body string
 }
 
+var _ gocui.Manager = (*HelpWidget)(nil)
+
+func (w HelpWidget) Layout(g *gocui.Gui) error {
+	v, err := g.SetView(w.name, w.x, w.y, w.x+w.w, w.y+w.h)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		fmt.Fprint(v, w.body)
+	}
+	return nil
+}
+
 func NewHelpWidget(name string, x, y int, body string) *HelpWidget {
 	lines := strings.Split(body, "\n")
 
@@ -113,4 +126,11 @@ func statusSet(sw *StatusbarWidget, inc float64) error {
 		return nil
 	}
 	return sw.SetVal(val)
+}
+
+func helpMessage(help *HelpWidget, msg string) func(g *gocui.Gui, v *gocui.View) error {
+	return func(g *gocui.Gui, v *gocui.View) error {
+		help.body = msg
+		return nil
+	}
 }

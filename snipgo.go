@@ -25,9 +25,6 @@ func main() {
 	}
 	fmt.Printf("Read %d Snippets\n", len(snippets))
 	sort.Sort(ByCategoryTitle(snippets))
-	for _, snippet := range snippets {
-		fmt.Println(snippet)
-	}
 
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
@@ -37,14 +34,32 @@ func main() {
 	g.Highlight = true
 	g.SelFgColor = gocui.ColorRed
 
-	// help := NewHelpWidget("help", 1, 1, "Help me I'm trapped in goland")
-	status := NewStatusbarWidget("status", 1, 7, 50)
-	butdown := NewButtonWidget("butdown", 52, 7, "DOWN", statusDown(status))
-	butup := NewButtonWidget("butup", 58, 7, "UP", statusUp(status))
-	g.SetManager(status, butdown, butup)
+	maxX, maxY := g.Size()
+
+	titles := &ScrollView{
+		name: "titles",
+		x:    1,
+		y:    1,
+		w:    maxX / 2,
+		h:    maxY / 2,
+		body: "",
+	}
+
+	g.SetManager(titles)
 
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
+	}
+
+	distinctTitles := make(map[string]bool)
+
+	for _, snippet := range snippets {
+		distinctTitles[snippet.Category] = true
+	}
+
+	for cat := range distinctTitles {
+		titles.body += cat
+		titles.body += "\n"
 	}
 
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
