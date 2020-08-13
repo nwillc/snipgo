@@ -3,7 +3,7 @@ package app
 import "github.com/jroimartin/gocui"
 
 type App struct {
-	Gui *gocui.Gui
+	*gocui.Gui
 }
 
 func NewApp() (*App, error) {

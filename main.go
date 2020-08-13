@@ -31,9 +31,9 @@ func main() {
 	if err != nil {
 		log.Panicln(err)
 	}
-	defer app.Gui.Close()
+	defer app.Close()
 
-	maxX, maxY := app.Gui.Size()
+	maxX, maxY := app.Size()
 
 	categoryView := &ScrollView{
 		name: "titles",
@@ -44,9 +44,9 @@ func main() {
 		body: "",
 	}
 
-	app.Gui.SetManager(categoryView)
+	app.SetManager(categoryView)
 
-	if err := app.Gui.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
+	if err := app.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
 	}
 
@@ -67,7 +67,7 @@ func main() {
 		categoryView.body += "\n"
 	}
 
-	if err := app.Gui.MainLoop(); err != nil && err != gocui.ErrQuit {
+	if err := app.MainLoop(); err != nil && err != gocui.ErrQuit {
 		log.Panicln(err)
 	}
 }
