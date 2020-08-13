@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/jroimartin/gocui"
+	"github.com/nwillc/snipgo/app"
 	"log"
 	"os"
 	"sort"
@@ -26,17 +27,15 @@ func main() {
 	fmt.Printf("Read %d Snippets\n", len(snippets))
 	sort.Sort(ByCategoryTitle(snippets))
 
-	g, err := gocui.NewGui(gocui.OutputNormal)
+	app, err := app.NewApp()
 	if err != nil {
 		log.Panicln(err)
 	}
-	defer g.Close()
-	g.Highlight = true
-	g.SelFgColor = gocui.ColorRed
+	defer app.Gui.Close()
 
-	maxX, maxY := g.Size()
+	maxX, maxY := app.Gui.Size()
 
-	titles := &ScrollView{
+	categoryView := &ScrollView{
 		name: "titles",
 		x:    1,
 		y:    1,
@@ -45,24 +44,30 @@ func main() {
 		body: "",
 	}
 
-	g.SetManager(titles)
+	app.Gui.SetManager(categoryView)
 
-	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
+	if err := app.Gui.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
 	}
 
-	distinctTitles := make(map[string]bool)
+	distinctCategories := make(map[string]bool)
+	categoryList := make([]string, 0)
 
 	for _, snippet := range snippets {
-		distinctTitles[snippet.Category] = true
+		_, ok := distinctCategories[snippet.Category]
+		if !ok {
+			distinctCategories[snippet.Category] = true
+			categoryList = append(categoryList, snippet.Category)
+		}
 	}
 
-	for cat := range distinctTitles {
-		titles.body += cat
-		titles.body += "\n"
+	sort.Strings(categoryList)
+	for _, cat := range categoryList {
+		categoryView.body += cat
+		categoryView.body += "\n"
 	}
 
-	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
+	if err := app.Gui.MainLoop(); err != nil && err != gocui.ErrQuit {
 		log.Panicln(err)
 	}
 }
