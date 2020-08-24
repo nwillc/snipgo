@@ -1,0 +1,43 @@
+package main
+
+import (
+	"sort"
+)
+
+type Category struct {
+	Name     string
+	Snippets []Snippet
+}
+
+type Categories []Category
+
+var _ sort.Interface = (*Categories)(nil)
+
+func (c Categories) Len() int {
+	return len(c)
+}
+
+func (c Categories) Less(i, j int) bool {
+	return c[i].Name < c[j].Name
+}
+
+func (c Categories) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
+
+func SnippetsByCategory(snippets Snippets) Categories {
+	catMap := make(map[string]Category)
+
+	for _, snippet := range snippets {
+		category, ok := catMap[snippet.Category]
+		if !ok {
+			category = Category{Name: snippet.Category}
+		}
+		category.Snippets = append(category.Snippets, snippet)
+		catMap[category.Name] = category
+	}
+
+	var c []Category
+	for _, v := range catMap {
+		c = append(c, v)
+	}
+	return c
+}

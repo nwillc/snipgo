@@ -6,12 +6,12 @@ import (
 	"testing"
 )
 
-const testSnippetsFile = "test/files/snippets.json"
+const testSnippetsFile = "test/files/Snippets.json"
 
 type SnippetsTestSuite struct {
 	suite.Suite
-	snippets ByCategoryTitle
-	badFilename string
+	snippets     Snippets
+	badFilename  string
 	goodFilename string
 }
 

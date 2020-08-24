@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/jroimartin/gocui"
-	"github.com/nwillc/snipgo/app"
-	"log"
+	"github.com/gdamore/tcell"
+	"github.com/rivo/tview"
 	"os"
 	"sort"
 )
@@ -22,33 +21,10 @@ func main() {
 	fmt.Printf("Snippets at: %s\n", preferences.DefaultFile)
 	snippets, err := ReadSnippets(preferences.DefaultFile)
 	if err != nil {
-		panic("Could not read snippets")
+		panic("Could not read Snippets")
 	}
 	fmt.Printf("Read %d Snippets\n", len(snippets))
-	sort.Sort(ByCategoryTitle(snippets))
-
-	app, err := app.NewApp()
-	if err != nil {
-		log.Panicln(err)
-	}
-	defer app.Close()
-
-	maxX, maxY := app.Size()
-
-	categoryView := &ScrollView{
-		name: "titles",
-		x:    1,
-		y:    1,
-		w:    maxX / 2,
-		h:    maxY / 2,
-		body: "",
-	}
-
-	app.SetManager(categoryView)
-
-	if err := app.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
-		log.Panicln(err)
-	}
+	sort.Sort(Snippets(snippets))
 
 	distinctCategories := make(map[string]bool)
 	categoryList := make([]string, 0)
@@ -62,16 +38,37 @@ func main() {
 	}
 
 	sort.Strings(categoryList)
-	for _, cat := range categoryList {
-		categoryView.body += cat
-		categoryView.body += "\n"
-	}
 
-	if err := app.MainLoop(); err != nil && err != gocui.ErrQuit {
-		log.Panicln(err)
-	}
-}
+	app := tview.NewApplication()
+	table := tview.NewTable().
+		SetBorders(false)
+	cols, rows := 1, len(categoryList)
 
-func quit(g *gocui.Gui, v *gocui.View) error {
-	return gocui.ErrQuit
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			color := tcell.ColorWhite
+			table.SetCell(r, c,
+				tview.NewTableCell(categoryList[r]).
+					SetTextColor(color).
+					SetAlign(tview.AlignLeft))
+		}
+	}
+	table.
+		Select(0, 0).
+		SetFixed(1, 1).
+		SetDoneFunc(func(key tcell.Key) {
+			if key == tcell.KeyEscape {
+				app.Stop()
+			}
+			if key == tcell.KeyEnter {
+				table.SetSelectable(true, true)
+			}
+		}).
+		SetSelectedFunc(func(row int, column int) {
+			table.GetCell(row, column).SetTextColor(tcell.ColorRed)
+			table.SetSelectable(false, false)
+		})
+	if err := app.SetRoot(table, true).EnableMouse(true).Run(); err != nil {
+		panic(err)
+	}
 }

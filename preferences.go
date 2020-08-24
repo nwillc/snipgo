@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const preferencesFile = ".snippets.json"
+const preferencesFile = ".Snippets.json"
 
 type Preferences struct {
 	DefaultFile string `json:"defaultFile"`

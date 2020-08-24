@@ -14,6 +14,7 @@ type Snippet struct {
 	Title    string `json:"title"`
 	Body     string `json:"body"`
 }
+
 // Snippet implements fmt.Stringer
 var _ fmt.Stringer = (*Snippet)(nil)
 
@@ -36,14 +37,15 @@ func ReadSnippets(filename string) ([]Snippet, error) {
 
 func (s Snippet) String() string { return fmt.Sprintf("%s: %s", s.Category, s.Title) }
 
-type ByCategoryTitle []Snippet
-// ByCategoryTitle implements sort.Interface
-var _ sort.Interface = (*ByCategoryTitle)(nil)
+type Snippets []Snippet
+
+// Snippets implements sort.Interface
+var _ sort.Interface = (*Snippets)(nil)
 
 // Implement sort interface
-func (s ByCategoryTitle) Len() int      { return len(s) }
-func (s ByCategoryTitle) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-func (s ByCategoryTitle) Less(i, j int) bool {
+func (s Snippets) Len() int      { return len(s) }
+func (s Snippets) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+func (s Snippets) Less(i, j int) bool {
 	return (strings.ToLower(s[i].Category) < strings.ToLower(s[j].Category)) ||
 		((strings.ToLower(s[i].Category) == strings.ToLower(s[j].Category)) &&
 			(strings.ToLower(s[i].Title) < strings.ToLower(s[j].Title)))
