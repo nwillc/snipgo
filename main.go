@@ -24,31 +24,20 @@ func main() {
 		panic("Could not read Snippets")
 	}
 	fmt.Printf("Read %d Snippets\n", len(snippets))
-	sort.Sort(Snippets(snippets))
 
-	distinctCategories := make(map[string]bool)
-	categoryList := make([]string, 0)
-
-	for _, snippet := range snippets {
-		_, ok := distinctCategories[snippet.Category]
-		if !ok {
-			distinctCategories[snippet.Category] = true
-			categoryList = append(categoryList, snippet.Category)
-		}
-	}
-
-	sort.Strings(categoryList)
+	categories := SnippetsByCategory(snippets)
+	sort.Sort(categories)
 
 	app := tview.NewApplication()
 	table := tview.NewTable().
 		SetBorders(false)
-	cols, rows := 1, len(categoryList)
+	cols, rows := 1, len(categories)
 
 	for r := 0; r < rows; r++ {
 		for c := 0; c < cols; c++ {
 			color := tcell.ColorWhite
 			table.SetCell(r, c,
-				tview.NewTableCell(categoryList[r]).
+				tview.NewTableCell(categories[r].Name).
 					SetTextColor(color).
 					SetAlign(tview.AlignLeft))
 		}

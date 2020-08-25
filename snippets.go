@@ -18,7 +18,12 @@ type Snippet struct {
 // Snippet implements fmt.Stringer
 var _ fmt.Stringer = (*Snippet)(nil)
 
-func ReadSnippets(filename string) ([]Snippet, error) {
+type Snippets []Snippet
+
+// Snippets implements sort.Interface
+var _ sort.Interface = (*Snippets)(nil)
+
+func ReadSnippets(filename string) (Snippets, error) {
 	snippetFile, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -36,11 +41,6 @@ func ReadSnippets(filename string) ([]Snippet, error) {
 }
 
 func (s Snippet) String() string { return fmt.Sprintf("%s: %s", s.Category, s.Title) }
-
-type Snippets []Snippet
-
-// Snippets implements sort.Interface
-var _ sort.Interface = (*Snippets)(nil)
 
 // Implement sort interface
 func (s Snippets) Len() int      { return len(s) }
