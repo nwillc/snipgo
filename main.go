@@ -36,42 +36,31 @@ func main() {
 
 	app := tview.NewApplication()
 
-	titles := newPrimitive("Titles")
+	//titles := newPrimitive("Titles")
 	snippet := newPrimitive("Snippet")
 
-	categoryList := tview.NewGrid().
+	layout := tview.NewGrid().
 		SetRows(3, 0, 3).
 		SetColumns(30, 0).
 		SetBorders(true).
 		AddItem(newPrimitive("Header"), 0, 0, 1, 3, 0, 0, false).
 		AddItem(newPrimitive("Footer"), 2, 0, 1, 3, 0, 0, false)
 
-	table := tview.NewTable().
+	categoryTable := tview.NewTable().
 		SetBorders(false)
-	cols, rows := 1, len(categories)
-
-	for r := 0; r < rows; r++ {
-		for c := 0; c < cols; c++ {
-			color := tcell.ColorWhite
-			table.SetCell(r, c,
-				tview.NewTableCell(categories[r].Name).
-					SetTextColor(color).
-					SetAlign(tview.AlignLeft))
-		}
-	}
-	table.
+	loadCategories(categoryTable, categories)
+	categoryTable.
 		Select(0, 0).
-		SetFixed(1, 1).
 		SetDoneFunc(func(key tcell.Key) {
 			if key == tcell.KeyEscape {
 				app.Stop()
 			}
 			if key == tcell.KeyEnter {
-				table.SetSelectable(true, true)
+				categoryTable.SetSelectable(true, true)
 			}
 		}).
 		SetSelectedFunc(func(row int, column int) {
-			cell := table.GetCell(row, column)
+			cell := categoryTable.GetCell(row, column)
 			if cell.Color != tcell.ColorRed {
 				cell.SetTextColor(tcell.ColorRed)
 			} else {
@@ -79,11 +68,41 @@ func main() {
 			}
 		})
 
-	categoryList.AddItem(table, 1, 0, 1, 1, 0, 100, true).
-		AddItem(titles, 1, 1, 1, 1, 0, 100, false).
+	titlesTable := tview.NewTable().
+		SetBorders(false)
+	loadTitles(titlesTable, categories[0].Snippets)
+
+	layout.AddItem(categoryTable, 1, 0, 1, 1, 0, 100, true).
+		AddItem(titlesTable, 1, 1, 1, 1, 0, 100, false).
 		AddItem(snippet, 1, 2, 1, 1, 0, 100, false)
 
-	if err := app.SetRoot(categoryList, true).EnableMouse(true).Run(); err != nil {
+	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
+	}
+}
+
+func loadCategories(t *tview.Table, categories Categories) {
+	cols, rows := 1, len(categories)
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			color := tcell.ColorWhite
+			t.SetCell(r, c,
+				tview.NewTableCell(categories[r].Name).
+					SetTextColor(color).
+					SetAlign(tview.AlignLeft))
+		}
+	}
+}
+
+func loadTitles(t *tview.Table, snippets Snippets) {
+	cols, rows := 1, len(snippets)
+	for r := 0; r < rows; r++ {
+		for c := 0; c < cols; c++ {
+			color := tcell.ColorWhite
+			t.SetCell(r, c,
+				tview.NewTableCell(snippets[r].Title).
+					SetTextColor(color).
+					SetAlign(tview.AlignLeft))
+		}
 	}
 }
