@@ -9,6 +9,12 @@ import (
 )
 
 func main() {
+	newPrimitive := func(text string) tview.Primitive {
+		return tview.NewTextView().
+			SetTextAlign(tview.AlignCenter).
+			SetText(text)
+	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		panic("Could not get home directory")
@@ -29,6 +35,17 @@ func main() {
 	sort.Sort(categories)
 
 	app := tview.NewApplication()
+
+	titles := newPrimitive("Titles")
+	snippet := newPrimitive("Snippet")
+
+	categoryList := tview.NewGrid().
+		SetRows(3, 0, 3).
+		SetColumns(30, 0).
+		SetBorders(true).
+		AddItem(newPrimitive("Header"), 0, 0, 1, 3, 0, 0, false).
+		AddItem(newPrimitive("Footer"), 2, 0, 1, 3, 0, 0, false)
+
 	table := tview.NewTable().
 		SetBorders(false)
 	cols, rows := 1, len(categories)
@@ -54,10 +71,19 @@ func main() {
 			}
 		}).
 		SetSelectedFunc(func(row int, column int) {
-			table.GetCell(row, column).SetTextColor(tcell.ColorRed)
-			table.SetSelectable(false, false)
+			cell := table.GetCell(row, column)
+			if cell.Color != tcell.ColorRed {
+				cell.SetTextColor(tcell.ColorRed)
+			} else {
+				cell.SetTextColor(tcell.ColorWhite)
+			}
 		})
-	if err := app.SetRoot(table, true).EnableMouse(true).Run(); err != nil {
+
+	categoryList.AddItem(table, 1, 0, 1, 1, 0, 100, true).
+		AddItem(titles, 1, 1, 1, 1, 0, 100, false).
+		AddItem(snippet, 1, 2, 1, 1, 0, 100, false)
+
+	if err := app.SetRoot(categoryList, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
 }
