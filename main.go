@@ -19,8 +19,8 @@ func main() {
 	if err != nil {
 		panic("Could not get home directory")
 	}
-	prefs := fmt.Sprintf("%s/%s", home, preferencesFile)
-	preferences, err := ReadPreferences(prefs)
+	prefFileName := fmt.Sprintf("%s/%s", home, preferencesFile)
+	preferences, err := ReadPreferences(prefFileName)
 	if err != nil {
 		panic("Could not get preferences")
 	}
@@ -36,9 +36,6 @@ func main() {
 
 	app := tview.NewApplication()
 
-	//titles := newPrimitive("Titles")
-	snippet := newPrimitive("Snippet")
-
 	layout := tview.NewGrid().
 		SetRows(3, 0, 3).
 		SetColumns(30, 0).
@@ -46,35 +43,55 @@ func main() {
 		AddItem(newPrimitive("Header"), 0, 0, 1, 3, 0, 0, false).
 		AddItem(newPrimitive("Footer"), 2, 0, 1, 3, 0, 0, false)
 
+	titlesTable := tview.NewTable().
+		SetBorders(false)
+
+	lastSnippets := &categories[0].Snippets
+	loadTitles(titlesTable, lastSnippets)
+
 	categoryTable := tview.NewTable().
 		SetBorders(false)
 	loadCategories(categoryTable, categories)
 	categoryTable.
 		Select(0, 0).
 		SetDoneFunc(func(key tcell.Key) {
-			if key == tcell.KeyEscape {
-				app.Stop()
-			}
 			if key == tcell.KeyEnter {
 				categoryTable.SetSelectable(true, true)
 			}
+			if key == tcell.KeyRight {
+				app.SetFocus(titlesTable)
+			}
 		}).
 		SetSelectedFunc(func(row int, column int) {
-			cell := categoryTable.GetCell(row, column)
-			if cell.Color != tcell.ColorRed {
-				cell.SetTextColor(tcell.ColorRed)
-			} else {
-				cell.SetTextColor(tcell.ColorWhite)
-			}
+			lastSnippets = &categories[row].Snippets
+			loadTitles(titlesTable, lastSnippets)
+			app.SetFocus(titlesTable)
 		})
 
-	titlesTable := tview.NewTable().
-		SetBorders(false)
-	loadTitles(titlesTable, categories[0].Snippets)
+	textView := tview.NewTextView().
+		SetDynamicColors(true).
+		SetRegions(true).
+		SetWordWrap(true).
+		SetChangedFunc(func() {
+			app.Draw()
+		})
+
+	titlesTable.
+		SetDoneFunc(func(key tcell.Key) {
+			if key == tcell.KeyEnter {
+				titlesTable.SetSelectable(true, true)
+			}
+			if key == tcell.KeyLeft {
+				app.SetFocus(categoryTable)
+			}
+		}).
+		SetSelectedFunc(func(row, column int) {
+			textView.SetText((*lastSnippets)[row].Body)
+		})
 
 	layout.AddItem(categoryTable, 1, 0, 1, 1, 0, 100, true).
-		AddItem(titlesTable, 1, 1, 1, 1, 0, 100, false).
-		AddItem(snippet, 1, 2, 1, 1, 0, 100, false)
+		AddItem(titlesTable, 1, 1, 1, 1, 0, 100, true).
+		AddItem(textView, 1, 2, 1, 1, 0, 100, false)
 
 	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
@@ -82,6 +99,7 @@ func main() {
 }
 
 func loadCategories(t *tview.Table, categories Categories) {
+	t.Clear()
 	cols, rows := 1, len(categories)
 	for r := 0; r < rows; r++ {
 		for c := 0; c < cols; c++ {
@@ -94,13 +112,14 @@ func loadCategories(t *tview.Table, categories Categories) {
 	}
 }
 
-func loadTitles(t *tview.Table, snippets Snippets) {
-	cols, rows := 1, len(snippets)
+func loadTitles(t *tview.Table, snippets *Snippets) {
+	t.Clear()
+	cols, rows := 1, len(*snippets)
 	for r := 0; r < rows; r++ {
 		for c := 0; c < cols; c++ {
 			color := tcell.ColorWhite
 			t.SetCell(r, c,
-				tview.NewTableCell(snippets[r].Title).
+				tview.NewTableCell((*snippets)[r].Title).
 					SetTextColor(color).
 					SetAlign(tview.AlignLeft))
 		}

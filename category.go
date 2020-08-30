@@ -7,7 +7,7 @@ import (
 
 type Category struct {
 	Name     string
-	Snippets []Snippet
+	Snippets Snippets
 }
 
 type Categories []Category
