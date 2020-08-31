@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gdamore/tcell"
 	"github.com/rivo/tview"
-	"os"
 	"sort"
 )
 
@@ -15,21 +13,14 @@ func main() {
 			SetText(text)
 	}
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		panic("Could not get home directory")
-	}
-	prefFileName := fmt.Sprintf("%s/%s", home, preferencesFile)
-	preferences, err := ReadPreferences(prefFileName)
+	preferences, err := GetPreferences()
 	if err != nil {
 		panic("Could not get preferences")
 	}
-	fmt.Printf("Snippets at: %s\n", preferences.DefaultFile)
 	snippets, err := ReadSnippets(preferences.DefaultFile)
 	if err != nil {
 		panic("Could not read Snippets")
 	}
-	fmt.Printf("Read %d Snippets\n", len(snippets))
 
 	categories := SnippetsByCategory(snippets)
 	sort.Sort(categories)
