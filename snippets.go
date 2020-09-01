@@ -40,6 +40,7 @@ func ReadSnippets(filename string) (Snippets, error) {
 	return snippets, nil
 }
 
+// Implement Stringer interface
 func (s Snippet) String() string { return fmt.Sprintf("%s: %s", s.Category, s.Title) }
 
 // Implement sort interface

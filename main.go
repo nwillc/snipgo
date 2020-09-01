@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/rivo/tview"
 )
 
@@ -17,7 +18,7 @@ func main() {
 	}
 	snippets, err := ReadSnippets(preferences.DefaultFile)
 	if err != nil {
-		panic("Could not read Snippets")
+		panic(fmt.Sprintf("failed %v", err))
 	}
 
 	categories := SnippetsByCategory(snippets)
