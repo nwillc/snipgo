@@ -40,5 +40,6 @@ func SnippetsByCategory(snippets Snippets) Categories {
 	for _, v := range catMap {
 		c = append(c, v)
 	}
+	sort.Sort(Categories(c))
 	return c
 }
