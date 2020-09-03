@@ -23,7 +23,7 @@ import (
 	"os"
 )
 
-const preferencesFile = ".Snippets.json"
+const preferencesFile = ".snippets.json"
 
 type Preferences struct {
 	DefaultFile string `json:"defaultFile"`
@@ -52,7 +52,7 @@ func GetPreferences() (*Preferences, error) {
 	prefFileName := fmt.Sprintf("%s/%s", home, preferencesFile)
 	preferences, err := readPreferences(prefFileName)
 	if err != nil {
-		panic("Could not read Snippets")
+		panic(fmt.Sprintf("Could not read preferences: %s", prefFileName))
 	}
 	return preferences, nil
 }

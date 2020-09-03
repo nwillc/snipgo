@@ -17,6 +17,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/atotto/clipboard"
 	"github.com/nwillc/snipgo/snippets"
 	"github.com/nwillc/snipgo/ui"
@@ -30,7 +31,7 @@ func main() {
 	}
 	read, err := snippets.ReadSnippets(preferences.DefaultFile)
 	if err != nil {
-		panic("Could not read Snippets")
+		panic(fmt.Sprintf("failed %v", err))
 	}
 
 	categories := snippets.ByCategory(read)

@@ -28,6 +28,7 @@ type Category struct {
 
 type Categories []Category
 
+// Categories implements sort.Interface
 var _ sort.Interface = (*Categories)(nil)
 
 func (c Categories) Len() int {
