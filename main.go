@@ -34,7 +34,7 @@ func main() {
 		panic(fmt.Sprintf("failed %v", err))
 	}
 
-	categories := snippets.ByCategory(read)
+	categories := read.ByCategory()
 	lastSnippets := &categories[0].Snippets
 
 	app := tview.NewApplication()

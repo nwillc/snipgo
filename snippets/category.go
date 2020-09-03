@@ -41,22 +41,4 @@ func (c Categories) Less(i, j int) bool {
 
 func (c Categories) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
 
-func ByCategory(snippets Snippets) Categories {
-	catMap := make(map[string]Category)
 
-	for _, snippet := range snippets {
-		category, ok := catMap[snippet.Category]
-		if !ok {
-			category = Category{Name: snippet.Category}
-		}
-		category.Snippets = append(category.Snippets, snippet)
-		catMap[category.Name] = category
-	}
-
-	var c []Category
-	for _, v := range catMap {
-		c = append(c, v)
-	}
-	sort.Sort(Categories(c))
-	return c
-}

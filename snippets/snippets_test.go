@@ -74,3 +74,74 @@ func (suite *SnippetsTestSuite) TestSwap() {
 func TestSnippetsTestSuite(t *testing.T) {
 	suite.Run(t, new(SnippetsTestSuite))
 }
+
+func TestSnippetsByCategory(t *testing.T) {
+	tests := []struct {
+		name       string
+		snippets   Snippets
+		categories Categories
+	}{
+		{
+			name:       "Empty",
+			snippets:   Snippets{},
+			categories: Categories{},
+		},
+		{
+			name: "Two Snippets One Category",
+			snippets: Snippets{
+				{
+					Category: "A",
+					Title:    "A",
+				},
+				{
+					Category: "A",
+					Title:    "B",
+				},
+			},
+			categories: Categories{
+				{
+					Name:     "A",
+					Snippets: []Snippet{{Category: "A", Title: "A"}, {Category: "A", Title: "B"}},
+				},
+			},
+		},
+		{
+			name: "Two Snippets Two Categories",
+			snippets: Snippets{
+				{
+					Category: "A",
+					Title:    "A",
+				},
+				{
+					Category: "B",
+					Title:    "B",
+				},
+			},
+			categories: Categories{
+				{
+					Name:     "A",
+					Snippets: []Snippet{{Category: "A", Title: "A"}},
+				},
+				{
+					Name:     "B",
+					Snippets: []Snippet{{Category: "B", Title: "B"}},
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := test.snippets.ByCategory()
+			assert.Equal(t, len(test.categories), len(result))
+			for i, category := range test.categories {
+				assert.Equal(t, category.Name, result[i].Name)
+				assert.Equal(t, len(category.Snippets), len(result[i].Snippets))
+				if len(category.Snippets) == len(result[i].Snippets) {
+					for j, snippet := range category.Snippets {
+						assert.Equal(t, snippet.Title, result[i].Snippets[j].Title)
+					}
+				}
+			}
+		})
+	}
+}

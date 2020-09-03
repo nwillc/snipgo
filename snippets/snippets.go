@@ -67,3 +67,23 @@ func (s Snippets) Less(i, j int) bool {
 		((strings.ToLower(s[i].Category) == strings.ToLower(s[j].Category)) &&
 			(strings.ToLower(s[i].Title) < strings.ToLower(s[j].Title)))
 }
+
+func (s Snippets) ByCategory() Categories {
+	catMap := make(map[string]Category)
+
+	for _, snippet := range s {
+		category, ok := catMap[snippet.Category]
+		if !ok {
+			category = Category{Name: snippet.Category}
+		}
+		category.Snippets = append(category.Snippets, snippet)
+		catMap[category.Name] = category
+	}
+
+	var c []Category
+	for _, v := range catMap {
+		c = append(c, v)
+	}
+	sort.Sort(Categories(c))
+	return c
+}
