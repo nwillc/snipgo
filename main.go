@@ -27,12 +27,12 @@ func main() {
 	if err != nil {
 		panic("Could not get preferences")
 	}
-	read, err := model.ReadSnippets(preferences.DefaultFile)
+	snippets, err := model.ReadSnippets(preferences.DefaultFile)
 	if err != nil {
 		panic(fmt.Sprintf("failed %v", err))
 	}
 
-	categories := read.ByCategory()
+	categories := snippets.ByCategory()
 
 	layout := ui.NewLayout()
 	layout.Categories(&categories)
