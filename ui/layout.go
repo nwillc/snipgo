@@ -53,7 +53,7 @@ func NewLayout() *UI {
 	})
 
 	titleList.SetSelectedFunc(func(i int, s string, s2 string, r rune) {
-		ui.editor.Text(ui.CurrentSnippet().Body)
+		ui.loadSnippet()
 	})
 
 	return ui
@@ -62,7 +62,6 @@ func NewLayout() *UI {
 func (ui *UI) Categories(categories *model.Categories) {
 	ui.categories = categories
 	ui.loadCategories()
-	ui.loadTitles()
 }
 
 func (ui *UI) CurrentCategory() *model.Category {
@@ -82,6 +81,7 @@ func (ui *UI) loadCategories() {
 			ui.categoryList.AddItem(category.Name, "", 0, nil)
 		}
 	}
+	ui.loadTitles()
 }
 
 func (ui *UI) loadTitles() {
@@ -89,6 +89,10 @@ func (ui *UI) loadTitles() {
 	for _, snippet := range ui.CurrentCategory().Snippets {
 		ui.titleList.AddItem(snippet.Title, "", 0, nil)
 	}
+}
+
+func (ui *UI) loadSnippet()  {
+	ui.editor.Text(ui.CurrentSnippet().Body)
 }
 
 func (ui *UI) Run() {
