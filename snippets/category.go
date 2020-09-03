@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package snippets
 
 import (
 	"sort"
@@ -40,7 +40,7 @@ func (c Categories) Less(i, j int) bool {
 
 func (c Categories) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
 
-func SnippetsByCategory(snippets Snippets) Categories {
+func ByCategory(snippets Snippets) Categories {
 	catMap := make(map[string]Category)
 
 	for _, snippet := range snippets {

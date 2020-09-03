@@ -17,38 +17,34 @@
 package main
 
 import (
-	"fmt"
 	"github.com/atotto/clipboard"
+	"github.com/nwillc/snipgo/snippets"
+	"github.com/nwillc/snipgo/ui"
 	"github.com/rivo/tview"
 )
 
 func main() {
-	newPrimitive := func(text string) tview.Primitive {
-		return tview.NewTextView().
-			SetTextAlign(tview.AlignCenter).
-			SetText(text)
-	}
-
 	preferences, err := GetPreferences()
 	if err != nil {
 		panic("Could not get preferences")
 	}
-	snippets, err := ReadSnippets(preferences.DefaultFile)
+	read, err := snippets.ReadSnippets(preferences.DefaultFile)
 	if err != nil {
 		panic("Could not read Snippets")
 	}
 
-	categories := SnippetsByCategory(snippets)
+	categories := snippets.ByCategory(read)
 	lastSnippets := &categories[0].Snippets
 
 	app := tview.NewApplication()
 
+	editor := ui.NewEditor()
 	textView := tview.NewTextView()
 
 	titleList := tview.NewList().
 		ShowSecondaryText(false).
 		SetSelectedFunc(func(i int, s string, s2 string, r rune) {
-			textView.SetText((*lastSnippets)[i].Body)
+			editor.Text((*lastSnippets)[i].Body)
 		})
 
 	loadTitles(titleList, lastSnippets)
@@ -63,34 +59,35 @@ func main() {
 	loadCategories(categoryList, categories)
 
 	copyButton := tview.NewButton("Copy").SetSelectedFunc(func() {
-		if err := clipboard.WriteAll(textView.GetText(false)); err != nil {
-			panic(fmt.Sprintf("failed to copy to clipboard %v", err))
-		}
+		//if err := clipboard.WriteAll(textView.GetText(false)); err != nil {
+		//	panic(fmt.Sprintf("failed to copy to clipboard %v", err))
+		//}
+		clipboard.WriteAll(editor.String())
 	})
 
 	layout := tview.NewGrid().
 		SetRows(3, 0, 3).
 		SetColumns(30, 0).
 		SetBorders(true).
-		AddItem(newPrimitive("Header"), 0, 0, 1, 3, 0, 0, false).
+		AddItem(textView, 0, 0, 1, 3, 0, 0, true).
 		AddItem(copyButton, 2, 0, 1, 3, 0, 0, true).
 		AddItem(categoryList, 1, 0, 1, 1, 0, 100, true).
 		AddItem(titleList, 1, 1, 1, 1, 0, 100, true).
-		AddItem(textView, 1, 2, 1, 1, 0, 100, false)
+		AddItem(editor, 1, 2, 1, 1, 0, 100, false)
 
 	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
 }
 
-func loadCategories(t *tview.List, categories Categories) {
+func loadCategories(t *tview.List, categories snippets.Categories) {
 	t.Clear()
 	for _, category := range categories {
 		t.AddItem(category.Name, "", 0, nil)
 	}
 }
 
-func loadTitles(t *tview.List, snippets *Snippets) {
+func loadTitles(t *tview.List, snippets *snippets.Snippets) {
 	t.Clear()
 	for _, snippet := range *snippets {
 		t.AddItem(snippet.Title, "", 0, nil)

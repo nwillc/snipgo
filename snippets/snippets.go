@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package snippets
 
 import (
 	"encoding/json"
@@ -56,6 +56,7 @@ func ReadSnippets(filename string) (Snippets, error) {
 	return snippets, nil
 }
 
+// Implement fmt.Stringer
 func (s Snippet) String() string { return fmt.Sprintf("%s: %s", s.Category, s.Title) }
 
 // Implement sort interface

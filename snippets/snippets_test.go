@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package snippets
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -22,7 +22,7 @@ import (
 	"testing"
 )
 
-const testSnippetsFile = "test/files/Snippets.json"
+const testSnippetsFile = "../test/files/Snippets.json"
 
 type SnippetsTestSuite struct {
 	suite.Suite

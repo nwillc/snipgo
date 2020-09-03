@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package snippets
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -111,7 +111,7 @@ func TestSnippetsByCategory(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result := SnippetsByCategory(test.snippets)
+			result := ByCategory(test.snippets)
 			assert.Equal(t, len(test.categories), len(result))
 			for i, category := range test.categories {
 				assert.Equal(t, category.Name, result[i].Name)
