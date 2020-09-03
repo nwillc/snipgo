@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package snippets
+package model
 
 import (
 	"sort"
@@ -40,5 +40,3 @@ func (c Categories) Less(i, j int) bool {
 }
 
 func (c Categories) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
-
-

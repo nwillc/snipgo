@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package snippets
+package model
 
 import (
 	"github.com/stretchr/testify/assert"

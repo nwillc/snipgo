@@ -19,7 +19,7 @@ package main
 import (
 	"fmt"
 	"github.com/atotto/clipboard"
-	"github.com/nwillc/snipgo/snippets"
+	"github.com/nwillc/snipgo/model"
 	"github.com/nwillc/snipgo/ui"
 	"github.com/rivo/tview"
 )
@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		panic("Could not get preferences")
 	}
-	read, err := snippets.ReadSnippets(preferences.DefaultFile)
+	read, err := model.ReadSnippets(preferences.DefaultFile)
 	if err != nil {
 		panic(fmt.Sprintf("failed %v", err))
 	}
@@ -40,7 +40,6 @@ func main() {
 	app := tview.NewApplication()
 
 	editor := ui.NewEditor()
-	textView := tview.NewTextView()
 
 	titleList := tview.NewList().
 		ShowSecondaryText(false).
@@ -67,28 +66,27 @@ func main() {
 	})
 
 	layout := tview.NewGrid().
-		SetRows(3, 0, 3).
-		SetColumns(30, 0).
+		SetRows(0, 3).
+		SetColumns(20, 45, 0, 8).
 		SetBorders(true).
-		AddItem(textView, 0, 0, 1, 3, 0, 0, true).
-		AddItem(copyButton, 2, 0, 1, 3, 0, 0, true).
-		AddItem(categoryList, 1, 0, 1, 1, 0, 100, true).
-		AddItem(titleList, 1, 1, 1, 1, 0, 100, true).
-		AddItem(editor, 1, 2, 1, 1, 0, 100, false)
+		AddItem(copyButton, 1, 3, 1, 1, 0, 0, true).
+		AddItem(categoryList, 0, 0, 1, 1, 0, 100, true).
+		AddItem(titleList, 0, 1, 1, 1, 0, 100, true).
+		AddItem(editor, 0, 2, 1, 2, 0, 100, false)
 
 	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
 }
 
-func loadCategories(t *tview.List, categories snippets.Categories) {
+func loadCategories(t *tview.List, categories model.Categories) {
 	t.Clear()
 	for _, category := range categories {
 		t.AddItem(category.Name, "", 0, nil)
 	}
 }
 
-func loadTitles(t *tview.List, snippets *snippets.Snippets) {
+func loadTitles(t *tview.List, snippets *model.Snippets) {
 	t.Clear()
 	for _, snippet := range *snippets {
 		t.AddItem(snippet.Title, "", 0, nil)
