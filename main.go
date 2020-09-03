@@ -18,10 +18,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/atotto/clipboard"
 	"github.com/nwillc/snipgo/model"
 	"github.com/nwillc/snipgo/ui"
-	"github.com/rivo/tview"
 )
 
 func main() {
@@ -35,60 +33,8 @@ func main() {
 	}
 
 	categories := read.ByCategory()
-	lastSnippets := &categories[0].Snippets
 
-	app := tview.NewApplication()
-
-	editor := ui.NewEditor()
-
-	titleList := tview.NewList().
-		ShowSecondaryText(false).
-		SetSelectedFunc(func(i int, s string, s2 string, r rune) {
-			editor.Text((*lastSnippets)[i].Body)
-		})
-
-	loadTitles(titleList, lastSnippets)
-
-	categoryList := tview.NewList().
-		ShowSecondaryText(false).
-		SetSelectedFunc(func(i int, s string, s2 string, r rune) {
-			lastSnippets = &categories[i].Snippets
-			loadTitles(titleList, lastSnippets)
-		})
-
-	loadCategories(categoryList, categories)
-
-	copyButton := tview.NewButton("Copy").SetSelectedFunc(func() {
-		//if err := clipboard.WriteAll(textView.GetText(false)); err != nil {
-		//	panic(fmt.Sprintf("failed to copy to clipboard %v", err))
-		//}
-		clipboard.WriteAll(editor.String())
-	})
-
-	layout := tview.NewGrid().
-		SetRows(0, 3).
-		SetColumns(20, 45, 0, 8).
-		SetBorders(true).
-		AddItem(copyButton, 1, 3, 1, 1, 0, 0, true).
-		AddItem(categoryList, 0, 0, 1, 1, 0, 100, true).
-		AddItem(titleList, 0, 1, 1, 1, 0, 100, true).
-		AddItem(editor, 0, 2, 1, 2, 0, 100, false)
-
-	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
-		panic(err)
-	}
-}
-
-func loadCategories(t *tview.List, categories model.Categories) {
-	t.Clear()
-	for _, category := range categories {
-		t.AddItem(category.Name, "", 0, nil)
-	}
-}
-
-func loadTitles(t *tview.List, snippets *model.Snippets) {
-	t.Clear()
-	for _, snippet := range *snippets {
-		t.AddItem(snippet.Title, "", 0, nil)
-	}
+	layout := ui.NewLayout()
+	layout.Categories(&categories)
+	layout.Run()
 }
