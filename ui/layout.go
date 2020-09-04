@@ -17,9 +17,11 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/atotto/clipboard"
 	"github.com/nwillc/snipgo/model"
 	"github.com/rivo/tview"
+	"sort"
 )
 
 var (
@@ -60,11 +62,14 @@ func NewLayout() *UI {
 		clipboard.WriteAll(editor.String())
 	})
 
+	testButton := tview.NewButton("TEST")
+
 	grid.
 		AddItem(categoryList, browserRow, 0, 1, 1, 0, 100, true).
 		AddItem(titleList, browserRow, 1, 1, 3, 0, 100, true).
 		AddItem(editor, editorRow, 0, 1, 4, 0, 100, false).
-		AddItem(copyButton, footerRow, 3, 1, 1, 0, 0, true)
+		AddItem(copyButton, footerRow, 3, 1, 1, 0, 0, true).
+		AddItem(testButton, headerRow, 3, 1, 1, 0, 0, true)
 
 	ui := UI{
 		app,
@@ -73,8 +78,8 @@ func NewLayout() *UI {
 		categoryList,
 		titleList,
 		nil,
-		0,
-		0,
+		-1,
+		-1,
 	}
 
 	categoryList.SetChangedFunc(func(i int, s string, s2 string, r rune) {
@@ -85,6 +90,13 @@ func NewLayout() *UI {
 		ui.SetCurrentSnippet(i)
 	})
 
+	testButton.SetSelectedFunc(func() {
+		category := model.Category{"TEST", nil}
+		added := append(*ui.categories, category)
+		sort.Sort(added)
+		ui.Categories(&added)
+	})
+
 	return &ui
 }
 
@@ -93,20 +105,40 @@ func (ui *UI) Categories(categories *model.Categories) {
 	ui.loadCategories()
 }
 
-func (ui *UI) CurrentCategory() *model.Category {
-	return &(*ui.categories)[ui.currentCategory]
+func (ui *UI) CurrentCategory() (*model.Category, error) {
+	if ui.currentCategory < 0 || ui.currentCategory >= len(*ui.categories) {
+		return nil, fmt.Errorf("no category selected")
+	}
+	return &(*ui.categories)[ui.currentCategory], nil
 }
 
 func (ui *UI) SetCurrentCategory(i int) {
-	ui.currentCategory = i
-	ui.loadTitles()
+	if i <= len(*ui.categories) {
+		ui.currentCategory = i
+		ui.loadTitles()
+	}
 }
 
-func (ui *UI) CurrentSnippet() *model.Snippet {
-	return &ui.CurrentCategory().Snippets[ui.currentSnippet]
+func (ui *UI) CurrentSnippet() (*model.Snippet, error) {
+	category, err := ui.CurrentCategory()
+	if err != nil {
+		return nil, err
+	}
+	if ui.currentSnippet < 0 || ui.currentSnippet >= len(category.Snippets) {
+		return nil, fmt.Errorf("no snippet selected")
+	}
+
+	return &category.Snippets[ui.currentSnippet], nil
 }
 
 func (ui *UI) SetCurrentSnippet(i int) {
+	category, err := ui.CurrentCategory()
+	if err != nil || len(category.Snippets) == 0 {
+		ui.currentSnippet = -1
+		ui.editor.Text("")
+		return
+	}
+
 	ui.currentSnippet = i
 	ui.loadSnippet()
 }
@@ -123,14 +155,22 @@ func (ui *UI) loadCategories() {
 
 func (ui *UI) loadTitles() {
 	ui.titleList.Clear()
-	for _, snippet := range ui.CurrentCategory().Snippets {
+	category, err := ui.CurrentCategory()
+	if err != nil {
+		return
+	}
+	for _, snippet := range category.Snippets {
 		ui.titleList.AddItem(snippet.Title, "", 0, nil)
 	}
 	ui.SetCurrentSnippet(0)
 }
 
 func (ui *UI) loadSnippet() {
-	ui.editor.Text(ui.CurrentSnippet().Body)
+	snippet, err := ui.CurrentSnippet()
+	if err != nil {
+		return
+	}
+	ui.editor.Text(snippet.Body)
 }
 
 func (ui *UI) Run() {
