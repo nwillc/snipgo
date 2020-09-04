@@ -24,7 +24,7 @@ import (
 
 var (
 	rowsWeights = []int{3, 0, 0, 3}
-	colWeights  = []int{20, 45, 0, 10}
+	colWeights  = []int{25, 0, 0, 10}
 	headerRow   = 0
 	browserRow  = 1
 	editorRow   = 2
@@ -62,7 +62,7 @@ func NewLayout() *UI {
 
 	grid.
 		AddItem(categoryList, browserRow, 0, 1, 1, 0, 100, true).
-		AddItem(titleList, browserRow, 1, 1, 1, 0, 100, true).
+		AddItem(titleList, browserRow, 1, 1, 3, 0, 100, true).
 		AddItem(editor, editorRow, 0, 1, 4, 0, 100, false).
 		AddItem(copyButton, footerRow, 3, 1, 1, 0, 0, true)
 
