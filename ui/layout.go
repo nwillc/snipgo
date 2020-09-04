@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2020, nwillc@gmail.com
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 package ui
 
 import (
@@ -9,17 +25,19 @@ import (
 var (
 	rowsWeights = []int{3, 0, 3}
 	colWeights  = []int{20, 45, 0, 10}
-	mainRow = 1
-	footerRow = 2
+	mainRow     = 1
+	footerRow   = 2
 )
 
 type UI struct {
 	app *tview.Application
 	*tview.Grid
-	editor       *Editor
-	categoryList *tview.List
-	titleList    *tview.List
-	categories   *model.Categories
+	editor          *Editor
+	categoryList    *tview.List
+	titleList       *tview.List
+	categories      *model.Categories
+	currentCategory int
+	currentSnippet  int
 }
 
 func NewLayout() *UI {
@@ -46,17 +64,26 @@ func NewLayout() *UI {
 		AddItem(editor, mainRow, 2, 1, 2, 0, 100, false).
 		AddItem(copyButton, footerRow, 3, 1, 1, 0, 0, true)
 
-	ui := &UI{app, grid, editor, categoryList, titleList, nil}
+	ui := UI{
+		app,
+		grid,
+		editor,
+		categoryList,
+		titleList,
+		nil,
+		0,
+		0,
+	}
 
-	categoryList.SetSelectedFunc(func(i int, s string, s2 string, r rune) {
-		ui.loadTitles()
+	categoryList.SetChangedFunc(func(i int, s string, s2 string, r rune) {
+		ui.SetCurrentCategory(i)
 	})
 
 	titleList.SetSelectedFunc(func(i int, s string, s2 string, r rune) {
-		ui.loadSnippet()
+		ui.SetCurrentSnippet(i)
 	})
 
-	return ui
+	return &ui
 }
 
 func (ui *UI) Categories(categories *model.Categories) {
@@ -65,13 +92,21 @@ func (ui *UI) Categories(categories *model.Categories) {
 }
 
 func (ui *UI) CurrentCategory() *model.Category {
-	selected := ui.categoryList.GetCurrentItem()
-	return &(*ui.categories)[selected]
+	return &(*ui.categories)[ui.currentCategory]
+}
+
+func (ui *UI) SetCurrentCategory(i int) {
+	ui.currentCategory = i
+	ui.loadTitles()
 }
 
 func (ui *UI) CurrentSnippet() *model.Snippet {
-	selected := ui.titleList.GetCurrentItem()
-	return &ui.CurrentCategory().Snippets[selected]
+	return &ui.CurrentCategory().Snippets[ui.currentSnippet]
+}
+
+func (ui *UI) SetCurrentSnippet(i int) {
+	ui.currentSnippet = i
+	ui.loadSnippet()
 }
 
 func (ui *UI) loadCategories() {
@@ -81,7 +116,7 @@ func (ui *UI) loadCategories() {
 			ui.categoryList.AddItem(category.Name, "", 0, nil)
 		}
 	}
-	ui.loadTitles()
+	ui.SetCurrentCategory(0)
 }
 
 func (ui *UI) loadTitles() {
@@ -89,9 +124,10 @@ func (ui *UI) loadTitles() {
 	for _, snippet := range ui.CurrentCategory().Snippets {
 		ui.titleList.AddItem(snippet.Title, "", 0, nil)
 	}
+	ui.SetCurrentSnippet(0)
 }
 
-func (ui *UI) loadSnippet()  {
+func (ui *UI) loadSnippet() {
 	ui.editor.Text(ui.CurrentSnippet().Body)
 }
 
