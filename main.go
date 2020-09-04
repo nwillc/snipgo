@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-	preferences, err := GetPreferences()
+	preferences, err := UserPreferences()
 	if err != nil {
 		panic("Could not get preferences")
 	}

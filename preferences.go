@@ -44,7 +44,7 @@ func readPreferences(filename string) (*Preferences, error) {
 	return &preferences, nil
 }
 
-func GetPreferences() (*Preferences, error) {
+func UserPreferences() (*Preferences, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		panic("Could not get home directory")
