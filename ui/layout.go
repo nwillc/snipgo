@@ -23,10 +23,12 @@ import (
 )
 
 var (
-	rowsWeights = []int{3, 0, 3}
+	rowsWeights = []int{3, 0, 0, 3}
 	colWeights  = []int{20, 45, 0, 10}
-	mainRow     = 1
-	footerRow   = 2
+	headerRow   = 0
+	browserRow  = 1
+	editorRow   = 2
+	footerRow   = 3
 )
 
 type UI struct {
@@ -59,9 +61,9 @@ func NewLayout() *UI {
 	})
 
 	grid.
-		AddItem(categoryList, mainRow, 0, 1, 1, 0, 100, true).
-		AddItem(titleList, mainRow, 1, 1, 1, 0, 100, true).
-		AddItem(editor, mainRow, 2, 1, 2, 0, 100, false).
+		AddItem(categoryList, browserRow, 0, 1, 1, 0, 100, true).
+		AddItem(titleList, browserRow, 1, 1, 1, 0, 100, true).
+		AddItem(editor, editorRow, 0, 1, 4, 0, 100, false).
 		AddItem(copyButton, footerRow, 3, 1, 1, 0, 0, true)
 
 	ui := UI{
