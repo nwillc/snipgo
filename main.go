@@ -34,7 +34,7 @@ func main() {
 
 	categories := snippets.ByCategory()
 
-	layout := ui.NewLayout()
-	layout.Categories(&categories)
-	layout.Run()
+	ui := ui.NewUI()
+	ui.SetCategories(&categories)
+	ui.Run()
 }

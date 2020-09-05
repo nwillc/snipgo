@@ -27,7 +27,10 @@ type UI struct {
 	bp  *slides.BrowserPage
 }
 
-func NewLayout() *UI {
+// Implements SetCategories
+var _ model.SetCategories = (*UI)(nil)
+
+func NewUI() *UI {
 	app := tview.NewApplication()
 	slide := slides.NewBrowserPage()
 
@@ -39,7 +42,7 @@ func NewLayout() *UI {
 	return &ui
 }
 
-func (ui *UI) Categories(categories *model.Categories) {
+func (ui *UI) SetCategories(categories *model.Categories) {
 	ui.bp.SetCategories(categories)
 }
 

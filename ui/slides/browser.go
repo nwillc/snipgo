@@ -42,6 +42,9 @@ type BrowserPage struct {
 	currentSnippet  int
 }
 
+// Implements SetCategories
+var _ model.SetCategories = (*BrowserPage)(nil)
+
 func NewBrowserPage() *BrowserPage {
 	editor := editor.NewEditor()
 	grid := tview.NewGrid().

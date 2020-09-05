@@ -28,6 +28,10 @@ type Category struct {
 
 type Categories []Category
 
+type SetCategories interface {
+	SetCategories(categories *Categories)
+}
+
 // Categories implements sort.Interface
 var _ sort.Interface = (*Categories)(nil)
 
