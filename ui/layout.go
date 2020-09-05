@@ -27,7 +27,7 @@ import (
 type UI struct {
 	app *tview.Application
 	tview.Primitive
-	bp *pages.BrowserPage
+	slides []pages.Slide
 }
 
 // Implements SetCategories
@@ -36,16 +36,8 @@ var _ model.SetCategories = (*UI)(nil)
 func NewUI() *UI {
 	app := tview.NewApplication()
 
+	slides := []pages.Slide{pages.NewBrowserPage(), pages.NewAboutPage()}
 	pageView := tview.NewPages()
-
-	_, browserPage := pages.NewBrowserPage()
-	aboutPage := pages.NewAboutPage()
-
-	pageNames := []string{"Browser", "About"}
-
-	pageView.
-		AddPage("Browser", browserPage, true, true).
-		AddPage("About", aboutPage, true, false)
 
 	menu := tview.NewTextView().
 		SetDynamicColors(true).
@@ -53,11 +45,14 @@ func NewUI() *UI {
 		SetWrap(false).
 		SetHighlightedFunc(func(added, removed, remaining []string) {
 			pageNo, _ := strconv.Atoi(added[0])
-			pageView.SwitchToPage(pageNames[pageNo])
+			pageView.SwitchToPage(slides[pageNo].GetName())
 		})
 
-	fmt.Fprintf(menu, `["%d"][darkcyan]%s[white][""]  `, 0, "Browser")
-	fmt.Fprintf(menu, `["%d"][darkcyan]%s[white][""]  `, 1, "About")
+	for i, slide := range slides {
+		pageView.AddPage(slide.GetName(), slide, true, i == 0)
+		fmt.Fprintf(menu, `["%d"][darkcyan]%s[white][""]  `, i, slide.GetName())
+	}
+
 	menu.Highlight("0")
 
 	layout := tview.NewFlex().
@@ -68,14 +63,16 @@ func NewUI() *UI {
 	ui := UI{
 		app,
 		layout,
-		browserPage,
+		slides,
 	}
 
 	return &ui
 }
 
 func (ui *UI) SetCategories(categories *model.Categories) {
-	ui.bp.SetCategories(categories)
+	for _, slide := range ui.slides {
+		slide.SetCategories(categories)
+	}
 }
 
 func (ui *UI) Run() {

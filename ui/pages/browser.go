@@ -42,10 +42,10 @@ type BrowserPage struct {
 	currentSnippet  int
 }
 
-// Implements SetCategories
-var _ model.SetCategories = (*BrowserPage)(nil)
+// Implements Slide
+var _ Slide = (*BrowserPage)(nil)
 
-func NewBrowserPage() (name string, content *BrowserPage) {
+func NewBrowserPage() *BrowserPage {
 	editor := widgets.NewEditor()
 	grid := tview.NewGrid().
 		SetRows(rowsWeights...).
@@ -86,7 +86,11 @@ func NewBrowserPage() (name string, content *BrowserPage) {
 		page.setCurrentSnippet(i)
 	})
 
-	return "Browser", &page
+	return &page
+}
+
+func (browserPage *BrowserPage) GetName() string {
+	return "Browser"
 }
 
 func (browserPage *BrowserPage) SetCategories(categories *model.Categories) {

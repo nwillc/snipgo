@@ -18,30 +18,11 @@ package pages
 
 import (
 	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/ui/widgets"
 	"github.com/rivo/tview"
 )
 
-type AboutPage struct {
+type Slide interface {
 	tview.Primitive
-}
-
-// Implements Slide
-var _ Slide = (*AboutPage)(nil)
-
-func NewAboutPage() *AboutPage {
-	textView := tview.NewTextView()
-	textView.SetText("Hello World")
-	c := widgets.Center(11, 1, textView)
-
-	page := AboutPage{c}
-	return &page
-}
-
-func (a AboutPage) GetName() string {
-	return "About"
-}
-
-func (a AboutPage) SetCategories(categories *model.Categories) {
-	// NoOp
+	model.SetCategories
+	GetName() string
 }
