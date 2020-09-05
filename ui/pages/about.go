@@ -14,36 +14,30 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package editor
+package pages
 
 import (
-	"fmt"
-	"github.com/pgavlin/femto"
-	"strings"
+	"github.com/nwillc/snipgo/model"
+	"github.com/nwillc/snipgo/ui/widgets"
+	"github.com/rivo/tview"
 )
 
-type Editor struct {
-	buffer *femto.Buffer
-	*femto.View
+type AboutPage struct {
+	tview.Primitive
 }
 
-// Implements fmt.Stringer
-var _ fmt.Stringer = (*Editor)(nil)
+// Implements model.SetCategories
+var _ model.SetCategories = (*AboutPage)(nil)
 
-func NewEditor() *Editor {
-	buffer := femto.NewBufferFromString("", "")
-	buffer.Settings["ruler"] = false
-	view := femto.NewView(buffer)
-	return &Editor{buffer, view}
+func NewAboutPage() *AboutPage {
+	textView := tview.NewTextView()
+	textView.SetText("Hello World")
+	c := widgets.Center(11, 1, textView)
+
+	page := AboutPage{c}
+	return &page
 }
 
-func (editor *Editor) Text(text string) {
-	editor.buffer.Remove(editor.buffer.Start(), editor.buffer.End())
-	editor.buffer.Insert(editor.buffer.Start(), text)
-}
-
-// Implement fmt.Stringer
-func (editor *Editor) String() string {
-	lines := editor.buffer.Lines(0, editor.buffer.NumLines)
-	return strings.Join(lines, "\n") + "\n"
+func (a AboutPage) SetCategories(categories *model.Categories) {
+	// NoOp
 }

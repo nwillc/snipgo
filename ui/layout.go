@@ -18,13 +18,14 @@ package ui
 
 import (
 	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/ui/slides"
+	"github.com/nwillc/snipgo/ui/pages"
 	"github.com/rivo/tview"
 )
 
 type UI struct {
 	app *tview.Application
-	bp  *slides.BrowserPage
+	tview.Primitive
+	bp *pages.BrowserPage
 }
 
 // Implements SetCategories
@@ -32,11 +33,28 @@ var _ model.SetCategories = (*UI)(nil)
 
 func NewUI() *UI {
 	app := tview.NewApplication()
-	slide := slides.NewBrowserPage()
+
+	pageView := tview.NewPages()
+
+	_, browserPage := pages.NewBrowserPage()
+	aboutPage := pages.NewAboutPage()
+
+	pageView.
+		AddPage("Browser", browserPage, true, true).
+		AddPage("About", aboutPage, true, false)
+
+	info := tview.NewTextView().
+		SetText("menu")
+
+	layout := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(info, 1, 1, false).
+		AddItem(pageView, 0, 1, true)
 
 	ui := UI{
 		app,
-		slide,
+		layout,
+		browserPage,
 	}
 
 	return &ui
@@ -47,7 +65,7 @@ func (ui *UI) SetCategories(categories *model.Categories) {
 }
 
 func (ui *UI) Run() {
-	if err := ui.app.SetRoot(ui.bp, true).EnableMouse(true).Run(); err != nil {
+	if err := ui.app.SetRoot(ui, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
 }
