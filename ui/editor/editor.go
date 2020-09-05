@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package ui
+package editor
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func NewEditor() *Editor {
 	return &Editor{buffer, view}
 }
 
-func (editor *Editor) Text(text string)  {
+func (editor *Editor) Text(text string) {
 	editor.buffer.Remove(editor.buffer.Start(), editor.buffer.End())
 	editor.buffer.Insert(editor.buffer.Start(), text)
 }

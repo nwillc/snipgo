@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"github.com/atotto/clipboard"
 	"github.com/nwillc/snipgo/model"
+	"github.com/nwillc/snipgo/ui/editor"
+	"github.com/nwillc/snipgo/ui/slides"
 	"github.com/rivo/tview"
 	"sort"
 )
@@ -36,17 +38,18 @@ var (
 type UI struct {
 	app *tview.Application
 	*tview.Grid
-	editor          *Editor
+	editor          *editor.Editor
 	categoryList    *tview.List
 	titleList       *tview.List
 	categories      *model.Categories
 	currentCategory int
 	currentSnippet  int
+	bp              *slides.BrowserPage
 }
 
 func NewLayout() *UI {
 	app := tview.NewApplication()
-	editor := NewEditor()
+	editor := editor.NewEditor()
 	grid := tview.NewGrid().
 		SetRows(rowsWeights...).
 		SetColumns(colWeights...).
@@ -71,6 +74,9 @@ func NewLayout() *UI {
 		AddItem(copyButton, footerRow, 3, 1, 1, 0, 0, true).
 		AddItem(testButton, headerRow, 3, 1, 1, 0, 0, true)
 
+	slide := slides.NewBrowserPage()
+	fmt.Print(slide)
+
 	ui := UI{
 		app,
 		grid,
@@ -80,6 +86,7 @@ func NewLayout() *UI {
 		nil,
 		-1,
 		-1,
+		slide,
 	}
 
 	categoryList.SetChangedFunc(func(i int, s string, s2 string, r rune) {
@@ -101,8 +108,9 @@ func NewLayout() *UI {
 }
 
 func (ui *UI) Categories(categories *model.Categories) {
-	ui.categories = categories
-	ui.loadCategories()
+	//ui.categories = categories
+	//ui.loadCategories()
+	ui.bp.SetCategories(categories)
 }
 
 func (ui *UI) CurrentCategory() (*model.Category, error) {
@@ -174,7 +182,7 @@ func (ui *UI) loadSnippet() {
 }
 
 func (ui *UI) Run() {
-	if err := ui.app.SetRoot(ui, true).EnableMouse(true).Run(); err != nil {
+	if err := ui.app.SetRoot(ui.bp, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
 }
