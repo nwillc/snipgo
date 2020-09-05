@@ -17,9 +17,11 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/nwillc/snipgo/model"
 	"github.com/nwillc/snipgo/ui/pages"
 	"github.com/rivo/tview"
+	"strconv"
 )
 
 type UI struct {
@@ -39,16 +41,28 @@ func NewUI() *UI {
 	_, browserPage := pages.NewBrowserPage()
 	aboutPage := pages.NewAboutPage()
 
+	pageNames := []string{"Browser", "About"}
+
 	pageView.
 		AddPage("Browser", browserPage, true, true).
 		AddPage("About", aboutPage, true, false)
 
-	info := tview.NewTextView().
-		SetText("menu")
+	menu := tview.NewTextView().
+		SetDynamicColors(true).
+		SetRegions(true).
+		SetWrap(false).
+		SetHighlightedFunc(func(added, removed, remaining []string) {
+			pageNo, _ := strconv.Atoi(added[0])
+			pageView.SwitchToPage(pageNames[pageNo])
+		})
+
+	fmt.Fprintf(menu, `["%d"][darkcyan]%s[white][""]  `, 0, "Browser")
+	fmt.Fprintf(menu, `["%d"][darkcyan]%s[white][""]  `, 1, "About")
+	menu.Highlight("0")
 
 	layout := tview.NewFlex().
 		SetDirection(tview.FlexRow).
-		AddItem(info, 1, 1, false).
+		AddItem(menu, 1, 1, false).
 		AddItem(pageView, 0, 1, true)
 
 	ui := UI{
