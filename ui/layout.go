@@ -17,168 +17,30 @@
 package ui
 
 import (
-	"fmt"
-	"github.com/atotto/clipboard"
 	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/ui/editor"
 	"github.com/nwillc/snipgo/ui/slides"
 	"github.com/rivo/tview"
-	"sort"
-)
-
-var (
-	rowsWeights = []int{3, 0, 0, 3}
-	colWeights  = []int{25, 0, 0, 10}
-	headerRow   = 0
-	browserRow  = 1
-	editorRow   = 2
-	footerRow   = 3
 )
 
 type UI struct {
 	app *tview.Application
-	*tview.Grid
-	editor          *editor.Editor
-	categoryList    *tview.List
-	titleList       *tview.List
-	categories      *model.Categories
-	currentCategory int
-	currentSnippet  int
-	bp              *slides.BrowserPage
+	bp  *slides.BrowserPage
 }
 
 func NewLayout() *UI {
 	app := tview.NewApplication()
-	editor := editor.NewEditor()
-	grid := tview.NewGrid().
-		SetRows(rowsWeights...).
-		SetColumns(colWeights...).
-		SetBorders(true)
-
-	categoryList := tview.NewList().
-		ShowSecondaryText(false)
-
-	titleList := tview.NewList().
-		ShowSecondaryText(false)
-
-	copyButton := tview.NewButton("Copy").SetSelectedFunc(func() {
-		clipboard.WriteAll(editor.String())
-	})
-
-	testButton := tview.NewButton("TEST")
-
-	grid.
-		AddItem(categoryList, browserRow, 0, 1, 1, 0, 100, true).
-		AddItem(titleList, browserRow, 1, 1, 3, 0, 100, true).
-		AddItem(editor, editorRow, 0, 1, 4, 0, 100, false).
-		AddItem(copyButton, footerRow, 3, 1, 1, 0, 0, true).
-		AddItem(testButton, headerRow, 3, 1, 1, 0, 0, true)
-
 	slide := slides.NewBrowserPage()
-	fmt.Print(slide)
 
 	ui := UI{
 		app,
-		grid,
-		editor,
-		categoryList,
-		titleList,
-		nil,
-		-1,
-		-1,
 		slide,
 	}
-
-	categoryList.SetChangedFunc(func(i int, s string, s2 string, r rune) {
-		ui.SetCurrentCategory(i)
-	})
-
-	titleList.SetSelectedFunc(func(i int, s string, s2 string, r rune) {
-		ui.SetCurrentSnippet(i)
-	})
-
-	testButton.SetSelectedFunc(func() {
-		category := model.Category{"TEST", nil}
-		added := append(*ui.categories, category)
-		sort.Sort(added)
-		ui.Categories(&added)
-	})
 
 	return &ui
 }
 
 func (ui *UI) Categories(categories *model.Categories) {
-	//ui.categories = categories
-	//ui.loadCategories()
 	ui.bp.SetCategories(categories)
-}
-
-func (ui *UI) CurrentCategory() (*model.Category, error) {
-	if ui.currentCategory < 0 || ui.currentCategory >= len(*ui.categories) {
-		return nil, fmt.Errorf("no category selected")
-	}
-	return &(*ui.categories)[ui.currentCategory], nil
-}
-
-func (ui *UI) SetCurrentCategory(i int) {
-	if i <= len(*ui.categories) {
-		ui.currentCategory = i
-		ui.loadTitles()
-	}
-}
-
-func (ui *UI) CurrentSnippet() (*model.Snippet, error) {
-	category, err := ui.CurrentCategory()
-	if err != nil {
-		return nil, err
-	}
-	if ui.currentSnippet < 0 || ui.currentSnippet >= len(category.Snippets) {
-		return nil, fmt.Errorf("no snippet selected")
-	}
-
-	return &category.Snippets[ui.currentSnippet], nil
-}
-
-func (ui *UI) SetCurrentSnippet(i int) {
-	category, err := ui.CurrentCategory()
-	if err != nil || len(category.Snippets) == 0 {
-		ui.currentSnippet = -1
-		ui.editor.Text("")
-		return
-	}
-
-	ui.currentSnippet = i
-	ui.loadSnippet()
-}
-
-func (ui *UI) loadCategories() {
-	ui.categoryList.Clear()
-	if ui.categories != nil {
-		for _, category := range *ui.categories {
-			ui.categoryList.AddItem(category.Name, "", 0, nil)
-		}
-	}
-	ui.SetCurrentCategory(0)
-}
-
-func (ui *UI) loadTitles() {
-	ui.titleList.Clear()
-	category, err := ui.CurrentCategory()
-	if err != nil {
-		return
-	}
-	for _, snippet := range category.Snippets {
-		ui.titleList.AddItem(snippet.Title, "", 0, nil)
-	}
-	ui.SetCurrentSnippet(0)
-}
-
-func (ui *UI) loadSnippet() {
-	snippet, err := ui.CurrentSnippet()
-	if err != nil {
-		return
-	}
-	ui.editor.Text(snippet.Body)
 }
 
 func (ui *UI) Run() {
