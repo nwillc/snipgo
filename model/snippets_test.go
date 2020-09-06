@@ -24,7 +24,7 @@ import (
 	"testing"
 )
 
-const testSnippetsFile = "../test/files/Snippets.json"
+const testSnippetsFile = "../test/files/snippets.json"
 
 type SnippetsTestSuite struct {
 	suite.Suite
