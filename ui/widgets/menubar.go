@@ -42,10 +42,11 @@ func NewMenuBar() *MenuBar {
 	return &mb
 }
 
-func (mb *MenuBar) AddItem(name string, action func(int)) {
+func (mb *MenuBar) AddItem(name string, action func(int)) *MenuBar {
 	fmt.Fprintf(mb, `|["%d"][darkcyan]%s[white][""]|  `, mb.itemCount, name)
 	mb.actions = append(mb.actions, action)
 	mb.itemCount += 1
+	return mb
 }
 
 func (mb *MenuBar) action(i int) {

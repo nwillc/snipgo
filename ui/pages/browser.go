@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	rowsWeights = []int{0, 0, 3}
+	rowsWeights = []int{0, 0, 1}
 	colWeights  = []int{25, 0, 0, 10}
 	browserRow  = 0
 	editorRow   = 1
@@ -58,7 +58,8 @@ func NewBrowserPage() *BrowserPage {
 	titleList := tview.NewList().
 		ShowSecondaryText(false)
 
-	copyButton := tview.NewButton("Copy").SetSelectedFunc(func() {
+	menu := widgets.NewMenuBar()
+	menu.AddItem("Copy", func(i int) {
 		clipboard.WriteAll(editor.String())
 	})
 
@@ -76,7 +77,7 @@ func NewBrowserPage() *BrowserPage {
 		AddItem(categoryList, browserRow, 0, 1, 1, 0, 100, true).
 		AddItem(titleList, browserRow, 1, 1, 3, 0, 100, true).
 		AddItem(editor, editorRow, 0, 1, 4, 0, 100, false).
-		AddItem(copyButton, footerRow, 3, 1, 1, 0, 0, true)
+		AddItem(menu, footerRow, 3, 1, 1, 0, 0, true)
 
 	categoryList.SetChangedFunc(func(i int, s string, s2 string, r rune) {
 		page.setCurrentCategory(i)
