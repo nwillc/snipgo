@@ -17,11 +17,10 @@
 package ui
 
 import (
-	"fmt"
 	"github.com/nwillc/snipgo/model"
 	"github.com/nwillc/snipgo/ui/pages"
+	"github.com/nwillc/snipgo/ui/widgets"
 	"github.com/rivo/tview"
-	"strconv"
 )
 
 type UI struct {
@@ -43,18 +42,13 @@ func NewUI() *UI {
 	}
 	pageView := tview.NewPages()
 
-	menu := tview.NewTextView().
-		SetDynamicColors(true).
-		SetRegions(true).
-		SetWrap(false).
-		SetHighlightedFunc(func(added, removed, remaining []string) {
-			pageNo, _ := strconv.Atoi(added[0])
-			pageView.SwitchToPage(slides[pageNo].GetName())
-		})
+	menu := widgets.NewMenuBar()
 
 	for i, slide := range slides {
 		pageView.AddPage(slide.GetName(), slide, true, i == 0)
-		fmt.Fprintf(menu, `|["%d"][darkcyan]%s[white][""]|  `, i, slide.GetName())
+		menu.AddItem(slide.GetName(), func(i int) {
+			pageView.SwitchToPage(slides[i].GetName())
+		})
 	}
 
 	menu.Highlight("0")
