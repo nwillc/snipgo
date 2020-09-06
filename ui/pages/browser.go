@@ -26,7 +26,7 @@ import (
 
 var (
 	rowsWeights = []int{0, 0, 1}
-	colWeights  = []int{25, 0, 0, 10}
+	colWeights  = []int{25, 0}
 	browserRow  = 0
 	editorRow   = 1
 	footerRow   = 2
@@ -61,6 +61,9 @@ func NewBrowserPage() *BrowserPage {
 	menu := widgets.NewMenuBar().
 		AddItem("Copy", func(i int) {
 			clipboard.WriteAll(editor.String())
+		}).
+		AddItem("Save", func(i int) {
+
 		})
 
 	page := BrowserPage{
@@ -75,9 +78,9 @@ func NewBrowserPage() *BrowserPage {
 
 	grid.
 		AddItem(categoryList, browserRow, 0, 1, 1, 0, 100, true).
-		AddItem(titleList, browserRow, 1, 1, 3, 0, 100, true).
-		AddItem(editor, editorRow, 0, 1, 4, 0, 100, false).
-		AddItem(menu, footerRow, 3, 1, 1, 0, 0, true)
+		AddItem(titleList, browserRow, 1, 1, 1, 0, 100, true).
+		AddItem(editor, editorRow, 0, 1, 2, 0, 100, false).
+		AddItem(menu, footerRow, 0, 1, 2, 0, 0, true)
 
 	categoryList.SetChangedFunc(func(i int, s string, s2 string, r rune) {
 		page.setCurrentCategory(i)

@@ -38,6 +38,7 @@ func NewUI() *UI {
 	slides := []pages.Slide{
 		pages.NewBrowserPage(),
 		pages.NewSnippetPage(),
+		pages.NewPreferencesPage(),
 		pages.NewAboutPage(),
 	}
 	pageView := tview.NewPages()
@@ -71,6 +72,9 @@ func NewUI() *UI {
 		})
 	}
 
+	menu.AddItem("Quit", func(i int) {
+		app.Stop()
+	})
 	return &ui
 }
 
