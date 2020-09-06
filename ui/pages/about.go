@@ -17,6 +17,7 @@
 package pages
 
 import (
+	"fmt"
 	"github.com/nwillc/snipgo/model"
 	"github.com/nwillc/snipgo/ui/widgets"
 	"github.com/rivo/tview"
@@ -31,17 +32,21 @@ var _ Slide = (*AboutPage)(nil)
 
 func NewAboutPage() *AboutPage {
 	textView := tview.NewTextView()
-	textView.SetText("Hello World")
-	c := widgets.Center(11, 1, textView)
-
-	page := AboutPage{c}
+	fmt.Fprintln(textView, "Snippets Manager")
+	fmt.Fprintln(textView, "See https://github.com/nwillc/snipgo")
+	fmt.Fprintln(textView, "Version 1.0")
+	page := AboutPage{widgets.Center(40, 3, textView)}
 	return &page
 }
 
-func (a AboutPage) GetName() string {
+func (a *AboutPage) GetName() string {
 	return "About"
 }
 
-func (a AboutPage) SetCategories(categories *model.Categories) {
+func (a *AboutPage) SetCategories(categories *model.Categories) {
+	// NoOp
+}
+
+func (a *AboutPage) SetCategoryReceiver(receiver CategoryReceiver) {
 	// NoOp
 }

@@ -28,6 +28,7 @@ type UI struct {
 	app *tview.Application
 	tview.Primitive
 	slides []pages.Slide
+	pv     *tview.Pages
 }
 
 // Implements SetCategories
@@ -35,8 +36,11 @@ var _ model.SetCategories = (*UI)(nil)
 
 func NewUI() *UI {
 	app := tview.NewApplication()
-
-	slides := []pages.Slide{pages.NewBrowserPage(), pages.NewAboutPage()}
+	slides := []pages.Slide{
+		pages.NewBrowserPage(),
+		pages.NewSnippetPage(),
+		pages.NewAboutPage(),
+	}
 	pageView := tview.NewPages()
 
 	menu := tview.NewTextView().
@@ -50,7 +54,7 @@ func NewUI() *UI {
 
 	for i, slide := range slides {
 		pageView.AddPage(slide.GetName(), slide, true, i == 0)
-		fmt.Fprintf(menu, `["%d"][darkcyan]%s[white][""]  `, i, slide.GetName())
+		fmt.Fprintf(menu, `|["%d"][darkcyan]%s[white][""]|  `, i, slide.GetName())
 	}
 
 	menu.Highlight("0")
@@ -64,6 +68,13 @@ func NewUI() *UI {
 		app,
 		layout,
 		slides,
+		pageView,
+	}
+
+	for _, slide := range slides {
+		slide.SetCategoryReceiver(func(categories *model.Categories) {
+			ui.SetCategories(categories)
+		})
 	}
 
 	return &ui
@@ -73,6 +84,7 @@ func (ui *UI) SetCategories(categories *model.Categories) {
 	for _, slide := range ui.slides {
 		slide.SetCategories(categories)
 	}
+	ui.pv.SwitchToPage("Browser")
 }
 
 func (ui *UI) Run() {

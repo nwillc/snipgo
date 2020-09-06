@@ -21,8 +21,11 @@ import (
 	"github.com/rivo/tview"
 )
 
+type CategoryReceiver func(categories *model.Categories)
+
 type Slide interface {
 	tview.Primitive
 	model.SetCategories
 	GetName() string
+	SetCategoryReceiver(receiver CategoryReceiver)
 }

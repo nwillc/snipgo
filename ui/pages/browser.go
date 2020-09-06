@@ -165,3 +165,7 @@ func (browserPage *BrowserPage) getCurrentSnippet() (*model.Snippet, error) {
 
 	return &category.Snippets[browserPage.currentSnippet], nil
 }
+
+func (browserPage *BrowserPage) SetCategoryReceiver(receiver CategoryReceiver) {
+	// NoOp
+}
