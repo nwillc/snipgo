@@ -56,6 +56,18 @@ func ReadSnippets(filename string) (Snippets, error) {
 	return snippets, nil
 }
 
+func (s *Snippets) WriteSnippets(filename string) error {
+	jsonString, err := json.Marshal(s)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(filename, jsonString, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Implement fmt.Stringer
 func (s Snippet) String() string { return fmt.Sprintf("%s: %s", s.Category, s.Title) }
 

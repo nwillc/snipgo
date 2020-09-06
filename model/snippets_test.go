@@ -19,6 +19,8 @@ package model
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"io/ioutil"
+	"os"
 	"testing"
 )
 
@@ -54,6 +56,24 @@ func (suite *SnippetsTestSuite) TestNonExist() {
 func (suite *SnippetsTestSuite) TestExist() {
 	_, ok := ReadSnippets(suite.goodFilename)
 	assert.Nil(suite.T(), ok)
+}
+
+func (suite *SnippetsTestSuite) TestWriteFile() {
+	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+
+	original, ok := ReadSnippets(suite.goodFilename)
+	assert.Nil(suite.T(), ok)
+	err = original.WriteSnippets(tempFile.Name())
+	assert.Nil(suite.T(), err)
+	read, ok := ReadSnippets(tempFile.Name())
+	assert.Nil(suite.T(), ok)
+	assert.Equal(suite.T(), len(original), len(read))
+}
+
+func WriteSnippets() {
+
 }
 
 func (suite *SnippetsTestSuite) TestLen() {
