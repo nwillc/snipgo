@@ -1,4 +1,4 @@
-name: Lint
+name: Lint and Test
 
 on:
   push:
@@ -19,10 +19,13 @@ jobs:
         go version
         go get -u golang.org/x/lint/golint
 
-    - name: Run build
+    - name: Run Build
       run: go build .
 
-    - name: Run vet & lint
+    - name: Run Test
+      run: go test -v ./...
+
+    - name: Run Vet & Lint
       run: |
         go vet .
         golint -set_exit_status=1 .
