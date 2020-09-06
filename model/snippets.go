@@ -40,6 +40,13 @@ type Snippets []Snippet
 var _ sort.Interface = (*Snippets)(nil)
 
 func ReadSnippets(filename string) (Snippets, error) {
+	if filename == "" {
+		preferences, err := ReadPreferences("")
+		if err != nil {
+			return nil, err
+		}
+		filename = preferences.DefaultFile
+	}
 	snippetFile, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -57,6 +64,13 @@ func ReadSnippets(filename string) (Snippets, error) {
 }
 
 func (s *Snippets) WriteSnippets(filename string) error {
+	if filename == "" {
+		preferences, err := ReadPreferences("")
+		if err != nil {
+			return err
+		}
+		filename = preferences.DefaultFile
+	}
 	jsonString, err := json.Marshal(s)
 	if err != nil {
 		return err

@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package model
 
 import (
 	"encoding/json"
@@ -29,7 +29,14 @@ type Preferences struct {
 	DefaultFile string `json:"defaultFile"`
 }
 
-func readPreferences(filename string) (*Preferences, error) {
+func ReadPreferences(filename string) (*Preferences, error) {
+	if filename == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			panic("Could not get home directory")
+		}
+		filename = fmt.Sprintf("%s/%s", home, preferencesFile)
+	}
 	jsonFile, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -42,17 +49,4 @@ func readPreferences(filename string) (*Preferences, error) {
 		return nil, err
 	}
 	return &preferences, nil
-}
-
-func UserPreferences() (*Preferences, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		panic("Could not get home directory")
-	}
-	prefFileName := fmt.Sprintf("%s/%s", home, preferencesFile)
-	preferences, err := readPreferences(prefFileName)
-	if err != nil {
-		panic(fmt.Sprintf("Could not read preferences: %s", prefFileName))
-	}
-	return preferences, nil
 }

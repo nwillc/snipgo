@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-	preferences, err := UserPreferences()
+	preferences, err := model.ReadPreferences("")
 	if err != nil {
 		panic("Could not get preferences")
 	}

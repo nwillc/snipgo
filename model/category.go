@@ -35,6 +35,14 @@ type SetCategories interface {
 // Categories implements sort.Interface
 var _ sort.Interface = (*Categories)(nil)
 
+func (c Categories) ToSnippets() *Snippets {
+	var snippets Snippets
+	for _, category := range c {
+		snippets = append(snippets, category.Snippets...)
+	}
+	return &snippets
+}
+
 func (c Categories) Len() int {
 	return len(c)
 }

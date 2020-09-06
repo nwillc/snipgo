@@ -58,13 +58,7 @@ func NewBrowserPage() *BrowserPage {
 	titleList := tview.NewList().
 		ShowSecondaryText(false)
 
-	menu := widgets.NewMenuBar().
-		AddItem("Copy", func(i int) {
-			clipboard.WriteAll(editor.String())
-		}).
-		AddItem("Save", func(i int) {
-
-		})
+	menu := widgets.NewMenuBar()
 
 	page := BrowserPage{
 		grid,
@@ -75,6 +69,14 @@ func NewBrowserPage() *BrowserPage {
 		-1,
 		-1,
 	}
+
+	menu.
+		AddItem("Copy", func(i int) {
+			clipboard.WriteAll(editor.String())
+		}).
+		AddItem("Save", func(i int) {
+			page.write()
+		})
 
 	grid.
 		AddItem(categoryList, browserRow, 0, 1, 1, 0, 100, true).
@@ -102,6 +104,9 @@ func (browserPage *BrowserPage) SetCategories(categories *model.Categories) {
 	browserPage.loadCategories()
 }
 
+func (browserPage *BrowserPage) write() {
+	browserPage.categories.ToSnippets().WriteSnippets("")
+}
 func (browserPage *BrowserPage) loadCategories() {
 	browserPage.categoryList.Clear()
 	if browserPage.categories != nil {
