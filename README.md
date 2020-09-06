@@ -1,3 +1,4 @@
+[![Coverage](https://codecov.io/gh/nwillc/snipgo/branch/master/graphs/badge.svg?branch=master)](https://codecov.io/gh/nwillc/snipgo)
 [![license](https://img.shields.io/github/license/nwillc/ksvg.svg)](https://tldrlegal.com/license/-isc-license)
 [![Lint and Test](https://github.com/nwillc/snipgo/workflows/Lint%20and%20Test/badge.svg)](https://github.com/nwillc/snipgo/actions?query=workflow%3ALint%20and%20Test)
 ------
