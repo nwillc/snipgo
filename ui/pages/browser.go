@@ -58,10 +58,10 @@ func NewBrowserPage() *BrowserPage {
 	titleList := tview.NewList().
 		ShowSecondaryText(false)
 
-	menu := widgets.NewMenuBar()
-	menu.AddItem("Copy", func(i int) {
-		clipboard.WriteAll(editor.String())
-	})
+	menu := widgets.NewMenuBar().
+		AddItem("Copy", func(i int) {
+			clipboard.WriteAll(editor.String())
+		})
 
 	page := BrowserPage{
 		grid,

@@ -20,25 +20,44 @@ import (
 	"github.com/nwillc/snipgo/model"
 	"github.com/nwillc/snipgo/ui/widgets"
 	"github.com/rivo/tview"
+	"sort"
 )
 
 type SnippetPage struct {
 	tview.Primitive
 	categories       *model.Categories
 	categoryReceiver CategoryReceiver
+	category         string
+	title            string
+	body             string
 }
 
 // Implements Slide
 var _ Slide = (*SnippetPage)(nil)
 
 func NewSnippetPage() *SnippetPage {
-	form := tview.NewForm().
-		AddInputField("Category", "", 20, nil, nil).
-		AddInputField("Title", "", 40, nil, nil).
-		AddInputField("Body", "", 40, nil, nil)
-
+	form := tview.NewForm()
 	form.SetBorder(true).SetTitle("New Snippet").SetTitleAlign(tview.AlignCenter)
-	page := SnippetPage{widgets.Center(50, 11, form), nil, nil}
+	page := SnippetPage{
+		widgets.Center(50, 11, form),
+		nil,
+		nil,
+		"",
+		"",
+		"",
+	}
+
+	form.
+		AddInputField("Category", "", 20, nil, func(text string) {
+			page.setCategory(text)
+		}).
+		AddInputField("Title", "", 40, nil, func(text string) {
+			page.setTitle(text)
+		}).
+		AddInputField("Body", "", 40, nil, func(text string) {
+			page.setBody(text)
+		})
+
 	form.AddButton("Save", func() {
 		page.broadcast()
 	})
@@ -58,8 +77,21 @@ func (s *SnippetPage) SetCategoryReceiver(receiver CategoryReceiver) {
 }
 
 func (s *SnippetPage) broadcast() {
-	snippet := model.Snippets{{"Foo", "Bar", "Baz"}}
-	category := model.Category{Name: "Foo", Snippets: snippet}
+	snippet := model.Snippets{{s.category, s.title, s.body}}
+	category := model.Category{Name: s.category, Snippets: snippet}
 	added := append(*s.categories, category)
+	sort.Sort(added)
 	s.categoryReceiver(&added)
+}
+
+func (s *SnippetPage) setCategory(category string) {
+	s.category = category
+}
+
+func (s *SnippetPage) setTitle(title string) {
+	s.title = title
+}
+
+func (s *SnippetPage) setBody(body string) {
+	s.body = body
 }
