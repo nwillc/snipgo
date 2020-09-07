@@ -19,6 +19,8 @@ package model
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"io/ioutil"
+	"os"
 	"testing"
 )
 
@@ -43,6 +45,16 @@ func (suite *PreferencesTestSuite) TestNonExistPrefs() {
 func (suite *PreferencesTestSuite) TestExistPrefs() {
 	_, ok := ReadPreferences(suite.goodFilename)
 	assert.Nil(suite.T(), ok)
+}
+
+func (suite *PreferencesTestSuite) TestMalformedFile() {
+	tempFile, err := ioutil.TempFile("", "prefs.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+	tempFile.WriteString("not json")
+
+	_, ok := ReadPreferences(tempFile.Name())
+	assert.NotNil(suite.T(), ok)
 }
 
 func TestPreferencesTestSuite(t *testing.T) {
