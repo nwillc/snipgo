@@ -33,6 +33,15 @@ type SnippetsTestSuite struct {
 	goodFilename string
 }
 
+func (suite *SnippetsTestSuite) TestStringer() {
+	snippet := Snippet{
+		Category: "Foo",
+		Title: "Bar",
+		Body: "Baz",
+	}
+	assert.Equal(suite.T(), "Foo: Bar", snippet.String())
+}
+
 func (suite *SnippetsTestSuite) SetupTest() {
 	suite.snippets = []Snippet{
 		{
@@ -72,8 +81,14 @@ func (suite *SnippetsTestSuite) TestWriteFile() {
 	assert.Equal(suite.T(), len(original), len(read))
 }
 
-func WriteSnippets() {
+func (suite *SnippetsTestSuite) TestMalformedFile() {
+	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+	tempFile.WriteString("not json")
 
+	_, ok := ReadSnippets(tempFile.Name())
+	assert.NotNil(suite.T(), ok)
 }
 
 func (suite *SnippetsTestSuite) TestLen() {
