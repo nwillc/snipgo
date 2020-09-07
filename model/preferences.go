@@ -25,10 +25,14 @@ import (
 
 const preferencesFile = ".snippets.json"
 
+// Preferences represents a users preferences.
 type Preferences struct {
-	DefaultFile string `json:"defaultFile"`
+	DefaultFile string `json:"defaultFile"` // users default snippets file
 }
 
+// ReadPreferences reads the file indicated by filename and returns a *Preferences structure.
+// If the filename is empty it will look for the default preferences file. If no file can be be
+// found or the file is malformed an error is returned.
 func ReadPreferences(filename string) (*Preferences, error) {
 	if filename == "" {
 		home, err := os.UserHomeDir()
