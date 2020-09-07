@@ -78,7 +78,6 @@ func NewBrowserPage() *BrowserPage {
 			page.removeSnippet()
 		}).
 		AddItem("Save", func(i int) {
-			// TODO update current snippet before write
 			page.write()
 		})
 
@@ -109,8 +108,13 @@ func (bp *BrowserPage) SetCategories(categories *model.Categories) {
 }
 
 func (bp *BrowserPage) write() {
+	snippet, err := bp.getCurrentSnippet()
+	if err == nil {
+		snippet.Body = bp.editor.String()
+	}
 	bp.categories.ToSnippets().WriteSnippets("")
 }
+
 func (bp *BrowserPage) loadCategories() {
 	bp.categoryList.Clear()
 	if bp.categories != nil {
