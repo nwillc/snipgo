@@ -74,7 +74,11 @@ func NewBrowserPage() *BrowserPage {
 		AddItem("Copy", func(i int) {
 			clipboard.WriteAll(editor.String())
 		}).
+		AddItem("Remove", func(i int) {
+			page.removeSnippet()
+		}).
 		AddItem("Save", func(i int) {
+			// TODO update current snippet before write
 			page.write()
 		})
 
@@ -95,86 +99,107 @@ func NewBrowserPage() *BrowserPage {
 	return &page
 }
 
-func (browserPage *BrowserPage) GetName() string {
+func (bp *BrowserPage) GetName() string {
 	return "Browser"
 }
 
-func (browserPage *BrowserPage) SetCategories(categories *model.Categories) {
-	browserPage.categories = categories
-	browserPage.loadCategories()
+func (bp *BrowserPage) SetCategories(categories *model.Categories) {
+	bp.categories = categories
+	bp.loadCategories()
 }
 
-func (browserPage *BrowserPage) write() {
-	browserPage.categories.ToSnippets().WriteSnippets("")
+func (bp *BrowserPage) write() {
+	bp.categories.ToSnippets().WriteSnippets("")
 }
-func (browserPage *BrowserPage) loadCategories() {
-	browserPage.categoryList.Clear()
-	if browserPage.categories != nil {
-		for _, category := range *browserPage.categories {
-			browserPage.categoryList.AddItem(category.Name, "", 0, nil)
+func (bp *BrowserPage) loadCategories() {
+	bp.categoryList.Clear()
+	if bp.categories != nil {
+		for _, category := range *bp.categories {
+			bp.categoryList.AddItem(category.Name, "", 0, nil)
 		}
 	}
-	browserPage.setCurrentCategory(0)
+	bp.setCurrentCategory(0)
 }
 
-func (browserPage *BrowserPage) setCurrentCategory(i int) {
-	if i <= len(*browserPage.categories) {
-		browserPage.currentCategory = i
-		browserPage.loadTitles()
+func (bp *BrowserPage) setCurrentCategory(i int) {
+	if i <= len(*bp.categories) {
+		bp.currentCategory = i
+		bp.loadTitles()
 	}
 }
 
-func (browserPage *BrowserPage) loadTitles() {
-	browserPage.titleList.Clear()
-	category, err := browserPage.getCurrentCategory()
+func (bp *BrowserPage) loadTitles() {
+	bp.titleList.Clear()
+	category, err := bp.getCurrentCategory()
 	if err != nil {
 		return
 	}
 	for _, snippet := range category.Snippets {
-		browserPage.titleList.AddItem(snippet.Title, "", 0, nil)
+		bp.titleList.AddItem(snippet.Title, "", 0, nil)
 	}
-	browserPage.setCurrentSnippet(0)
+	bp.setCurrentSnippet(0)
 }
 
-func (browserPage *BrowserPage) getCurrentCategory() (*model.Category, error) {
-	if browserPage.currentCategory < 0 || browserPage.currentCategory >= len(*browserPage.categories) {
+func (bp *BrowserPage) getCurrentCategory() (*model.Category, error) {
+	if bp.currentCategory < 0 || bp.currentCategory >= len(*bp.categories) {
 		return nil, fmt.Errorf("no category selected")
 	}
-	return &(*browserPage.categories)[browserPage.currentCategory], nil
+	return &(*bp.categories)[bp.currentCategory], nil
 }
 
-func (browserPage *BrowserPage) setCurrentSnippet(i int) {
-	category, err := browserPage.getCurrentCategory()
+func (bp *BrowserPage) setCurrentSnippet(i int) {
+	category, err := bp.getCurrentCategory()
 	if err != nil || len(category.Snippets) == 0 {
-		browserPage.currentSnippet = -1
-		browserPage.editor.Text("")
+		bp.currentSnippet = -1
+		bp.editor.Text("")
 		return
 	}
 
-	browserPage.currentSnippet = i
-	browserPage.loadSnippet()
+	bp.currentSnippet = i
+	bp.loadSnippet()
 }
 
-func (browserPage *BrowserPage) loadSnippet() {
-	snippet, err := browserPage.getCurrentSnippet()
+func (bp *BrowserPage) loadSnippet() {
+	snippet, err := bp.getCurrentSnippet()
 	if err != nil {
 		return
 	}
-	browserPage.editor.Text(snippet.Body)
+	bp.editor.Text(snippet.Body)
 }
 
-func (browserPage *BrowserPage) getCurrentSnippet() (*model.Snippet, error) {
-	category, err := browserPage.getCurrentCategory()
+func (bp *BrowserPage) getCurrentSnippet() (*model.Snippet, error) {
+	category, err := bp.getCurrentCategory()
 	if err != nil {
 		return nil, err
 	}
-	if browserPage.currentSnippet < 0 || browserPage.currentSnippet >= len(category.Snippets) {
+	if bp.currentSnippet < 0 || bp.currentSnippet >= len(category.Snippets) {
 		return nil, fmt.Errorf("no snippet selected")
 	}
 
-	return &category.Snippets[browserPage.currentSnippet], nil
+	return &category.Snippets[bp.currentSnippet], nil
 }
 
-func (browserPage *BrowserPage) SetCategoryReceiver(receiver CategoryReceiver) {
+func (bp *BrowserPage) removeSnippet() {
+	target, err := bp.getCurrentSnippet()
+	if err != nil {
+		return
+	}
+	for ci, category := range *bp.categories {
+		if category.Name != target.Category {
+			continue
+		}
+		for si, snippet := range category.Snippets {
+			if snippet.Title == target.Title && snippet.Body == target.Body {
+				category.Snippets = append(category.Snippets[:si], category.Snippets[si+1:]...)
+				(*bp.categories)[ci] = category
+				break
+			}
+		}
+		break
+	}
+	bp.SetCategories(bp.categories)
+}
+
+func (bp *BrowserPage) SetCategoryReceiver(receiver CategoryReceiver) {
 	// NoOp
 }
