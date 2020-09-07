@@ -23,7 +23,7 @@ import (
 	"os"
 )
 
-const preferencesFile = ".snippets.json"
+const preferencesFile = ".snippets.json" // default preferences file
 
 // Preferences represents a users preferences.
 type Preferences struct {

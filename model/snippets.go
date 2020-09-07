@@ -25,20 +25,23 @@ import (
 	"strings"
 )
 
+// Snippet defines a snippet
 type Snippet struct {
-	Category string `json:"category"`
-	Title    string `json:"title"`
-	Body     string `json:"body"`
+	Category string `json:"category"` // category of the snippet
+	Title    string `json:"title"`    // title of the snippet
+	Body     string `json:"body"`     // body of the snippet
 }
 
 // Snippet implements fmt.Stringer
 var _ fmt.Stringer = (*Snippet)(nil)
 
+// Snippets is a collection of Snippet
 type Snippets []Snippet
 
 // Snippets implements sort.Interface
 var _ sort.Interface = (*Snippets)(nil)
 
+// ReadSnippets accepts a filename, reads from the file and returns the Snippets found in the file.
 func ReadSnippets(filename string) (Snippets, error) {
 	if filename == "" {
 		preferences, err := ReadPreferences("")
@@ -63,6 +66,7 @@ func ReadSnippets(filename string) (Snippets, error) {
 	return snippets, nil
 }
 
+// WriteSnippets writes Snippets to the file named.
 func (s *Snippets) WriteSnippets(filename string) error {
 	if filename == "" {
 		preferences, err := ReadPreferences("")
@@ -86,14 +90,21 @@ func (s *Snippets) WriteSnippets(filename string) error {
 func (s Snippet) String() string { return fmt.Sprintf("%s: %s", s.Category, s.Title) }
 
 // Implement sort interface
-func (s Snippets) Len() int      { return len(s) }
+
+// Len returns the length of the Snippets.
+func (s Snippets) Len() int { return len(s) }
+
+// Swap swaps two Snippet in the Snippets.
 func (s Snippets) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+
+// Less compares two Snippet.
 func (s Snippets) Less(i, j int) bool {
 	return (strings.ToLower(s[i].Category) < strings.ToLower(s[j].Category)) ||
 		((strings.ToLower(s[i].Category) == strings.ToLower(s[j].Category)) &&
 			(strings.ToLower(s[i].Title) < strings.ToLower(s[j].Title)))
 }
 
+// ByCategory splits Snippets into their Category.
 func (s Snippets) ByCategory() Categories {
 	catMap := make(map[string]Category)
 
