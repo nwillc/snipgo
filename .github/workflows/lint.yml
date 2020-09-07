@@ -19,19 +19,18 @@ jobs:
         go version
         go get -u golang.org/x/lint/golint
 
-    - name: Run Build
+    - name: Build
       run: go build .
 
-    - name: Run Test
-      run: go test -v ./...
+    - name: Test With Coverage
+      run: go test -v  -coverprofile=coverage.txt -covermode=atomic ./...
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
 
     - name: Run Vet & Lint
       run: |
         go vet .
         golint -set_exit_status=1 .
 
-    - name: Run Coverage
-      run: go test -coverprofile=coverage.txt -covermode=atomic ./...
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
