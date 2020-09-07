@@ -21,11 +21,13 @@ import (
 	"github.com/rivo/tview"
 )
 
+// CategoryReceiver accepts model.Categories
 type CategoryReceiver func(categories *model.Categories)
 
+// Slide represents a slide/page in the ui.UI.
 type Slide interface {
-	tview.Primitive
-	model.SetCategories
-	GetName() string
-	SetCategoryReceiver(receiver CategoryReceiver)
+	tview.Primitive                                // the visual element
+	model.SetCategories                            // can have its model.Categories updated
+	GetName() string                               // Has a name
+	SetCategoryReceiver(receiver CategoryReceiver) // a function to notify if the model.Categories are changed
 }
