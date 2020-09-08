@@ -17,120 +17,72 @@
 package ui
 
 import (
-	"github.com/atotto/clipboard"
 	"github.com/nwillc/snipgo/model"
+	"github.com/nwillc/snipgo/ui/pages"
+	"github.com/nwillc/snipgo/ui/widgets"
 	"github.com/rivo/tview"
-)
-
-var (
-	rowsWeights = []int{3, 0, 0, 3}
-	colWeights  = []int{25, 0, 0, 10}
-	headerRow   = 0
-	browserRow  = 1
-	editorRow   = 2
-	footerRow   = 3
 )
 
 type UI struct {
 	app *tview.Application
-	*tview.Grid
-	editor          *Editor
-	categoryList    *tview.List
-	titleList       *tview.List
-	categories      *model.Categories
-	currentCategory int
-	currentSnippet  int
+	tview.Primitive
+	slides []pages.Slide
+	pv     *tview.Pages
 }
 
-func NewLayout() *UI {
+// Implements SetCategories
+var _ model.SetCategories = (*UI)(nil)
+
+func NewUI() *UI {
 	app := tview.NewApplication()
-	editor := NewEditor()
-	grid := tview.NewGrid().
-		SetRows(rowsWeights...).
-		SetColumns(colWeights...).
-		SetBorders(true)
+	slides := []pages.Slide{
+		pages.NewBrowserPage(),
+		pages.NewSnippetPage(),
+		pages.NewPreferencesPage(),
+		pages.NewAboutPage(),
+	}
+	pageView := tview.NewPages()
 
-	categoryList := tview.NewList().
-		ShowSecondaryText(false)
+	menu := widgets.NewMenuBar()
 
-	titleList := tview.NewList().
-		ShowSecondaryText(false)
+	for i, slide := range slides {
+		pageView.AddPage(slide.GetName(), slide, true, i == 0)
+		menu.AddItem(slide.GetName(), func(i int) {
+			pageView.SwitchToPage(slides[i].GetName())
+		})
+	}
 
-	copyButton := tview.NewButton("Copy").SetSelectedFunc(func() {
-		clipboard.WriteAll(editor.String())
-	})
+	menu.Highlight("0")
 
-	grid.
-		AddItem(categoryList, browserRow, 0, 1, 1, 0, 100, true).
-		AddItem(titleList, browserRow, 1, 1, 3, 0, 100, true).
-		AddItem(editor, editorRow, 0, 1, 4, 0, 100, false).
-		AddItem(copyButton, footerRow, 3, 1, 1, 0, 0, true)
+	layout := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(menu, 1, 1, false).
+		AddItem(pageView, 0, 1, true)
 
 	ui := UI{
 		app,
-		grid,
-		editor,
-		categoryList,
-		titleList,
-		nil,
-		0,
-		0,
+		layout,
+		slides,
+		pageView,
 	}
 
-	categoryList.SetChangedFunc(func(i int, s string, s2 string, r rune) {
-		ui.SetCurrentCategory(i)
-	})
+	for _, slide := range slides {
+		slide.SetCategoryReceiver(func(categories *model.Categories) {
+			ui.SetCategories(categories)
+		})
+	}
 
-	titleList.SetSelectedFunc(func(i int, s string, s2 string, r rune) {
-		ui.SetCurrentSnippet(i)
+	menu.AddItem("Quit", func(i int) {
+		app.Stop()
 	})
-
 	return &ui
 }
 
-func (ui *UI) Categories(categories *model.Categories) {
-	ui.categories = categories
-	ui.loadCategories()
-}
-
-func (ui *UI) CurrentCategory() *model.Category {
-	return &(*ui.categories)[ui.currentCategory]
-}
-
-func (ui *UI) SetCurrentCategory(i int) {
-	ui.currentCategory = i
-	ui.loadTitles()
-}
-
-func (ui *UI) CurrentSnippet() *model.Snippet {
-	return &ui.CurrentCategory().Snippets[ui.currentSnippet]
-}
-
-func (ui *UI) SetCurrentSnippet(i int) {
-	ui.currentSnippet = i
-	ui.loadSnippet()
-}
-
-func (ui *UI) loadCategories() {
-	ui.categoryList.Clear()
-	if ui.categories != nil {
-		for _, category := range *ui.categories {
-			ui.categoryList.AddItem(category.Name, "", 0, nil)
-		}
+func (ui *UI) SetCategories(categories *model.Categories) {
+	for _, slide := range ui.slides {
+		slide.SetCategories(categories)
 	}
-	ui.SetCurrentCategory(0)
-}
-
-func (ui *UI) loadTitles() {
-	ui.titleList.Clear()
-	for _, snippet := range ui.CurrentCategory().Snippets {
-		ui.titleList.AddItem(snippet.Title, "", 0, nil)
-	}
-	ui.SetCurrentSnippet(0)
-}
-
-func (ui *UI) loadSnippet() {
-	ui.editor.Text(ui.CurrentSnippet().Body)
+	ui.pv.SwitchToPage("Browser")
 }
 
 func (ui *UI) Run() {

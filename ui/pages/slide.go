@@ -14,27 +14,20 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package pages
 
 import (
-	"fmt"
 	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/ui"
+	"github.com/rivo/tview"
 )
 
-func main() {
-	preferences, err := model.ReadPreferences("")
-	if err != nil {
-		panic("Could not get preferences")
-	}
-	snippets, err := model.ReadSnippets(preferences.DefaultFile)
-	if err != nil {
-		panic(fmt.Sprintf("failed %v", err))
-	}
+// CategoryReceiver accepts model.Categories
+type CategoryReceiver func(categories *model.Categories)
 
-	categories := snippets.ByCategory()
-
-	homePage := ui.NewUI()
-	homePage.SetCategories(&categories)
-	homePage.Run()
+// Slide represents a slide/page in the ui.UI.
+type Slide interface {
+	tview.Primitive                                // the visual element
+	model.SetCategories                            // can have its model.Categories updated
+	GetName() string                               // Has a name
+	SetCategoryReceiver(receiver CategoryReceiver) // a function to notify if the model.Categories are changed
 }

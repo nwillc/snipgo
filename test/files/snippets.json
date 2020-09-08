@@ -1,1 +1,447 @@
-[{"category":"git","title":"create remote and local branch","body":"# Create local branch\ngit checkout -b newbranch\n# work commit\ngit push -u origin HEAD"},{"category":"SQL","title":"mysqld setup","body":"cat ~/.my.cnf <<EOF\n[client]\nport=3306\nsocket=/tmp/mysql.sock\n\n[mysqld]\nport=3306\nsocket=/tmp/mysql.sock\nlower_case_table_names=2\ndatadir=/Users/nchristopher/Developer/mysqld\nEOF\n\nmysql_install_db --user=nchristopher -ldata=${HOME}/Developer/mysqld"},{"category":"Shell Script","title":"shell bang","body":"#!/bin/bash\n"},{"category":"Shell Script","title":"time limit a command","body":"declare -i -r TIMEOUT=9\ndeclare -i -r INTERVAL=1\ndeclare -i -r DELAY=1\n\n# Background a loop counting down to TIMEOUT\n(\n    ((t = TIMEOUT))\n\n    while ((t > 0)); do\n        sleep $INTERVAL\n        kill -0 $$ || exit 0\n        ((t -= INTERVAL))\n    done\n\n    kill -s SIGTERM $$ && kill -0 $$ || exit 0\n    sleep $DELAY\n    kill -s SIGKILL $$\n) 2> /dev/null &\n"},{"category":"SQL","title":"Finding duplicate values","body":"SELECT\n    name, email, COUNT(*)\nFROM\n    users\nGROUP BY\n    name, email\nHAVING \n    COUNT(*) > 1"},{"category":"SQL","title":"mysql version","body":"SHOW VARIABLES LIKE \"%version%\";\n"},{"category":"Unix Commands","title":"pandoc md to html","body":"pandoc -s -H css-snippet.html -o foo.html foo.md\n"},{"category":"Shell Script","title":"script name","body":"SCRIPT_NAME=$(basename \"${BASH_SOURCE[0]}\")\n"},{"category":"gradle","title":"gradle test output","body":"test {\n    beforeTest { descriptor ->\n        logger.lifecycle(\"\\tRunning \" + descriptor.className + \".\" + descriptor.name)\n    }\n\n    afterSuite { descriptor, result ->\n        if (descriptor.parent == null) {\n            logger.lifecycle(\"\\tTests run: \" + result.testCount\n                    + \", Failures: \" + result.failedTestCount\n                    + \", Skipped: \" + result.skippedTestCount)\n        }\n    }\n\n    testLogging {\n        exceptionFormat \"full\"\n    }\n}"},{"category":"mac","title":"screen grab","body":"cmd-shift-4   # a region\ncmd-shift-4 space # a window\n"},{"category":"Shell Script","title":"executable in path","body":"EXEC=java\nif ! hash ${EXEC} 2> /dev/null; then\n   echo ${EXEC} not found in your path. Required to run.   \n   exit 1\nfi\n"},{"category":"Shell Script","title":"scripts dir","body":"SCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\" )\" > /dev/null 2>&1 && pwd -P)\""},{"category":"gradle","title":"gradle tests show standard out","body":"test {\n  testLogging {\n        showStandardStreams = true\n    }\n}"},{"category":"Shell Script","title":"execution failure","body":"if [ $? -ne 0 ]; then \n\techo Failed to run\n    exit 1\nfi\n"},{"category":"mvn","title":"Cache dependencies locally","body":"mvn dependency:go-offline"},{"category":"gradle","title":"gradle create project","body":"gradle init --type java-library"},{"category":"Unix Commands","title":"tar w/o dot files","body":"COPYFILE_DISABLE=1 tar cf ${NAME}.tar ${FOLDER}\n"},{"category":"Shell Script","title":"check for user","body":"id -u username > /dev/null 2>&1\nif [ $? -ne 0 ]; then \n\techo Failed to find username\n    exit 1\nfi\n"},{"category":"gradle","title":"gradle wrapper","body":" gradle wrapper --gradle-version 3.4.1"},{"category":"gradle","title":"gradle release","body":"gradle clean test release # to github\ngradle clean test release uploadArchives # to github and nexus\n# go to https://oss.sonatype.org/ , close, release\ngradle clean test jar publishPlugins #  to gradle plugins\ngradle clean build bintray # to publish to bintray\n"},{"category":"JavaScript","title":"Class pattern","body":"var factory = function () {\n  return {\n    Classname: function() {\n        \"use strict\";\n        var _this = this;\n\n        this.method = function (args) {\n           // use _this in here\n        }\n    }\n  }\n}\n\nvar anInstance = new factory.Classname();"},{"category":"gradle","title":"sloppy fat jar","body":"jar {\n    manifest {\n        attributes(\n                \"Main-Class\": \"${project.group}.foo.Main\"\n        )\n    }\n    from configurations.compile.collect { entry -> zipTree(entry) }\n}"},{"category":"python","title":"pip/easy_install specify package version","body":"pip install package==x.y.z\neasy_install package==x.y.z"},{"category":"mvn","title":"mvn release","body":"mvn release:clean\nmvn release:prepare\nmvn release:perform\n# go to https://oss.sonatype.org/, close, release\n\n"},{"category":"gradle","title":"gradle list jars","body":"# Add to .gradle:\n\ntask listJars << {\n    println \"Compile:\"\n    configurations.compile.each { File file -> println \"\\t\" + file.name }\n    println \"Test:\"\n    configurations.testCompile.each { File file -> println \"\\t\" + file.name }\n}\n\n# then run gradle -q listJars\n"},{"category":"git","title":"Available remote branches","body":"git branch -a\n# or...\ngit fetch origin\ngit branch -r"},{"category":"git","title":"Top commiters","body":"git shortlog  master.. -s | sort -n -r"},{"category":"mac","title":"change user shell","body":"In Preferences go to User & Group and ctrl-click the user name to get advanced options."},{"category":"Unix Commands","title":"What ports is a process listening to","body":"sudo lsof -Pan -p $PID -i"},{"category":"Unix Commands","title":"copy file with stats","body":"rsync -ah --progress source-file destination"},{"category":"git","title":"use a credential store ","body":"git config --global credential.helper store"},{"category":"Shell Script","title":"bash lib include","body":"#!/bin/bash\nSCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\" )\" > /dev/null 2>&1 && pwd -P)\"\n     \n# Get/Update bash_lib\nif [ -d \"${SCRIPT_DIR}/.bash_lib\" ]; then\n         (cd \"${SCRIPT_DIR}/.bash_lib\"; git pull > /dev/null 2>&1)\nelse\n         echo \"bash_lib not loaded - getting from git.\"\n         (cd ${SCRIPT_DIR} ; git clone ssh://git@git.amplify.com/alpha_developer/bash_lib.git .bash_lib ) > /dev/null 2>&1\nfi\n     \nsource ${SCRIPT_DIR}/.bash_lib/scripts/include.sh\nadd_include_dir \"${SCRIPT_DIR}\""},{"category":"Unix Commands","title":"ruby gems update","body":" bundle check || bundle install\n "},{"category":"mvn","title":"versions on pom verify","body":" <build>\n        <plugins>\n            <plugin>\n                <groupId>org.codehaus.mojo</groupId>\n                <artifactId>versions-maven-plugin</artifactId>\n                <version>2.1</version>\n                <executions>\n                    <execution>\n                        <id>display-dependency-updates</id>\n                        <goals>\n                            <goal>display-dependency-updates</goal>\n                        </goals>\n                        <phase>verify</phase>\n                    </execution>\n                </executions>\n            </plugin>\n\t</plugins>\n</build>"},{"category":"Unix Commands","title":"find process listening to port","body":"sudo lsof -i :8084\n"},{"category":"mvn","title":"mvn deploy war to jboss","body":"mvn clean jboss-as:deploy\n"},{"category":"git","title":"revert to master","body":"git reset HEAD\ngit checkout"},{"category":"git","title":"up to date check","body":"$(git rev-parse HEAD) == $(git rev-parse @{u}) "},{"category":"mvn","title":"mvn dependency","body":"mvn dependency:tree -Dverbose    # show the dependency tree\nmvn dependency:analyze # show issues with scopes etc\n"},{"category":"mac","title":"osx fullscreen","body":"command-ctrl-f # toggles\nAlt-click green button # brings back old behavior"},{"category":"Java","title":"set up logger config","body":"// in main class\nprivate static final String LOG_CONFIG = \"/logging.properties\";\n\tstatic {\n\t\ttry (InputStream in = MySnipServer.class.getResourceAsStream(LOG_CONFIG)) {\n\t\t\tif (in == null) {\n\t\t\t\tSystem.err.println(\"Could not open \" + LOG_CONFIG);\n\t\t\t}\n\t\t\tLogManager.getLogManager().readConfiguration(in);\n\t\t} catch (IOException e) {\n\t\t\tSystem.err.println(\"Failed reading \" + LOG_CONFIG);\n\t\t}\n\t}"},{"category":"Java","title":"Run headless","body":" java -Djava.awt.headless=true\n"},{"category":"SQL","title":"Limiting Oracle selects","body":"select * from foo where ROWNUM < 100\n# Or\nselect * from foo\nOFFSET 5 ROWS FETCH NEXT 100 ROWS ONLY"},{"category":"git","title":"hard revert","body":"git reset --hard origin/master"},{"category":"Java","title":"package info","body":"/**\n * Description info here.\n * @since 1.0\n */\npackage foo.bar.baz;\n"},{"category":"git","title":"merge local project into existing github","body":"# in local directory\ngit init\ngit add .\ngit commit -m \"Genesis\"\ngit remote add origin github_url_here\ngit pull origin master\ngit push --set-upstream origin master"},{"category":"mac","title":"Show dot files in file open dialog","body":"command-shift-.\n"},{"category":"Shell Script","title":"temporary file","body":"SCRIPT_NAME=\"${0##*/}\"\nTMPFILE=$(mktemp /tmp/${SCRIPT_NAME}.XXXXXX)\ntrap \"rm -rf ${TMPFILE}\" EXIT\n"},{"category":"git","title":"compare to master","body":"# diff what do I have checked in not in master\ngit diff origin/master..HEAD\n# List commits\ngit cherry -v \n"},{"category":"Unix Commands","title":"curl behind proxy","body":"echo proxy = host:port >> ~/.curlrc\n"},{"category":"git","title":"create patch for unpushed commits","body":"git format-patch origin/master --stdout > patches_$(date -I).patch"},{"category":"python","title":"pip upgrade a package","body":"pip install -U package"},{"category":"git","title":"checkout remote branch","body":"git fetch origin\ngit checkout branchname\n"},{"category":"git","title":"discard changes to specific files","body":"git checkout -- filepath"},{"category":"Unix Commands","title":"dd status","body":"# if there is only your dd running\npkill -INFO dd\n# otherwise find pid with ps and\nkill -INFO ${PID}\n# or ....\nCTRL-t\n"},{"category":"Shell Script","title":"bash array ","body":"FOO=(a b c)\necho ${FOO[@]}"},{"category":"Shell Script","title":"required apps running","body":"#!/bin/sh\n# include colorEcho\n\nrequiredAppRunning() {\n    running=$( ps -ef | grep -i \"${1}\" | grep -v \"grep\" | wc -l )\n\n    if [ ${running} -eq 0 ]; then\n        colorEcho ${red} \"Required app ${1} is not running!\"\n        exit 2\n    fi\n}\n"},{"category":"SQL","title":"set variables","body":"set @var := 1;\nselect * from count where id = @var;\n"},{"category":"Shell Script","title":"file exists","body":"FILE=\"/etc/hosts\"\nif [ -f $FILE ]; then\n  echo \"File ${FILE} exists\"\nelse\n  echo \"File ${FILE} does NOT exists\"\nfi\n"},{"category":"docker","title":"commit and push","body":"docker commit -p stoic_darwin nwillc/jenkins-slave:latest\ndocker push nwillc/jenkins-slave:latest"},{"category":"docker","title":"garbage collect","body":"docker system prune\n"},{"category":"git","title":"delete remote branch","body":"git fetch origin\ngit branch -dr origin/branch_name"},{"category":"git","title":"ignore file modes","body":"git config core.fileMode false"},{"category":"Shell Script","title":"temporary dir","body":"scratch_dir=$(mktemp -d -t scratchXXXXXX)\nif [ ! -d ${scratch_dir} ];  then\n    echo \"Failed to creat scatch directory.\"\n    exit 1\nfi\ntrap \"rm -rf ${scratch_dir}\" EXIT\n"},{"category":"Unix Commands","title":"X11 socket redirect","body":"socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\\\"$DISPLAY\\\" &\n"},{"category":"gradle","title":"network proxy","body":"# in your ~/.gradle/gradle.properties\nsystemProp.http.proxyHost=host\nsystemProp.http.proxyPort=8080\nsystemProp.https.proxyHost=host\nsystemProp.https.proxyPort=8080"},{"category":"mvn","title":"mvn create project","body":"mvn archetype:generate -DgroupId=com.github.nwillc -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false"},{"category":"Shell Script","title":"directory exists","body":"DIR=\"/etc\"\nif [ -d $DIR ]; then\n  echo \"Folder ${DIR} exists\"\nelse\n  echo \"Folder ${DIR} does NOT exists\"\nfi\n"},{"category":"mvn","title":"mvn version targets","body":"mvn versions:display-dependency-updates\nmvn versions:display-plugin-updates\n"},{"category":"Unix Commands","title":"decompile apk","body":"dex2jar\njd-gui\n"},{"category":"Windows","title":"Recover off screen window","body":"Click task bar icon for window to give it focus.  Then Windows key and right arrow to move the window through desktops until you see it."},{"category":"docker","title":"flatten image","body":"$ docker run -d sample\n7423d238b754e6a2c5294aab7b185f80be2457ee36de22795685b19ff1cf03ec\n$ docker export 7423d238b | docker import - sample:flat\n3995a1f00b91efb016250ca6acc31aaf5d621c6adaf84664a66b7a4594f695eb"},{"category":"git","title":"gh_pages set up","body":"# cd into repo and create branch\ngit checkout --orphan gh-pages\n# clean it\ngit rm -rf .\ngit add .\ngit commit -m Genesis\ngot push origin gh-pages\n"},{"category":"git","title":"git via http proxy","body":"export HTTP_PROXY=http://host:port\ngit config --local http.proxy ${HTTP_PROXY}\n"},{"category":"gradle","title":"gradle dependency tree","body":"gradle dependencies"},{"category":"gradle","title":"gradle create all artifacts for release","body":"gradle clean build sourceJar javadocJar generatePomFileForMavenJavaPublication -x test"},{"category":"docker","title":"kitematic via proxy","body":"export HTTP_PROXY=http://usproxy.es.oneadp.com:8080\nexport HTTPS_PROXY=http://usproxy.es.oneadp.com:8080\n/Applications/Kitematic\\ \\(Beta\\).app/Contents/MacOS/Electron"},{"category":"Shell Script","title":"Command line argument parsing","body":"echo \"$0 $*\"\n\nhelp_text() {\n    code=${1}\n    cat << EOU\n     Usage:\n         ${SCRIPT_NAME} -this some_arg\nEOU\n    exit ${code}\n}\n\n\nwhile getopts \":t:h\" OPT; do\ndo\n    case \"${OPT}\" in\n\tt)\n\t    echo ${OPTARG}\n\t    shift;\n\t    ;;\n\th)\n\t    help_text 0\n\t    ;;\n\t\\?)\n\t    help_text 1\n\t    ;;\n    esac\ndone\n\nshift $((OPTIND-1))\n[ \"$1\" = \"--\" ] && shift\n"},{"category":"Shell Script","title":"jar lib classpath","body":"LIB_DIR=./lib\nIFS=\":\"\nexport CLASSPATH=${LIB_DIR}$(JARS=(${LIB_DIR}/*.jar); IFS=${IFS} ; echo \"${JAR_FILE}${IFS}${JARS[*]}\")\n"},{"category":"gradle","title":"show available tasks","body":"./gradlew :tasks"},{"category":"docker","title":"copy/load image file","body":"docker save -o <save image to path> <image name>\ndocker load -i <path to image tar file>\n\n"},{"category":"google","title":"email address variations","body":"periods ignored\nemail+something@gmail.com"},{"category":"Shell Script","title":"find JAVA_HOME","body":"# Looking for Java\nunset JAVA_HOME\nJDK_DIRS=\"$(ls -d /opt/java/*jdk* /Library/Java/JavaVirtualMachines/*/Contents/Home 2> /dev/null | sort -r)\"\n\n# Look for the right JVM to use\nfor jdir in ${JDK_DIRS}; do\n    if [ -r \"${jdir}/bin/java\" -a -z \"${JAVA_HOME}\" ]; then\n        JAVA_HOME=\"${jdir}\"\n    fi\ndone\nexport JAVA_HOME\nexport JAVA=${JAVA_HOME}/bin/java\nexport TMP_FOLDER=${TMP_FOLDER:-/var/tmp}\n"},{"category":"docker","title":"show full command line of container","body":"docker ps -a --no-trunc"},{"category":"git","title":"git delete local branch","body":"git branch -D branch_name"},{"category":"Text","title":"ISC Copyright","body":"Copyright (c) $today.year, nwillc@gmail.com\n\nPermission to use, copy, modify, and/or distribute this software for any\npurpose with or without fee is hereby granted, provided that the above\ncopyright notice and this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES\nWITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF\nMERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR\nANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN\nACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF\nOR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\n"},{"category":"Shell Script","title":"color echo","body":"# see http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x405.html\n\nred=1\ngreen=2\nyellow=3\nblue=4\nmagenta=5\ncyan=6\nwhite=7\n\ncolorEcho(){\n    color=${1}\n    shift 1    \n    echo \"$(tput setaf ${color})${*}$(tput sgr0)\"\n}\n\ncolorEcho ${cyan} This is cyan.\n"},{"category":"Shell Script","title":"variable names as variables","body":"AA=one\nAB=two\nAC=three\n\nfor var in ${!A*}\ndo\n   echo ${var} = ${!var}\ndone\n"},{"category":"mvn","title":"mvn local install jar","body":"# With pom\nmvn install:install-file -Dfile=path-to-your-artifact-jar -DpomFile=path-to-your-artifact-pom\n# with jar only \nmvn install:install-file -Dfile=path-to-your-artifact-jar \\\n                                                                              -DgroupId=your.groupId \\\n                                                                              -DartifactId=your-artifactId \\\n                                                                              -Dversion=version \\\n                                                                              -Dpackaging=jar \\"}]
+[
+  {
+    "category": "git",
+    "title": "create remote and local branch",
+    "body": "# Create local branch\ngit checkout -b newbranch\n# work commit\ngit push -u origin HEAD"
+  },
+  {
+    "category": "SQL",
+    "title": "mysqld setup",
+    "body": "cat ~/.my.cnf <<EOF\n[client]\nport=3306\nsocket=/tmp/mysql.sock\n\n[mysqld]\nport=3306\nsocket=/tmp/mysql.sock\nlower_case_table_names=2\ndatadir=/Users/nchristopher/Developer/mysqld\nEOF\n\nmysql_install_db --user=nchristopher -ldata=${HOME}/Developer/mysqld"
+  },
+  {
+    "category": "Shell Script",
+    "title": "shell bang",
+    "body": "#!/bin/bash\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "time limit a command",
+    "body": "declare -i -r TIMEOUT=9\ndeclare -i -r INTERVAL=1\ndeclare -i -r DELAY=1\n\n# Background a loop counting down to TIMEOUT\n(\n    ((t = TIMEOUT))\n\n    while ((t > 0)); do\n        sleep $INTERVAL\n        kill -0 $$ || exit 0\n        ((t -= INTERVAL))\n    done\n\n    kill -s SIGTERM $$ && kill -0 $$ || exit 0\n    sleep $DELAY\n    kill -s SIGKILL $$\n) 2> /dev/null &\n"
+  },
+  {
+    "category": "SQL",
+    "title": "Finding duplicate values",
+    "body": "SELECT\n    name, email, COUNT(*)\nFROM\n    users\nGROUP BY\n    name, email\nHAVING \n    COUNT(*) > 1"
+  },
+  {
+    "category": "SQL",
+    "title": "mysql version",
+    "body": "SHOW VARIABLES LIKE \"%version%\";\n"
+  },
+  {
+    "category": "Unix Commands",
+    "title": "pandoc md to html",
+    "body": "pandoc -s -H css-snippet.html -o foo.html foo.md\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "script name",
+    "body": "SCRIPT_NAME=$(basename \"${BASH_SOURCE[0]}\")\n"
+  },
+  {
+    "category": "gradle",
+    "title": "gradle test output",
+    "body": "test {\n    beforeTest { descriptor ->\n        logger.lifecycle(\"\\tRunning \" + descriptor.className + \".\" + descriptor.name)\n    }\n\n    afterSuite { descriptor, result ->\n        if (descriptor.parent == null) {\n            logger.lifecycle(\"\\tTests run: \" + result.testCount\n                    + \", Failures: \" + result.failedTestCount\n                    + \", Skipped: \" + result.skippedTestCount)\n        }\n    }\n\n    testLogging {\n        exceptionFormat \"full\"\n    }\n}"
+  },
+  {
+    "category": "mac",
+    "title": "screen grab",
+    "body": "cmd-shift-4   # a region\ncmd-shift-4 space # a window\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "executable in path",
+    "body": "EXEC=java\nif ! hash ${EXEC} 2> /dev/null; then\n   echo ${EXEC} not found in your path. Required to run.   \n   exit 1\nfi\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "scripts dir",
+    "body": "SCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\" )\" > /dev/null 2>&1 && pwd -P)\""
+  },
+  {
+    "category": "gradle",
+    "title": "gradle tests show standard out",
+    "body": "test {\n  testLogging {\n        showStandardStreams = true\n    }\n}"
+  },
+  {
+    "category": "Shell Script",
+    "title": "execution failure",
+    "body": "if [ $? -ne 0 ]; then \n\techo Failed to run\n    exit 1\nfi\n"
+  },
+  {
+    "category": "mvn",
+    "title": "Cache dependencies locally",
+    "body": "mvn dependency:go-offline"
+  },
+  {
+    "category": "gradle",
+    "title": "gradle create project",
+    "body": "gradle init --type java-library"
+  },
+  {
+    "category": "Unix Commands",
+    "title": "tar w/o dot files",
+    "body": "COPYFILE_DISABLE=1 tar cf ${NAME}.tar ${FOLDER}\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "check for user",
+    "body": "id -u username > /dev/null 2>&1\nif [ $? -ne 0 ]; then \n\techo Failed to find username\n    exit 1\nfi\n"
+  },
+  {
+    "category": "gradle",
+    "title": "gradle wrapper",
+    "body": " gradle wrapper --gradle-version 3.4.1"
+  },
+  {
+    "category": "gradle",
+    "title": "gradle release",
+    "body": "gradle clean test release # to github\ngradle clean test release uploadArchives # to github and nexus\n# go to https://oss.sonatype.org/ , close, release\ngradle clean test jar publishPlugins #  to gradle plugins\ngradle clean build bintray # to publish to bintray\n"
+  },
+  {
+    "category": "JavaScript",
+    "title": "Class pattern",
+    "body": "var factory = function () {\n  return {\n    Classname: function() {\n        \"use strict\";\n        var _this = this;\n\n        this.method = function (args) {\n           // use _this in here\n        }\n    }\n  }\n}\n\nvar anInstance = new factory.Classname();"
+  },
+  {
+    "category": "gradle",
+    "title": "sloppy fat jar",
+    "body": "jar {\n    manifest {\n        attributes(\n                \"Main-Class\": \"${project.group}.foo.Main\"\n        )\n    }\n    from configurations.compile.collect { entry -> zipTree(entry) }\n}"
+  },
+  {
+    "category": "python",
+    "title": "pip/easy_install specify package version",
+    "body": "pip install package==x.y.z\neasy_install package==x.y.z"
+  },
+  {
+    "category": "mvn",
+    "title": "mvn release",
+    "body": "mvn release:clean\nmvn release:prepare\nmvn release:perform\n# go to https://oss.sonatype.org/, close, release\n\n"
+  },
+  {
+    "category": "gradle",
+    "title": "gradle list jars",
+    "body": "# Add to .gradle:\n\ntask listJars << {\n    println \"Compile:\"\n    configurations.compile.each { File file -> println \"\\t\" + file.name }\n    println \"Test:\"\n    configurations.testCompile.each { File file -> println \"\\t\" + file.name }\n}\n\n# then run gradle -q listJars\n"
+  },
+  {
+    "category": "git",
+    "title": "Available remote branches",
+    "body": "git branch -a\n# or...\ngit fetch origin\ngit branch -r"
+  },
+  {
+    "category": "git",
+    "title": "Top commiters",
+    "body": "git shortlog  master.. -s | sort -n -r"
+  },
+  {
+    "category": "mac",
+    "title": "change user shell",
+    "body": "In Preferences go to User & Group and ctrl-click the user name to get advanced options."
+  },
+  {
+    "category": "Unix Commands",
+    "title": "What ports is a process listening to",
+    "body": "sudo lsof -Pan -p $PID -i"
+  },
+  {
+    "category": "Unix Commands",
+    "title": "copy file with stats",
+    "body": "rsync -ah --progress source-file destination"
+  },
+  {
+    "category": "git",
+    "title": "use a credential store ",
+    "body": "git config --global credential.helper store"
+  },
+  {
+    "category": "Shell Script",
+    "title": "bash lib include",
+    "body": "#!/bin/bash\nSCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\" )\" > /dev/null 2>&1 && pwd -P)\"\n     \n# Get/Update bash_lib\nif [ -d \"${SCRIPT_DIR}/.bash_lib\" ]; then\n         (cd \"${SCRIPT_DIR}/.bash_lib\"; git pull > /dev/null 2>&1)\nelse\n         echo \"bash_lib not loaded - getting from git.\"\n         (cd ${SCRIPT_DIR} ; git clone ssh://git@git.amplify.com/alpha_developer/bash_lib.git .bash_lib ) > /dev/null 2>&1\nfi\n     \nsource ${SCRIPT_DIR}/.bash_lib/scripts/include.sh\nadd_include_dir \"${SCRIPT_DIR}\""
+  },
+  {
+    "category": "Unix Commands",
+    "title": "ruby gems update",
+    "body": " bundle check || bundle install\n "
+  },
+  {
+    "category": "mvn",
+    "title": "versions on pom verify",
+    "body": " <build>\n        <plugins>\n            <plugin>\n                <groupId>org.codehaus.mojo</groupId>\n                <artifactId>versions-maven-plugin</artifactId>\n                <version>2.1</version>\n                <executions>\n                    <execution>\n                        <id>display-dependency-updates</id>\n                        <goals>\n                            <goal>display-dependency-updates</goal>\n                        </goals>\n                        <phase>verify</phase>\n                    </execution>\n                </executions>\n            </plugin>\n\t</plugins>\n</build>"
+  },
+  {
+    "category": "Unix Commands",
+    "title": "find process listening to port",
+    "body": "sudo lsof -i :8084\n"
+  },
+  {
+    "category": "mvn",
+    "title": "mvn deploy war to jboss",
+    "body": "mvn clean jboss-as:deploy\n"
+  },
+  {
+    "category": "git",
+    "title": "revert to master",
+    "body": "git reset HEAD\ngit checkout"
+  },
+  {
+    "category": "git",
+    "title": "up to date check",
+    "body": "$(git rev-parse HEAD) == $(git rev-parse @{u}) "
+  },
+  {
+    "category": "mvn",
+    "title": "mvn dependency",
+    "body": "mvn dependency:tree -Dverbose    # show the dependency tree\nmvn dependency:analyze # show issues with scopes etc\n"
+  },
+  {
+    "category": "mac",
+    "title": "osx fullscreen",
+    "body": "command-ctrl-f # toggles\nAlt-click green button # brings back old behavior"
+  },
+  {
+    "category": "Java",
+    "title": "set up logger config",
+    "body": "// in main class\nprivate static final String LOG_CONFIG = \"/logging.properties\";\n\tstatic {\n\t\ttry (InputStream in = MySnipServer.class.getResourceAsStream(LOG_CONFIG)) {\n\t\t\tif (in == null) {\n\t\t\t\tSystem.err.println(\"Could not open \" + LOG_CONFIG);\n\t\t\t}\n\t\t\tLogManager.getLogManager().readConfiguration(in);\n\t\t} catch (IOException e) {\n\t\t\tSystem.err.println(\"Failed reading \" + LOG_CONFIG);\n\t\t}\n\t}"
+  },
+  {
+    "category": "Java",
+    "title": "Run headless",
+    "body": " java -Djava.awt.headless=true\n"
+  },
+  {
+    "category": "SQL",
+    "title": "Limiting Oracle selects",
+    "body": "select * from foo where ROWNUM < 100\n# Or\nselect * from foo\nOFFSET 5 ROWS FETCH NEXT 100 ROWS ONLY"
+  },
+  {
+    "category": "git",
+    "title": "hard revert",
+    "body": "git reset --hard origin/master"
+  },
+  {
+    "category": "Java",
+    "title": "package info",
+    "body": "/**\n * Description info here.\n * @since 1.0\n */\npackage foo.bar.baz;\n"
+  },
+  {
+    "category": "git",
+    "title": "merge local project into existing github",
+    "body": "# in local directory\ngit init\ngit add .\ngit commit -m \"Genesis\"\ngit remote add origin github_url_here\ngit pull origin master\ngit push --set-upstream origin master"
+  },
+  {
+    "category": "mac",
+    "title": "Show dot files in file open dialog",
+    "body": "command-shift-.\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "temporary file",
+    "body": "SCRIPT_NAME=\"${0##*/}\"\nTMPFILE=$(mktemp /tmp/${SCRIPT_NAME}.XXXXXX)\ntrap \"rm -rf ${TMPFILE}\" EXIT\n"
+  },
+  {
+    "category": "git",
+    "title": "compare to master",
+    "body": "# diff what do I have checked in not in master\ngit diff origin/master..HEAD\n# List commits\ngit cherry -v \n"
+  },
+  {
+    "category": "Unix Commands",
+    "title": "curl behind proxy",
+    "body": "echo proxy = host:port >> ~/.curlrc\n"
+  },
+  {
+    "category": "git",
+    "title": "create patch for unpushed commits",
+    "body": "git format-patch origin/master --stdout > patches_$(date -I).patch"
+  },
+  {
+    "category": "python",
+    "title": "pip upgrade a package",
+    "body": "pip install -U package"
+  },
+  {
+    "category": "git",
+    "title": "checkout remote branch",
+    "body": "git fetch origin\ngit checkout branchname\n"
+  },
+  {
+    "category": "git",
+    "title": "discard changes to specific files",
+    "body": "git checkout -- filepath"
+  },
+  {
+    "category": "Unix Commands",
+    "title": "dd status",
+    "body": "# if there is only your dd running\npkill -INFO dd\n# otherwise find pid with ps and\nkill -INFO ${PID}\n# or ....\nCTRL-t\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "bash array ",
+    "body": "FOO=(a b c)\necho ${FOO[@]}"
+  },
+  {
+    "category": "Shell Script",
+    "title": "required apps running",
+    "body": "#!/bin/sh\n# include colorEcho\n\nrequiredAppRunning() {\n    running=$( ps -ef | grep -i \"${1}\" | grep -v \"grep\" | wc -l )\n\n    if [ ${running} -eq 0 ]; then\n        colorEcho ${red} \"Required app ${1} is not running!\"\n        exit 2\n    fi\n}\n"
+  },
+  {
+    "category": "SQL",
+    "title": "set variables",
+    "body": "set @var := 1;\nselect * from count where id = @var;\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "file exists",
+    "body": "FILE=\"/etc/hosts\"\nif [ -f $FILE ]; then\n  echo \"File ${FILE} exists\"\nelse\n  echo \"File ${FILE} does NOT exists\"\nfi\n"
+  },
+  {
+    "category": "docker",
+    "title": "commit and push",
+    "body": "docker commit -p stoic_darwin nwillc/jenkins-slave:latest\ndocker push nwillc/jenkins-slave:latest"
+  },
+  {
+    "category": "docker",
+    "title": "garbage collect",
+    "body": "docker system prune\n"
+  },
+  {
+    "category": "git",
+    "title": "delete remote branch",
+    "body": "git fetch origin\ngit branch -dr origin/branch_name"
+  },
+  {
+    "category": "git",
+    "title": "ignore file modes",
+    "body": "git config core.fileMode false"
+  },
+  {
+    "category": "Shell Script",
+    "title": "temporary dir",
+    "body": "scratch_dir=$(mktemp -d -t scratchXXXXXX)\nif [ ! -d ${scratch_dir} ];  then\n    echo \"Failed to creat scatch directory.\"\n    exit 1\nfi\ntrap \"rm -rf ${scratch_dir}\" EXIT\n"
+  },
+  {
+    "category": "Unix Commands",
+    "title": "X11 socket redirect",
+    "body": "socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\\\"$DISPLAY\\\" &\n"
+  },
+  {
+    "category": "gradle",
+    "title": "network proxy",
+    "body": "# in your ~/.gradle/gradle.properties\nsystemProp.http.proxyHost=host\nsystemProp.http.proxyPort=8080\nsystemProp.https.proxyHost=host\nsystemProp.https.proxyPort=8080"
+  },
+  {
+    "category": "mvn",
+    "title": "mvn create project",
+    "body": "mvn archetype:generate -DgroupId=com.github.nwillc -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false"
+  },
+  {
+    "category": "Shell Script",
+    "title": "directory exists",
+    "body": "DIR=\"/etc\"\nif [ -d $DIR ]; then\n  echo \"Folder ${DIR} exists\"\nelse\n  echo \"Folder ${DIR} does NOT exists\"\nfi\n"
+  },
+  {
+    "category": "mvn",
+    "title": "mvn version targets",
+    "body": "mvn versions:display-dependency-updates\nmvn versions:display-plugin-updates\n"
+  },
+  {
+    "category": "Unix Commands",
+    "title": "decompile apk",
+    "body": "dex2jar\njd-gui\n"
+  },
+  {
+    "category": "Windows",
+    "title": "Recover off screen window",
+    "body": "Click task bar icon for window to give it focus.  Then Windows key and right arrow to move the window through desktops until you see it."
+  },
+  {
+    "category": "docker",
+    "title": "flatten image",
+    "body": "$ docker run -d sample\n7423d238b754e6a2c5294aab7b185f80be2457ee36de22795685b19ff1cf03ec\n$ docker export 7423d238b | docker import - sample:flat\n3995a1f00b91efb016250ca6acc31aaf5d621c6adaf84664a66b7a4594f695eb"
+  },
+  {
+    "category": "git",
+    "title": "gh_pages set up",
+    "body": "# cd into repo and create branch\ngit checkout --orphan gh-pages\n# clean it\ngit rm -rf .\ngit add .\ngit commit -m Genesis\ngot push origin gh-pages\n"
+  },
+  {
+    "category": "git",
+    "title": "git via http proxy",
+    "body": "export HTTP_PROXY=http://host:port\ngit config --local http.proxy ${HTTP_PROXY}\n"
+  },
+  {
+    "category": "gradle",
+    "title": "gradle dependency tree",
+    "body": "gradle dependencies"
+  },
+  {
+    "category": "gradle",
+    "title": "gradle create all artifacts for release",
+    "body": "gradle clean build sourceJar javadocJar generatePomFileForMavenJavaPublication -x test"
+  },
+  {
+    "category": "docker",
+    "title": "kitematic via proxy",
+    "body": "export HTTP_PROXY=http://usproxy.es.oneadp.com:8080\nexport HTTPS_PROXY=http://usproxy.es.oneadp.com:8080\n/Applications/Kitematic\\ \\(Beta\\).app/Contents/MacOS/Electron"
+  },
+  {
+    "category": "Shell Script",
+    "title": "Command line argument parsing",
+    "body": "echo \"$0 $*\"\n\nhelp_text() {\n    code=${1}\n    cat << EOU\n     Usage:\n         ${SCRIPT_NAME} -this some_arg\nEOU\n    exit ${code}\n}\n\n\nwhile getopts \":t:h\" OPT; do\ndo\n    case \"${OPT}\" in\n\tt)\n\t    echo ${OPTARG}\n\t    shift;\n\t    ;;\n\th)\n\t    help_text 0\n\t    ;;\n\t\\?)\n\t    help_text 1\n\t    ;;\n    esac\ndone\n\nshift $((OPTIND-1))\n[ \"$1\" = \"--\" ] && shift\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "jar lib classpath",
+    "body": "LIB_DIR=./lib\nIFS=\":\"\nexport CLASSPATH=${LIB_DIR}$(JARS=(${LIB_DIR}/*.jar); IFS=${IFS} ; echo \"${JAR_FILE}${IFS}${JARS[*]}\")\n"
+  },
+  {
+    "category": "gradle",
+    "title": "show available tasks",
+    "body": "./gradlew :tasks"
+  },
+  {
+    "category": "docker",
+    "title": "copy/load image file",
+    "body": "docker save -o <save image to path> <image name>\ndocker load -i <path to image tar file>\n\n"
+  },
+  {
+    "category": "google",
+    "title": "email address variations",
+    "body": "periods ignored\nemail+something@gmail.com"
+  },
+  {
+    "category": "Shell Script",
+    "title": "find JAVA_HOME",
+    "body": "# Looking for Java\nunset JAVA_HOME\nJDK_DIRS=\"$(ls -d /opt/java/*jdk* /Library/Java/JavaVirtualMachines/*/Contents/Home 2> /dev/null | sort -r)\"\n\n# Look for the right JVM to use\nfor jdir in ${JDK_DIRS}; do\n    if [ -r \"${jdir}/bin/java\" -a -z \"${JAVA_HOME}\" ]; then\n        JAVA_HOME=\"${jdir}\"\n    fi\ndone\nexport JAVA_HOME\nexport JAVA=${JAVA_HOME}/bin/java\nexport TMP_FOLDER=${TMP_FOLDER:-/var/tmp}\n"
+  },
+  {
+    "category": "docker",
+    "title": "show full command line of container",
+    "body": "docker ps -a --no-trunc"
+  },
+  {
+    "category": "git",
+    "title": "git delete local branch",
+    "body": "git branch -D branch_name"
+  },
+  {
+    "category": "Text",
+    "title": "ISC Copyright",
+    "body": "Copyright (c) $today.year, nwillc@gmail.com\n\nPermission to use, copy, modify, and/or distribute this software for any\npurpose with or without fee is hereby granted, provided that the above\ncopyright notice and this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES\nWITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF\nMERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR\nANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN\nACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF\nOR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "color echo",
+    "body": "# see http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x405.html\n\nred=1\ngreen=2\nyellow=3\nblue=4\nmagenta=5\ncyan=6\nwhite=7\n\ncolorEcho(){\n    color=${1}\n    shift 1    \n    echo \"$(tput setaf ${color})${*}$(tput sgr0)\"\n}\n\ncolorEcho ${cyan} This is cyan.\n"
+  },
+  {
+    "category": "Shell Script",
+    "title": "variable names as variables",
+    "body": "AA=one\nAB=two\nAC=three\n\nfor var in ${!A*}\ndo\n   echo ${var} = ${!var}\ndone\n"
+  },
+  {
+    "category": "mvn",
+    "title": "mvn local install jar",
+    "body": "# With pom\nmvn install:install-file -Dfile=path-to-your-artifact-jar -DpomFile=path-to-your-artifact-pom\n# with jar only \nmvn install:install-file -Dfile=path-to-your-artifact-jar \\\n                                                                              -DgroupId=your.groupId \\\n                                                                              -DartifactId=your-artifactId \\\n                                                                              -Dversion=version \\\n                                                                              -Dpackaging=jar \\"
+  }
+]

@@ -54,3 +54,18 @@ func TestCategorySort(t *testing.T) {
 		})
 	}
 }
+
+func TestToSnippets(t *testing.T) {
+	categories := Categories{
+		{
+			Name:     "A",
+			Snippets: []Snippet{{"A", "A", "A"}},
+		},
+		{
+			Name:     "B",
+			Snippets: []Snippet{{"B", "B", "B"}, {"B", "B2", "B2"}},
+		},
+	}
+	snippets := categories.ToSnippets()
+	assert.Len(t, *snippets, 3)
+}

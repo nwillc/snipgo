@@ -14,15 +14,17 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package model
 
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"io/ioutil"
+	"os"
 	"testing"
 )
 
-const testPrefFile = "test/files/preferences.json"
+const testPrefFile = "../test/files/preferences.json"
 
 type PreferencesTestSuite struct {
 	suite.Suite
@@ -36,13 +38,23 @@ func (suite *PreferencesTestSuite) SetupTest() {
 }
 
 func (suite *PreferencesTestSuite) TestNonExistPrefs() {
-	_, ok := readPreferences(suite.badFilename)
+	_, ok := ReadPreferences(suite.badFilename)
 	assert.NotNil(suite.T(), ok)
 }
 
 func (suite *PreferencesTestSuite) TestExistPrefs() {
-	_, ok := readPreferences(suite.goodFilename)
+	_, ok := ReadPreferences(suite.goodFilename)
 	assert.Nil(suite.T(), ok)
+}
+
+func (suite *PreferencesTestSuite) TestMalformedFile() {
+	tempFile, err := ioutil.TempFile("", "prefs.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+	tempFile.WriteString("not json")
+
+	_, ok := ReadPreferences(tempFile.Name())
+	assert.NotNil(suite.T(), ok)
 }
 
 func TestPreferencesTestSuite(t *testing.T) {

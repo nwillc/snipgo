@@ -19,16 +19,27 @@ package model
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"io/ioutil"
+	"os"
 	"testing"
 )
 
-const testSnippetsFile = "../test/files/Snippets.json"
+const testSnippetsFile = "../test/files/snippets.json"
 
 type SnippetsTestSuite struct {
 	suite.Suite
 	snippets     Snippets
 	badFilename  string
 	goodFilename string
+}
+
+func (suite *SnippetsTestSuite) TestStringer() {
+	snippet := Snippet{
+		Category: "Foo",
+		Title: "Bar",
+		Body: "Baz",
+	}
+	assert.Equal(suite.T(), "Foo: Bar", snippet.String())
 }
 
 func (suite *SnippetsTestSuite) SetupTest() {
@@ -54,6 +65,30 @@ func (suite *SnippetsTestSuite) TestNonExist() {
 func (suite *SnippetsTestSuite) TestExist() {
 	_, ok := ReadSnippets(suite.goodFilename)
 	assert.Nil(suite.T(), ok)
+}
+
+func (suite *SnippetsTestSuite) TestWriteFile() {
+	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+
+	original, ok := ReadSnippets(suite.goodFilename)
+	assert.Nil(suite.T(), ok)
+	err = original.WriteSnippets(tempFile.Name())
+	assert.Nil(suite.T(), err)
+	read, ok := ReadSnippets(tempFile.Name())
+	assert.Nil(suite.T(), ok)
+	assert.Equal(suite.T(), len(original), len(read))
+}
+
+func (suite *SnippetsTestSuite) TestMalformedFile() {
+	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+	tempFile.WriteString("not json")
+
+	_, ok := ReadSnippets(tempFile.Name())
+	assert.NotNil(suite.T(), ok)
 }
 
 func (suite *SnippetsTestSuite) TestLen() {

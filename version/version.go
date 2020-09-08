@@ -14,27 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package version
 
-import (
-	"fmt"
-	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/ui"
-)
+// Version number for official releases Updated manually before each release.
+var Version = "v0.1.0"
 
-func main() {
-	preferences, err := model.ReadPreferences("")
-	if err != nil {
-		panic("Could not get preferences")
-	}
-	snippets, err := model.ReadSnippets(preferences.DefaultFile)
-	if err != nil {
-		panic(fmt.Sprintf("failed %v", err))
-	}
-
-	categories := snippets.ByCategory()
-
-	homePage := ui.NewUI()
-	homePage.SetCategories(&categories)
-	homePage.Run()
-}

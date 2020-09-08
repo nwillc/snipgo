@@ -14,27 +14,36 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package widgets
 
 import (
 	"fmt"
-	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/ui"
+	"github.com/pgavlin/femto"
+	"strings"
 )
 
-func main() {
-	preferences, err := model.ReadPreferences("")
-	if err != nil {
-		panic("Could not get preferences")
-	}
-	snippets, err := model.ReadSnippets(preferences.DefaultFile)
-	if err != nil {
-		panic(fmt.Sprintf("failed %v", err))
-	}
+type Editor struct {
+	buffer *femto.Buffer
+	*femto.View
+}
 
-	categories := snippets.ByCategory()
+// Implements fmt.Stringer
+var _ fmt.Stringer = (*Editor)(nil)
 
-	homePage := ui.NewUI()
-	homePage.SetCategories(&categories)
-	homePage.Run()
+func NewEditor() *Editor {
+	buffer := femto.NewBufferFromString("", "")
+	buffer.Settings["ruler"] = false
+	view := femto.NewView(buffer)
+	return &Editor{buffer, view}
+}
+
+func (editor *Editor) Text(text string) {
+	editor.buffer.Remove(editor.buffer.Start(), editor.buffer.End())
+	editor.buffer.Insert(editor.buffer.Start(), text)
+}
+
+// Implement fmt.Stringer
+func (editor *Editor) String() string {
+	lines := editor.buffer.Lines(0, editor.buffer.NumLines)
+	return strings.Join(lines, "\n") + "\n"
 }

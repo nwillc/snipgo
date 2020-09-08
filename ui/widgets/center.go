@@ -14,27 +14,19 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package widgets
 
-import (
-	"fmt"
-	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/ui"
-)
+import "github.com/rivo/tview"
 
-func main() {
-	preferences, err := model.ReadPreferences("")
-	if err != nil {
-		panic("Could not get preferences")
-	}
-	snippets, err := model.ReadSnippets(preferences.DefaultFile)
-	if err != nil {
-		panic(fmt.Sprintf("failed %v", err))
-	}
-
-	categories := snippets.ByCategory()
-
-	homePage := ui.NewUI()
-	homePage.SetCategories(&categories)
-	homePage.Run()
+// Center returns a new primitive which shows the provided primitive in its
+// center, given the provided primitive's size.
+func Center(width, height int, p tview.Primitive) tview.Primitive {
+	return tview.NewFlex().
+		AddItem(nil, 0, 1, false).
+		AddItem(tview.NewFlex().
+			SetDirection(tview.FlexRow).
+			AddItem(nil, 0, 1, false).
+			AddItem(p, height, 1, true).
+			AddItem(nil, 0, 1, false), width, 1, true).
+		AddItem(nil, 0, 1, false)
 }

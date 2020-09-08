@@ -14,27 +14,38 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package pages
 
 import (
 	"fmt"
 	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/ui"
+	"github.com/nwillc/snipgo/ui/widgets"
+	"github.com/rivo/tview"
 )
 
-func main() {
-	preferences, err := model.ReadPreferences("")
-	if err != nil {
-		panic("Could not get preferences")
-	}
-	snippets, err := model.ReadSnippets(preferences.DefaultFile)
-	if err != nil {
-		panic(fmt.Sprintf("failed %v", err))
-	}
+type PreferencesPage struct {
+	tview.Primitive
+}
 
-	categories := snippets.ByCategory()
+// Implements Slide
+var _ Slide = (*PreferencesPage)(nil)
 
-	homePage := ui.NewUI()
-	homePage.SetCategories(&categories)
-	homePage.Run()
+func NewPreferencesPage() *PreferencesPage {
+	textView := tview.NewTextView()
+	fmt.Fprintln(textView, "Preferences Page")
+	fmt.Fprintln(textView, "TODO")
+	page := PreferencesPage{widgets.Center(20, 2, textView)}
+	return &page
+}
+
+func (p PreferencesPage) SetCategories(categories *model.Categories) {
+	// NoOp
+}
+
+func (p PreferencesPage) GetName() string {
+	return "Preferences"
+}
+
+func (p PreferencesPage) SetCategoryReceiver(receiver CategoryReceiver) {
+	// NoOp
 }
