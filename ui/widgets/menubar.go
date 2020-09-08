@@ -39,6 +39,7 @@ func NewMenuBar() *MenuBar {
 		index, _ := strconv.Atoi(added[0])
 		mb.action(index)
 	})
+
 	return &mb
 }
 

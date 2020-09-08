@@ -14,40 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package pages
+package version
 
-import (
-	"fmt"
-	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/ui/widgets"
-	"github.com/nwillc/snipgo/version"
-	"github.com/rivo/tview"
-)
+// Version number for official releases Updated manually before each release.
+var Version = "v0.1.0"
 
-type AboutPage struct {
-	tview.Primitive
-}
-
-// Implements Slide
-var _ Slide = (*AboutPage)(nil)
-
-func NewAboutPage() *AboutPage {
-	textView := tview.NewTextView()
-	fmt.Fprintln(textView, "Snippets Manager")
-	fmt.Fprintln(textView, "See https://github.com/nwillc/snipgo")
-	fmt.Fprintln(textView, "Version ", version.Version)
-	page := AboutPage{widgets.Center(40, 3, textView)}
-	return &page
-}
-
-func (a *AboutPage) GetName() string {
-	return "About"
-}
-
-func (a *AboutPage) SetCategories(categories *model.Categories) {
-	// NoOp
-}
-
-func (a *AboutPage) SetCategoryReceiver(receiver CategoryReceiver) {
-	// NoOp
-}
