@@ -16,6 +16,5 @@
 
 package version
 
-// Version number for official releases Updated manually before each release.
+// Version number for official releases updated with go generate.
 var Version = "v0.1.0"
-

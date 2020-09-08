@@ -22,6 +22,8 @@ import (
 	"github.com/nwillc/snipgo/ui"
 )
 
+//go:generate go run ./cmd/release/main.go
+
 func main() {
 	preferences, err := model.ReadPreferences("")
 	if err != nil {
