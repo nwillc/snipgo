@@ -5,75 +5,144 @@ import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 var output = "version/version.go"
 
 func main() {
 
-	if err := tagging(); err != nil {
-		panic(err)
-	}
-
+	// Get the target version
 	content, err := ioutil.ReadFile(".version")
-	if err != nil {
-		panic(err)
-	}
+	CheckIfError(err)
 	version := strings.Replace(string(content), "\n", "", -1)
 
-	t, err := template.New("version").Parse(versionTemplate)
+	// Is this tag present? If not apply
+	repo := GetRepository("")
 
-	if err != nil {
-		panic(err)
+	CreateVersionGo(output, version)
+
+	w, err := repo.Worktree()
+	CheckIfError(err)
+
+	status, err := w.Status()
+	CheckIfError(err)
+
+	log.Printf("git status:\n %v", status)
+
+	_, err = w.Add(output)
+	CheckIfError(err)
+
+	_, err = w.Commit("Generated for " + version, &git.CommitOptions{
+		Author: NewSignature(),
+	})
+	CheckIfError(err)
+
+	ok, err := SetTag(repo, version)
+	CheckIfError(err)
+
+	if !ok {
+		log.Printf("unable to set %s\n", version)
 	}
+}
 
+func NewSignature() *object.Signature {
+	sig := object.Signature{
+		Name:  "nwillc",
+		Email: "nwillc@gmail.com",
+		When:  time.Now(),
+	}
+	return &sig
+}
+func CreateVersionGo(fileName string, version string) {
+	// Create new version.go
+	versionTemplate, err := template.New("version").Parse(versionTemplateStr)
+	CheckIfError(err)
 	data := struct {
 		Version string
 	}{version}
-	f, err := os.Create(output)
-	if err != nil {
-		panic(err)
-	}
+
+	f, err := os.Create(fileName)
+	CheckIfError(err)
 	w := bufio.NewWriter(f)
-	err = t.Execute(w, data)
-	if err != nil {
-		panic(err)
-	}
+	err = versionTemplate.Execute(w, data)
+	CheckIfError(err)
 	err = w.Flush()
-	if err != nil {
-		panic(err)
-	}
+	CheckIfError(err)
 }
 
-func tagging() error {
-	r, err := git.PlainOpen(".git")
-	if err != nil {
-		return err
+func GetRepository(repo string) *git.Repository {
+	if repo == "" {
+		repo = "."
 	}
-	tagrefs, err := r.Tags()
+	r, err := git.PlainOpenWithOptions(repo, &git.PlainOpenOptions{DetectDotGit: true})
 	if err != nil {
-		return err
+		panic(err)
 	}
-	err = tagrefs.ForEach(func(t *plumbing.Reference) error {
-		fmt.Println(t.Name())
+	return r
+}
+
+func TagExists(r *git.Repository, tag string) bool {
+	tagFoundErr := "tag was found"
+	tags, err := r.Tags()
+	if err != nil {
+		log.Printf("get tags error: %s", err)
+		return false
+	}
+	res := false
+	err = tags.ForEach(func(t *plumbing.Reference) error {
+		if strings.Contains(t.Name().String(), tag) {
+			res = true
+			return fmt.Errorf(tagFoundErr)
+		}
 		return nil
 	})
-	if err != nil {
-		return err
+	if err != nil && err.Error() != tagFoundErr {
+		log.Printf("iterate tags error: %s", err)
+		return false
 	}
-	return fmt.Errorf("not yet implemented")
+	return res
 }
 
-func publicKey() (*ssh.PublicKeys, error) {
-	return nil, fmt.Errorf("not yet implemented")
+func SetTag(r *git.Repository, tag string) (bool, error) {
+	if TagExists(r, tag) {
+		log.Printf("tag %s already exists", tag)
+		return false, nil
+	}
+	log.Printf("Set tag %s", tag)
+	h, err := r.Head()
+	if err != nil {
+		log.Printf("get HEAD error: %s", err)
+		return false, err
+	}
+	_, err = r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
+		Tagger: NewSignature(),
+		Message: "Release " + tag,
+	})
+
+	if err != nil {
+		log.Printf("create tag error: %s", err)
+		return false, err
+	}
+
+	return true, nil
 }
 
-var versionTemplate = `/*
+func CheckIfError(err error) {
+	if err == nil {
+		return
+	}
+
+	panic(err)
+}
+
+var versionTemplateStr = `/*
  * Copyright (c) 2020, nwillc@gmail.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any

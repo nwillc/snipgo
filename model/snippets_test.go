@@ -107,6 +107,7 @@ func (suite *SnippetsTestSuite) TestSwap() {
 }
 
 func TestSnippetsTestSuite(t *testing.T) {
+
 	suite.Run(t, new(SnippetsTestSuite))
 }
 
