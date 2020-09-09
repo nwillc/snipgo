@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"html/template"
@@ -59,6 +60,12 @@ func main() {
 	if !ok {
 		log.Printf("unable to set %s\n", version)
 	}
+
+	err = repo.Push(&git.PushOptions{
+		RemoteName: "origin",
+		RefSpecs: []config.RefSpec{config.RefSpec(version)},
+	})
+	CheckIfError(err)
 }
 
 func NewSignature() *object.Signature {
