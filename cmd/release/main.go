@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/user"
 	"strings"
 	"time"
 )
@@ -83,12 +84,20 @@ func main() {
 		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
 	})
 	CheckIfError(err)
+
+	/*
+	 * Push the entire repo
+	 */
+	err = repo.Push(&git.PushOptions{})
+	CheckIfError(err)
 }
 
 func NewSignature() *object.Signature {
+	userInfo, err := user.Current()
+	CheckIfError(err)
 	sig := object.Signature{
-		Name:  "nwillc",
-		Email: "nwillc@gmail.com",
+		Name:  userInfo.Name,
+		//Email: "nwillc@gmail.com",
 		When:  time.Now(),
 	}
 	return &sig
