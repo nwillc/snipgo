@@ -15,31 +15,40 @@ import (
 )
 
 var output = "version/version.go"
+var dotVersionFile = ".version"
 
 func main() {
+	repo := GetRepository("")
+	w, err := repo.Worktree()
+	CheckIfError(err)
+	status, err := w.Status()
+	CheckIfError(err)
+
+	if len(status) != 1 {
+		panic(fmt.Errorf("incorrrect file commit status, %d files", len(status)))
+	}
+
+	vs := status.File(dotVersionFile)
+	if vs.Staging == '?' && vs.Worktree == '?' {
+		panic(fmt.Errorf("%s should be only uncommitted file", dotVersionFile))
+	}
 
 	// Get the target version
-	content, err := ioutil.ReadFile(".version")
+	content, err := ioutil.ReadFile(dotVersionFile)
 	CheckIfError(err)
 	version := strings.Replace(string(content), "\n", "", -1)
 
-	// Is this tag present? If not apply
-	repo := GetRepository("")
-
 	CreateVersionGo(output, version)
-
-	w, err := repo.Worktree()
-	CheckIfError(err)
-
-	status, err := w.Status()
-	CheckIfError(err)
 
 	log.Printf("git status:\n %v", status)
 
 	_, err = w.Add(output)
 	CheckIfError(err)
 
-	_, err = w.Commit("Generated for " + version, &git.CommitOptions{
+	_, err = w.Add(dotVersionFile)
+	CheckIfError(err)
+
+	_, err = w.Commit("Generated for "+version, &git.CommitOptions{
 		Author: NewSignature(),
 	})
 	CheckIfError(err)
@@ -122,7 +131,7 @@ func SetTag(r *git.Repository, tag string) (bool, error) {
 		return false, err
 	}
 	_, err = r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
-		Tagger: NewSignature(),
+		Tagger:  NewSignature(),
 		Message: "Release " + tag,
 	})
 
