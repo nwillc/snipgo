@@ -25,6 +25,9 @@ func main() {
 	status, err := w.Status()
 	CheckIfError(err)
 
+	/*
+	 * Check that we are ready for release.
+	 */
 	if len(status) != 1 {
 		panic(fmt.Errorf("incorrrect file commit status, %d files", len(status)))
 	}
@@ -33,34 +36,48 @@ func main() {
 	if vs.Staging == '?' && vs.Worktree == '?' {
 		panic(fmt.Errorf("%s should be only uncommitted file", dotVersionFile))
 	}
-
-	// Get the target version
+	/*
+	 * Get new version.
+	 */
 	content, err := ioutil.ReadFile(dotVersionFile)
 	CheckIfError(err)
 	version := strings.Replace(string(content), "\n", "", -1)
 
+	/*
+	 * Create the new version.go file.
+	 */
 	CreateVersionGo(output, version)
 
-	log.Printf("git status:\n %v", status)
-
+	/*
+	 * Add the .version and version.go files.
+	 */
 	_, err = w.Add(output)
 	CheckIfError(err)
 
 	_, err = w.Add(dotVersionFile)
 	CheckIfError(err)
 
+	/*
+	 * Commit the files.
+	 */
 	_, err = w.Commit("Generated for "+version, &git.CommitOptions{
 		Author: NewSignature(),
 	})
 	CheckIfError(err)
 
+	/*
+	 * Set the new tag.
+	 */
 	ok, err := SetTag(repo, version)
 	CheckIfError(err)
 
 	if !ok {
-		log.Printf("unable to set %s\n", version)
+		panic(fmt.Errorf("unable to set tag %s\n", version))
 	}
 
+	/*
+	 * Push the tag
+	 */
 	err = repo.Push(&git.PushOptions{
 		RemoteName: "origin",
 		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
@@ -76,6 +93,7 @@ func NewSignature() *object.Signature {
 	}
 	return &sig
 }
+
 func CreateVersionGo(fileName string, version string) {
 	// Create new version.go
 	versionTemplate, err := template.New("version").Parse(versionTemplateStr)
