@@ -63,7 +63,7 @@ func main() {
 
 	err = repo.Push(&git.PushOptions{
 		RemoteName: "origin",
-		RefSpecs: []config.RefSpec{config.RefSpec(version)},
+		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
 	})
 	CheckIfError(err)
 }
