@@ -7,6 +7,7 @@ import (
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -84,6 +85,12 @@ func main() {
 		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
 	})
 	if err != nil {
+		sshKey, _ := PublicKeys()
+		err = repo.Push(&git.PushOptions{
+				RemoteName: "origin",
+				RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
+				Auth: sshKey,
+			})
 		log.Printf("Push failed, please: git push origin %s; git push", version)
 	} else {
 		/*
@@ -92,6 +99,18 @@ func main() {
 		err = repo.Push(&git.PushOptions{})
 		CheckIfError(err)
 	}
+}
+
+func PublicKeys() (*ssh.PublicKeys, error) {
+	path, err := os.UserHomeDir()
+	CheckIfError(err)
+	path += "/.ssh/id_rsa"
+
+	publicKey, err := ssh.NewPublicKeysFromFile("git", path, "")
+	if err != nil {
+		return nil, err
+	}
+	return publicKey, nil
 }
 
 func NewSignature() *object.Signature {
