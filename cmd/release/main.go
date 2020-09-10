@@ -83,13 +83,15 @@ func main() {
 		RemoteName: "origin",
 		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
 	})
-	CheckIfError(err)
-
-	/*
-	 * Push the entire repo
-	 */
-	err = repo.Push(&git.PushOptions{})
-	CheckIfError(err)
+	if err != nil {
+		log.Printf("Push failed, please: git push origin %s; git push", version)
+	} else {
+		/*
+		 * Push the entire repo
+		 */
+		err = repo.Push(&git.PushOptions{})
+		CheckIfError(err)
+	}
 }
 
 func NewSignature() *object.Signature {
