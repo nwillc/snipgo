@@ -19,6 +19,7 @@ import (
 
 var output = "version/version.go"
 var dotVersionFile = ".version"
+var gitUser = "git"
 
 func main() {
 	repo := GetRepository("")
@@ -93,7 +94,7 @@ func main() {
 			})
 		if err != nil {
 			log.Printf("Push failed, please: git push origin %s; git push", version)
-		} 
+		}
 	} else {
 		/*
 		 * Push the entire repo
@@ -108,7 +109,7 @@ func PublicKeys() (*ssh.PublicKeys, error) {
 	CheckIfError(err)
 	path += "/.ssh/id_rsa"
 
-	publicKey, err := ssh.NewPublicKeysFromFile("git", path, "")
+	publicKey, err := ssh.NewPublicKeysFromFile(gitUser, path, "")
 	if err != nil {
 		return nil, err
 	}
