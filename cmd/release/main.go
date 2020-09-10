@@ -88,10 +88,10 @@ func main() {
 	if err != nil {
 		sshKey, _ := PublicKeys()
 		err = repo.Push(&git.PushOptions{
-				RemoteName: "origin",
-				RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
-				Auth: sshKey,
-			})
+			RemoteName: "origin",
+			RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
+			Auth:       sshKey,
+		})
 		if err != nil {
 			log.Printf("Push failed, please: git push origin %s; git push", version)
 		}
@@ -120,8 +120,8 @@ func NewSignature() *object.Signature {
 	userInfo, err := user.Current()
 	CheckIfError(err)
 	sig := object.Signature{
-		Name:  userInfo.Name,
-		When:  time.Now(),
+		Name: userInfo.Name,
+		When: time.Now(),
 	}
 	return &sig
 }

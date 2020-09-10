@@ -36,8 +36,8 @@ type SnippetsTestSuite struct {
 func (suite *SnippetsTestSuite) TestStringer() {
 	snippet := Snippet{
 		Category: "Foo",
-		Title: "Bar",
-		Body: "Baz",
+		Title:    "Bar",
+		Body:     "Baz",
 	}
 	assert.Equal(suite.T(), "Foo: Bar", snippet.String())
 }
