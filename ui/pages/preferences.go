@@ -23,6 +23,7 @@ import (
 	"github.com/rivo/tview"
 )
 
+// PreferencesPage is the Slide to manage model.Preferences.
 type PreferencesPage struct {
 	tview.Primitive
 }
@@ -30,6 +31,7 @@ type PreferencesPage struct {
 // Implements Slide
 var _ Slide = (*PreferencesPage)(nil)
 
+// NewPreferencesPage is a factory for PreferencesPage Slide.
 func NewPreferencesPage() *PreferencesPage {
 	textView := tview.NewTextView()
 	fmt.Fprintln(textView, "Preferences Page")
@@ -38,14 +40,17 @@ func NewPreferencesPage() *PreferencesPage {
 	return &page
 }
 
+// SetCategories sets the model.Categories used on the Slide.
 func (p PreferencesPage) SetCategories(categories *model.Categories) {
 	// NoOp
 }
 
+// GetName returns the name of this Slide.
 func (p PreferencesPage) GetName() string {
 	return "Preferences"
 }
 
+// SetCategoryReceiver inform the Slide where to notify with changes of the model.Categories.
 func (p PreferencesPage) SetCategoryReceiver(receiver CategoryReceiver) {
 	// NoOp
 }

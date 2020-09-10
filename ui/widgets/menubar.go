@@ -22,12 +22,14 @@ import (
 	"strconv"
 )
 
+// MenuBar is a tview.TextView to create a horizontal menu bar.
 type MenuBar struct {
 	*tview.TextView
 	itemCount int
 	actions   []func(int)
 }
 
+// NewMenuBar is a factory function for MenuBar.
 func NewMenuBar() *MenuBar {
 	tv := tview.NewTextView().
 		SetDynamicColors(true).
@@ -43,10 +45,11 @@ func NewMenuBar() *MenuBar {
 	return &mb
 }
 
-func (mb *MenuBar) AddItem(name string, action func(int)) *MenuBar {
-	fmt.Fprintf(mb, `|["%d"][darkcyan]%s[white][""]|  `, mb.itemCount, name)
+// AddItem adds a label and action to the MenuBar.
+func (mb *MenuBar) AddItem(label string, action func(int)) *MenuBar {
+	fmt.Fprintf(mb, `|["%d"][darkcyan]%s[white][""]|  `, mb.itemCount, label)
 	mb.actions = append(mb.actions, action)
-	mb.itemCount += 1
+	mb.itemCount++
 	return mb
 }
 

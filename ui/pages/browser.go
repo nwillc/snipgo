@@ -32,6 +32,7 @@ var (
 	footerRow   = 2
 )
 
+// BrowserPage is the Slide implementation for browsing model.Categories.
 type BrowserPage struct {
 	tview.Primitive
 	editor          *widgets.Editor
@@ -45,6 +46,7 @@ type BrowserPage struct {
 // Implements Slide
 var _ Slide = (*BrowserPage)(nil)
 
+// NewBrowserPage is a factory for BrowserPage.
 func NewBrowserPage() *BrowserPage {
 	editor := widgets.NewEditor()
 	grid := tview.NewGrid().
@@ -98,10 +100,12 @@ func NewBrowserPage() *BrowserPage {
 	return &page
 }
 
+// GetName returns the name of this Slide.
 func (bp *BrowserPage) GetName() string {
 	return "Browser"
 }
 
+// SetCategories sets the model.Categories used on the Slide.
 func (bp *BrowserPage) SetCategories(categories *model.Categories) {
 	bp.categories = categories
 	bp.loadCategories()
@@ -204,6 +208,7 @@ func (bp *BrowserPage) removeSnippet() {
 	bp.SetCategories(bp.categories)
 }
 
+// SetCategoryReceiver inform the Slide where to notify with changes of the model.Categories.
 func (bp *BrowserPage) SetCategoryReceiver(receiver CategoryReceiver) {
 	// NoOp
 }

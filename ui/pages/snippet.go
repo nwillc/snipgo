@@ -23,6 +23,7 @@ import (
 	"sort"
 )
 
+// SnippetPage is a Slide to add new model.Snippet to the model.Categories.
 type SnippetPage struct {
 	tview.Primitive
 	categories       *model.Categories
@@ -35,6 +36,7 @@ type SnippetPage struct {
 // Implements Slide
 var _ Slide = (*SnippetPage)(nil)
 
+// NewSnippetPage is a factory for SnippetPage.
 func NewSnippetPage() *SnippetPage {
 	form := tview.NewForm()
 	form.SetBorder(true).SetTitle("New Snippet").SetTitleAlign(tview.AlignCenter)
@@ -64,14 +66,17 @@ func NewSnippetPage() *SnippetPage {
 	return &page
 }
 
+// SetCategories sets the model.Categories used on the Slide.
 func (s *SnippetPage) SetCategories(categories *model.Categories) {
 	s.categories = categories
 }
 
+// GetName returns the name of this Slide.
 func (s *SnippetPage) GetName() string {
 	return "Snippet"
 }
 
+// SetCategoryReceiver inform the Slide where to notify with changes of the model.Categories.
 func (s *SnippetPage) SetCategoryReceiver(receiver CategoryReceiver) {
 	s.categoryReceiver = receiver
 }

@@ -23,6 +23,7 @@ import (
 	"github.com/rivo/tview"
 )
 
+// UI is the tview.Primitive associated with the overall UI.
 type UI struct {
 	app *tview.Application
 	tview.Primitive
@@ -33,6 +34,7 @@ type UI struct {
 // Implements SetCategories
 var _ model.SetCategories = (*UI)(nil)
 
+// NewUI is a factory for UI.
 func NewUI() *UI {
 	app := tview.NewApplication()
 	slides := []pages.Slide{
@@ -78,6 +80,7 @@ func NewUI() *UI {
 	return &ui
 }
 
+// SetCategories sets the model.Categories used on the UI.
 func (ui *UI) SetCategories(categories *model.Categories) {
 	for _, slide := range ui.slides {
 		slide.SetCategories(categories)
@@ -85,6 +88,7 @@ func (ui *UI) SetCategories(categories *model.Categories) {
 	ui.pv.SwitchToPage("Browser")
 }
 
+// Run the UI.
 func (ui *UI) Run() {
 	if err := ui.app.SetRoot(ui, true).EnableMouse(true).Run(); err != nil {
 		panic(err)

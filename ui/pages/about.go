@@ -24,6 +24,7 @@ import (
 	"github.com/rivo/tview"
 )
 
+// AboutPage is a Slide showing information about the application.
 type AboutPage struct {
 	tview.Primitive
 }
@@ -31,6 +32,7 @@ type AboutPage struct {
 // Implements Slide
 var _ Slide = (*AboutPage)(nil)
 
+// NewAboutPage is factory for AboutPage.
 func NewAboutPage() *AboutPage {
 	textView := tview.NewTextView()
 	fmt.Fprintln(textView, "Snippets Manager")
@@ -40,14 +42,17 @@ func NewAboutPage() *AboutPage {
 	return &page
 }
 
+// GetName returns the name of this Slide.
 func (a *AboutPage) GetName() string {
 	return "About"
 }
 
+// SetCategories sets the model.Categories used on the Slide.
 func (a *AboutPage) SetCategories(categories *model.Categories) {
 	// NoOp
 }
 
+// SetCategoryReceiver inform the Slide where to notify with changes of the model.Categories.
 func (a *AboutPage) SetCategoryReceiver(receiver CategoryReceiver) {
 	// NoOp
 }

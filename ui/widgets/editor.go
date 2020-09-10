@@ -22,6 +22,7 @@ import (
 	"strings"
 )
 
+// Editor is a femto.View biased away from files a bit.
 type Editor struct {
 	buffer *femto.Buffer
 	*femto.View
@@ -30,6 +31,7 @@ type Editor struct {
 // Implements fmt.Stringer
 var _ fmt.Stringer = (*Editor)(nil)
 
+// NewEditor is factory function for Editor.
 func NewEditor() *Editor {
 	buffer := femto.NewBufferFromString("", "")
 	buffer.Settings["ruler"] = false
@@ -37,6 +39,7 @@ func NewEditor() *Editor {
 	return &Editor{buffer, view}
 }
 
+// Text retrieves the text of the Editor as a string.
 func (editor *Editor) Text(text string) {
 	editor.buffer.Remove(editor.buffer.Start(), editor.buffer.End())
 	editor.buffer.Insert(editor.buffer.Start(), text)
