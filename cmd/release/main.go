@@ -91,7 +91,9 @@ func main() {
 				RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
 				Auth: sshKey,
 			})
-		log.Printf("Push failed, please: git push origin %s; git push", version)
+		if err != nil {
+			log.Printf("Push failed, please: git push origin %s; git push", version)
+		} 
 	} else {
 		/*
 		 * Push the entire repo
@@ -118,7 +120,6 @@ func NewSignature() *object.Signature {
 	CheckIfError(err)
 	sig := object.Signature{
 		Name:  userInfo.Name,
-		//Email: "nwillc@gmail.com",
 		When:  time.Now(),
 	}
 	return &sig
