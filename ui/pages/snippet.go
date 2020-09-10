@@ -59,7 +59,7 @@ func NewSnippetPage() *SnippetPage {
 		})
 
 	form.AddButton("Save", func() {
-		page.broadcast()
+		page.addSnippet()
 	})
 	return &page
 }
@@ -76,12 +76,23 @@ func (s *SnippetPage) SetCategoryReceiver(receiver CategoryReceiver) {
 	s.categoryReceiver = receiver
 }
 
-func (s *SnippetPage) broadcast() {
+func (s *SnippetPage) addSnippet() {
+	updated := *s.categories
 	snippet := model.Snippets{{s.category, s.title, s.body}}
-	category := model.Category{Name: s.category, Snippets: snippet}
-	added := append(*s.categories, category)
-	sort.Sort(added)
-	s.categoryReceiver(&added)
+	found := false
+	for i, category := range updated {
+		if category.Name == s.category {
+			found = true
+			updated[i].Snippets = append(updated[i].Snippets, snippet...)
+			break
+		}
+	}
+	if !found {
+		category := model.Category{Name: s.category, Snippets: snippet}
+		updated = append(updated, category)
+	}
+	sort.Sort(updated)
+	s.categoryReceiver(&updated)
 }
 
 func (s *SnippetPage) setCategory(category string) {
