@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"github.com/blang/semver/v4"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,22 +16,25 @@ import (
 	"time"
 )
 
-var output = "version/version.go"
-var dotVersionFile = ".version"
-var gitUser = "git"
+const (
+	output         = "version/version.go"
+	dotVersionFile = ".version"
+	licenseFile    = "LICENSE.md"
+	gitUser        = "git"
+)
 
 func main() {
-	repo := GetRepository("")
+	repo := getRepository("")
 	w, err := repo.Worktree()
-	CheckIfError(err)
+	checkIfError(err)
 	status, err := w.Status()
-	CheckIfError(err)
+	checkIfError(err)
 
 	/*
 	 * Check that we are ready for release.
 	 */
 	if len(status) != 1 {
-		panic(fmt.Errorf("incorrrect file commit status, %d files", len(status)))
+		panic(fmt.Errorf("incorrrect file commit status, %d files, expection only %s", len(status), dotVersionFile))
 	}
 
 	vs := status.File(dotVersionFile)
@@ -43,70 +45,73 @@ func main() {
 	 * Get new version.
 	 */
 	content, err := ioutil.ReadFile(dotVersionFile)
-	CheckIfError(err)
-	version := strings.Replace(string(content), "\n", "", -1)
+	checkIfError(err)
+	versionStr := strings.Replace(string(content), "\n", "", -1)
+	v, err := semver.Make(versionStr)
+	checkIfError(err)
+	tag := "v" + v.String()
 
 	/*
-	 * Create the new version.go file.
+	 * Create the new version file.
 	 */
-	CreateVersionGo(output, version)
+	createVersionGo(output, tag)
 
 	/*
-	 * Add the .version and version.go files.
+	* Git add the .version and version files.
 	 */
 	_, err = w.Add(output)
-	CheckIfError(err)
+	checkIfError(err)
 
 	_, err = w.Add(dotVersionFile)
-	CheckIfError(err)
+	checkIfError(err)
 
 	/*
-	 * Commit the files.
+	* Git commit the files.
 	 */
-	_, err = w.Commit("Generated for "+version, &git.CommitOptions{
-		Author: NewSignature(),
+	_, err = w.Commit("Generated for "+tag, &git.CommitOptions{
+		Author: newSignature(),
 	})
-	CheckIfError(err)
+	checkIfError(err)
 
 	/*
-	 * Set the new tag.
+	* Git create new tag.
 	 */
-	ok, err := SetTag(repo, version)
-	CheckIfError(err)
+	ok, err := setTag(repo, tag)
+	checkIfError(err)
 
 	if !ok {
-		panic(fmt.Errorf("unable to set tag %s\n", version))
+		panic(fmt.Errorf("unable to set tag %s\n", tag))
 	}
 
 	/*
-	 * Push the tag
+	 * Git push the tag and files
 	 */
 	err = repo.Push(&git.PushOptions{
 		RemoteName: "origin",
 		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
 	})
 	if err != nil {
-		sshKey, _ := PublicKeys()
+		sshKey, _ := publicKeys()
 		err = repo.Push(&git.PushOptions{
 			RemoteName: "origin",
 			RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
 			Auth:       sshKey,
 		})
 		if err != nil {
-			log.Printf("Push failed, please: git push origin %s; git push", version)
+			log.Printf("Push failed, please: git push origin %s; git push", tag)
 		}
 	} else {
 		/*
 		 * Push the entire repo
 		 */
 		err = repo.Push(&git.PushOptions{})
-		CheckIfError(err)
+		checkIfError(err)
 	}
 }
 
-func PublicKeys() (*ssh.PublicKeys, error) {
+func publicKeys() (*ssh.PublicKeys, error) {
 	path, err := os.UserHomeDir()
-	CheckIfError(err)
+	checkIfError(err)
 	path += "/.ssh/id_rsa"
 
 	publicKey, err := ssh.NewPublicKeysFromFile(gitUser, path, "")
@@ -116,9 +121,9 @@ func PublicKeys() (*ssh.PublicKeys, error) {
 	return publicKey, nil
 }
 
-func NewSignature() *object.Signature {
+func newSignature() *object.Signature {
 	userInfo, err := user.Current()
-	CheckIfError(err)
+	checkIfError(err)
 	sig := object.Signature{
 		Name: userInfo.Name,
 		When: time.Now(),
@@ -126,24 +131,23 @@ func NewSignature() *object.Signature {
 	return &sig
 }
 
-func CreateVersionGo(fileName string, version string) {
-	// Create new version.go
-	versionTemplate, err := template.New("version").Parse(versionTemplateStr)
-	CheckIfError(err)
-	data := struct {
-		Version string
-	}{version}
+func createVersionGo(fileName string, tag string) {
+	contents, err := ioutil.ReadFile(licenseFile)
+	checkIfError(err)
+	licenseStr := strings.Replace(string(contents), "\n", "\n * ", -1)
+
+	versionGo := strings.Replace(versionTemplateStr, "$LICENSE$", licenseStr, 1)
+	versionGo = strings.Replace(versionGo, "$TAG$", tag, 1)
 
 	f, err := os.Create(fileName)
-	CheckIfError(err)
-	w := bufio.NewWriter(f)
-	err = versionTemplate.Execute(w, data)
-	CheckIfError(err)
-	err = w.Flush()
-	CheckIfError(err)
+	checkIfError(err)
+	defer f.Close()
+
+	_, err = f.WriteString(versionGo)
+	checkIfError(err)
 }
 
-func GetRepository(repo string) *git.Repository {
+func getRepository(repo string) *git.Repository {
 	if repo == "" {
 		repo = "."
 	}
@@ -154,7 +158,7 @@ func GetRepository(repo string) *git.Repository {
 	return r
 }
 
-func TagExists(r *git.Repository, tag string) bool {
+func tagExists(r *git.Repository, tag string) bool {
 	tagFoundErr := "tag was found"
 	tags, err := r.Tags()
 	if err != nil {
@@ -163,7 +167,7 @@ func TagExists(r *git.Repository, tag string) bool {
 	}
 	res := false
 	err = tags.ForEach(func(t *plumbing.Reference) error {
-		if strings.Contains(t.Name().String(), tag) {
+		if strings.HasSuffix(t.Name().String(), tag) {
 			res = true
 			return fmt.Errorf(tagFoundErr)
 		}
@@ -176,8 +180,8 @@ func TagExists(r *git.Repository, tag string) bool {
 	return res
 }
 
-func SetTag(r *git.Repository, tag string) (bool, error) {
-	if TagExists(r, tag) {
+func setTag(r *git.Repository, tag string) (bool, error) {
+	if tagExists(r, tag) {
 		log.Printf("tag %s already exists", tag)
 		return false, nil
 	}
@@ -188,7 +192,7 @@ func SetTag(r *git.Repository, tag string) (bool, error) {
 		return false, err
 	}
 	_, err = r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
-		Tagger:  NewSignature(),
+		Tagger:  newSignature(),
 		Message: "Release " + tag,
 	})
 
@@ -200,7 +204,7 @@ func SetTag(r *git.Repository, tag string) (bool, error) {
 	return true, nil
 }
 
-func CheckIfError(err error) {
+func checkIfError(err error) {
 	if err == nil {
 		return
 	}
@@ -208,24 +212,12 @@ func CheckIfError(err error) {
 	panic(err)
 }
 
-var versionTemplateStr = `/*
- * Copyright (c) 2020, nwillc@gmail.com
- *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+const versionTemplateStr = `/*
+ * $LICENSE$
  */
 
 package version
 
 // Version number for official releases updated with go generate.
-var Version = "{{.Version}}"
+var Version = "$TAG$"
 `
