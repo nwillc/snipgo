@@ -57,6 +57,18 @@ func (suite *PreferencesTestSuite) TestMalformedFile() {
 	assert.NotNil(suite.T(), ok)
 }
 
+func (suite *PreferencesTestSuite) TestWrite() {
+	p := Preferences{DefaultFile: "foo"}
+	tempFile, err := ioutil.TempFile("", "prefs.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+	err = p.Write(tempFile.Name())
+	assert.Nil(suite.T(), err)
+	read, err := ReadPreferences(tempFile.Name())
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), p.DefaultFile, read.DefaultFile)
+}
+
 func TestPreferencesTestSuite(t *testing.T) {
 	suite.Run(t, new(PreferencesTestSuite))
 }

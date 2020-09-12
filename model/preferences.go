@@ -54,3 +54,16 @@ func ReadPreferences(filename string) (*Preferences, error) {
 	}
 	return &preferences, nil
 }
+
+// Write the preferences as JSON to filename.
+func (p *Preferences) Write(filename string) error {
+	jsonString, err := json.Marshal(p)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(filename, jsonString, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return nil
+}
