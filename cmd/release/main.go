@@ -135,7 +135,7 @@ func newSignature() *object.Signature {
 func createVersionGo(fileName string, tag string) {
 	contents, err := ioutil.ReadFile(licenseFile)
 	checkIfError(err)
-	licenseStr := strings.Replace(string(contents), "\n", "\n * ", -1)
+	licenseStr := strings.Replace(string(contents), "\n", "\n *", -1)
 
 	versionGo := strings.Replace(versionTemplateStr, "$LICENSE$", licenseStr, 1)
 	versionGo = strings.Replace(versionGo, "$TAG$", tag, 1)
