@@ -8,6 +8,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
+	"github.com/zyedidia/micro/tools/semver"
 	"io/ioutil"
 	"log"
 	"os"
@@ -34,7 +35,7 @@ func main() {
 	 * Check that we are ready for release.
 	 */
 	if len(status) != 1 {
-		panic(fmt.Errorf("incorrrect file commit status, %d files, expection only %s", len(status), dotVersionFile))
+		panic(fmt.Errorf("incorrrect file commit status, %d files, expecting only %s", len(status), dotVersionFile))
 	}
 
 	vs := status.File(dotVersionFile)
