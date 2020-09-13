@@ -22,7 +22,7 @@ import (
 	"github.com/nwillc/snipgo/ui"
 )
 
-//go:generate go run ./cmd/release/main.go
+//go:generate go run gorelease
 
 func main() {
 	preferences, err := model.ReadPreferences("")
