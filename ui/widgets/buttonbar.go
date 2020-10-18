@@ -16,7 +16,9 @@
 
 package widgets
 
-import "github.com/rivo/tview"
+import (
+	"github.com/rivo/tview"
+)
 
 type ButtonBar struct {
 	*tview.Grid
@@ -38,7 +40,11 @@ func (bb *ButtonBar) ItemCount() int {
 func (bb *ButtonBar) AddButton(label string, action func()) *ButtonBar {
 	bb.actions = append(bb.actions, action)
 	button := tview.NewButton("[ " + label + " ]").SetSelectedFunc(action)
-	bb.AddItem( button, 0, bb.ItemCount(), 1, 1, 0, 0, false)
+	button.SetLabelColor(tview.Styles.PrimaryTextColor)
+	button.SetLabelColorActivated(tview.Styles.PrimaryTextColor)
+	button.SetBackgroundColor(tview.Styles.InverseTextColor)
+	button.SetBackgroundColorActivated(tview.Styles.InverseTextColor)
+	bb.AddItem( button, 0, bb.ItemCount() - 1, 1, 1, 0, 0, false)
 	return bb
 }
 
