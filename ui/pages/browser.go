@@ -60,7 +60,7 @@ func NewBrowserPage() *BrowserPage {
 	titleList := tview.NewList().
 		ShowSecondaryText(false)
 
-	menu := widgets.NewMenuBar()
+	menu := widgets.NewButtonBar()
 
 	page := BrowserPage{
 		grid,
@@ -73,13 +73,13 @@ func NewBrowserPage() *BrowserPage {
 	}
 
 	menu.
-		AddItem("Copy", func(i int) {
+		AddButton("Copy", func() {
 			clipboard.WriteAll(editor.String())
 		}).
-		AddItem("Remove", func(i int) {
+		AddButton("Remove", func() {
 			page.removeSnippet()
 		}).
-		AddItem("Save", func(i int) {
+		AddButton("Save", func() {
 			page.write()
 		})
 

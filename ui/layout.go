@@ -45,16 +45,15 @@ func NewUI() *UI {
 	}
 	pageView := tview.NewPages()
 
-	menu := widgets.NewMenuBar()
+	menu := widgets.NewButtonBar()
 
 	for i, slide := range slides {
+		slideIndex := i
 		pageView.AddPage(slide.GetName(), slide, true, i == 0)
-		menu.AddItem(slide.GetName(), func(i int) {
-			pageView.SwitchToPage(slides[i].GetName())
+		menu.AddButton(slide.GetName(), func() {
+			pageView.SwitchToPage(slides[slideIndex].GetName())
 		})
 	}
-
-	menu.Highlight("0")
 
 	layout := tview.NewFlex().
 		SetDirection(tview.FlexRow).
@@ -74,7 +73,7 @@ func NewUI() *UI {
 		})
 	}
 
-	menu.AddItem("Quit", func(i int) {
+	menu.AddButton("Quit", func() {
 		app.Stop()
 	})
 	return &ui
