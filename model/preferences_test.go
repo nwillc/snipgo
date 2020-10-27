@@ -45,9 +45,13 @@ func (suite *PreferencesTestSuite) SetupTest() {
 }
 
 func (suite *PreferencesTestSuite) TestBadHomeDir() {
+	defaultUserHomeGet := userHomeGet
 	userHomeGet = failingHomeDirMock{}
-	defer func() { recover() }()
-	ReadPreferences("")
+	defer func() {
+		userHomeGet = defaultUserHomeGet
+		recover()
+	}()
+	_, _ = ReadPreferences("")
 	suite.T().Errorf("expected panic")
 }
 
