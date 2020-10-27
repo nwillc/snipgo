@@ -17,36 +17,28 @@
 package widgets
 
 import (
-	"fmt"
-	"github.com/pgavlin/femto"
-	"strings"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
+	"testing"
 )
 
-// Editor is a femto.View biased away from files a bit.
-type Editor struct {
-	buffer *femto.Buffer
-	*femto.View
+type EditorTestSuite struct {
+	suite.Suite
 }
 
-// Implements fmt.Stringer
-var _ fmt.Stringer = (*Editor)(nil)
-
-// NewEditor is factory function for Editor.
-func NewEditor() *Editor {
-	buffer := femto.NewBufferFromString("", "")
-	buffer.Settings["ruler"] = false
-	view := femto.NewView(buffer)
-	return &Editor{buffer, view}
+func TestEditorTestSuite(t *testing.T) {
+	suite.Run(t, new(EditorTestSuite))
 }
 
-// Text sets the text of the Editor as a string.
-func (editor *Editor) Text(text string) {
-	editor.buffer.Remove(editor.buffer.Start(), editor.buffer.End())
-	editor.buffer.Insert(editor.buffer.Start(), text)
+func (suite *EditorTestSuite) TestNew() {
+	editor := NewEditor()
+	assert.NotNil(suite.T(), editor)
+	assert.Equal(suite.T(), "\n", editor.String())
 }
 
-// Implement fmt.Stringer
-func (editor *Editor) String() string {
-	lines := editor.buffer.Lines(0, editor.buffer.NumLines)
-	return strings.Join(lines, "\n") + "\n"
+func (suite *EditorTestSuite) TestText() {
+	editor := NewEditor()
+	text := "This is a\nTest"
+	editor.Text(text)
+	assert.Equal(suite.T(), text + "\n", editor.String())
 }

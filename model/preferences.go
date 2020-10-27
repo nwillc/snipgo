@@ -25,6 +25,12 @@ import (
 
 const preferencesFile = ".snippets.json" // default preferences file
 
+var userHomeGet userHomeDir
+
+func init()  {
+	userHomeGet = osUserHomeDir{}
+}
+
 // Preferences represents a users preferences.
 type Preferences struct {
 	DefaultFile string `json:"defaultFile"` // users default snippets file
@@ -35,7 +41,7 @@ type Preferences struct {
 // found or the file is malformed an error is returned.
 func ReadPreferences(filename string) (*Preferences, error) {
 	if filename == "" {
-		home, err := os.UserHomeDir()
+		home, err := userHomeGet.userHomeDir()
 		if err != nil {
 			panic("Could not get home directory")
 		}
@@ -66,4 +72,14 @@ func (p *Preferences) Write(filename string) error {
 		return err
 	}
 	return nil
+}
+
+type userHomeDir interface {
+	userHomeDir() (string, error)
+}
+
+type osUserHomeDir struct {}
+
+func (h osUserHomeDir) userHomeDir() (string, error) {
+	return os.UserHomeDir()
 }
