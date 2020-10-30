@@ -17,19 +17,13 @@
 package model
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/nwillc/snipgo/services"
 	"io/ioutil"
 	"os"
 )
 
 const preferencesFile = ".snippets.json" // default preferences file
-
-var userHomeGet userHomeDir
-
-func init()  {
-	userHomeGet = osUserHomeDir{}
-}
 
 // Preferences represents a users preferences.
 type Preferences struct {
@@ -41,20 +35,20 @@ type Preferences struct {
 // found or the file is malformed an error is returned.
 func ReadPreferences(filename string) (*Preferences, error) {
 	if filename == "" {
-		home, err := userHomeGet.userHomeDir()
+		home, err := services.OS.UserHomeDir()
 		if err != nil {
 			panic("Could not get home directory")
 		}
 		filename = fmt.Sprintf("%s/%s", home, preferencesFile)
 	}
-	jsonFile, err := os.Open(filename)
+	jsonFile, err := services.OS.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer jsonFile.Close()
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var preferences Preferences
-	err = json.Unmarshal(byteValue, &preferences)
+	err = services.JSON.Unmarshal(byteValue, &preferences)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +57,7 @@ func ReadPreferences(filename string) (*Preferences, error) {
 
 // Write the preferences as JSON to filename.
 func (p *Preferences) Write(filename string) error {
-	jsonString, err := json.Marshal(p)
+	jsonString, err := services.JSON.Marshal(p)
 	if err != nil {
 		return err
 	}
@@ -72,14 +66,4 @@ func (p *Preferences) Write(filename string) error {
 		return err
 	}
 	return nil
-}
-
-type userHomeDir interface {
-	userHomeDir() (string, error)
-}
-
-type osUserHomeDir struct {}
-
-func (h osUserHomeDir) userHomeDir() (string, error) {
-	return os.UserHomeDir()
 }

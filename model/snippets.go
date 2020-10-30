@@ -17,8 +17,8 @@
 package model
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/nwillc/snipgo/services"
 	"io/ioutil"
 	"os"
 	"sort"
@@ -50,7 +50,7 @@ func ReadSnippets(filename string) (Snippets, error) {
 		}
 		filename = preferences.DefaultFile
 	}
-	snippetFile, err := os.Open(filename)
+	snippetFile, err := services.OS.Open(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func ReadSnippets(filename string) (Snippets, error) {
 		return nil, err
 	}
 	var snippets []Snippet
-	if err = json.Unmarshal(byteValue, &snippets); err != nil {
+	if err = services.JSON.Unmarshal(byteValue, &snippets); err != nil {
 		return nil, err
 	}
 	return snippets, nil
@@ -75,7 +75,7 @@ func (s *Snippets) WriteSnippets(filename string) error {
 		}
 		filename = preferences.DefaultFile
 	}
-	jsonString, err := json.Marshal(s)
+	jsonString, err := services.JSON.Marshal(s)
 	if err != nil {
 		return err
 	}

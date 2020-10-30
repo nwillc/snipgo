@@ -17,7 +17,6 @@
 package model
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"io/ioutil"
@@ -26,12 +25,6 @@ import (
 )
 
 const testPrefFile = "../test/files/preferences.json"
-
-type failingHomeDirMock struct{}
-
-func (h failingHomeDirMock) userHomeDir() (string, error) {
-	return "", fmt.Errorf("boom")
-}
 
 type PreferencesTestSuite struct {
 	suite.Suite
@@ -44,16 +37,16 @@ func (suite *PreferencesTestSuite) SetupTest() {
 	suite.goodFilename = testPrefFile
 }
 
-func (suite *PreferencesTestSuite) TestBadHomeDir() {
-	defaultUserHomeGet := userHomeGet
-	userHomeGet = failingHomeDirMock{}
-	defer func() {
-		userHomeGet = defaultUserHomeGet
-		recover()
-	}()
-	_, _ = ReadPreferences("")
-	suite.T().Errorf("expected panic")
-}
+//func (suite *PreferencesTestSuite) TestBadHomeDir() {
+//	defaultUserHomeGet := userHomeGet
+//	userHomeGet = failingHomeDirMock{}
+//	defer func() {
+//		userHomeGet = defaultUserHomeGet
+//		recover()
+//	}()
+//	_, _ = ReadPreferences("")
+//	suite.T().Errorf("expected panic")
+//}
 
 func (suite *PreferencesTestSuite) TestNonExistPrefs() {
 	_, ok := ReadPreferences(suite.badFilename)
