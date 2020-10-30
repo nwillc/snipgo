@@ -8,8 +8,3 @@
 Playing around with a Go and curses based program to manage my snippets. A terminal version, in Go of my KSnip project.
 
 ![UI](./snipgo.png)
-
-# TODO
-
- - Improve menubar to fix selection issues using TextView
- - Implement the Preferences page
