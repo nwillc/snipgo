@@ -62,16 +62,14 @@ func NewBrowserPage() *BrowserPage {
 
 	menu := widgets.NewButtonBar()
 
-	page := BrowserPage{
-		grid,
-		editor,
-		categoryList,
-		titleList,
-		nil,
-		-1,
-		-1,
+	var page = BrowserPage{
+		Primitive:       grid,
+		editor:          editor,
+		categoryList:    categoryList,
+		titleList:       titleList,
+		currentCategory: -1,
+		currentSnippet:  -1,
 	}
-
 	menu.
 		AddButton("Copy", func() {
 			clipboard.WriteAll(editor.String())

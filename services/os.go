@@ -23,11 +23,11 @@ type Os interface {
 	Open(name string) (*os.File, error)
 }
 
-type OsService struct {}
+type OsService struct{}
 
 var OS = OsService{}
 
-func (s OsService) UserHomeDir() (string, error){
+func (s OsService) UserHomeDir() (string, error) {
 	return os.UserHomeDir()
 }
 

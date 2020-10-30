@@ -36,17 +36,15 @@ var _ model.SetCategories = (*UI)(nil)
 
 // NewUI is a factory for UI.
 func NewUI() *UI {
-	app := tview.NewApplication()
-	slides := []pages.Slide{
+	var app = tview.NewApplication()
+	var slides = []pages.Slide{
 		pages.NewBrowserPage(),
 		pages.NewSnippetPage(),
 		pages.NewPreferencesPage(),
 		pages.NewAboutPage(),
 	}
-	pageView := tview.NewPages()
-
-	menu := widgets.NewButtonBar()
-
+	var pageView = tview.NewPages()
+	var menu = widgets.NewButtonBar()
 	for i, slide := range slides {
 		slideIndex := i
 		pageView.AddPage(slide.GetName(), slide, true, i == 0)
@@ -55,18 +53,16 @@ func NewUI() *UI {
 		})
 	}
 
-	layout := tview.NewFlex().
+	var layout = tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(menu, 1, 1, false).
 		AddItem(pageView, 0, 1, true)
-
-	ui := UI{
-		app,
-		layout,
-		slides,
-		pageView,
+	var ui = UI{
+		app:       app,
+		Primitive: layout,
+		slides:    slides,
+		pv:        pageView,
 	}
-
 	for _, slide := range slides {
 		slide.SetCategoryReceiver(func(categories *model.Categories) {
 			ui.SetCategories(categories)

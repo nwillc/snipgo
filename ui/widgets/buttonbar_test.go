@@ -36,7 +36,7 @@ func (suite *ButtonBarTestSuite) TestNew() {
 	assert.Zero(suite.T(), bb.ItemCount())
 }
 
-func (suite *ButtonBarTestSuite) TestActionInvalid()  {
+func (suite *ButtonBarTestSuite) TestActionInvalid() {
 	bb := NewButtonBar()
 	assert.Zero(suite.T(), bb.ItemCount())
 	var tooLow assert.PanicTestFunc = func() {
@@ -49,7 +49,7 @@ func (suite *ButtonBarTestSuite) TestActionInvalid()  {
 	assert.Panics(suite.T(), tooHigh)
 }
 
-func (suite *ButtonBarTestSuite) TestButtonValid()  {
+func (suite *ButtonBarTestSuite) TestButtonValid() {
 	bb := NewButtonBar()
 	assert.Zero(suite.T(), bb.ItemCount())
 	testValue := -1

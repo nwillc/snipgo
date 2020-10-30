@@ -26,10 +26,10 @@ type ButtonBar struct {
 }
 
 func NewButtonBar() *ButtonBar {
-	grid := tview.NewGrid().
+	var grid = tview.NewGrid().
 		SetRows(1).
 		SetBorders(false)
-	bb := ButtonBar{grid, nil}
+	var bb = ButtonBar{grid, nil}
 	return &bb
 }
 
@@ -39,12 +39,12 @@ func (bb *ButtonBar) ItemCount() int {
 
 func (bb *ButtonBar) AddButton(label string, action func()) *ButtonBar {
 	bb.actions = append(bb.actions, action)
-	button := tview.NewButton("[ " + label + " ]").SetSelectedFunc(action)
+	var button = tview.NewButton("[ " + label + " ]").SetSelectedFunc(action)
 	button.SetLabelColor(tview.Styles.PrimaryTextColor)
 	button.SetLabelColorActivated(tview.Styles.PrimaryTextColor)
 	button.SetBackgroundColor(tview.Styles.InverseTextColor)
 	button.SetBackgroundColorActivated(tview.Styles.InverseTextColor)
-	bb.AddItem( button, 0, bb.ItemCount() - 1, 1, 1, 0, 0, false)
+	bb.AddItem(button, 0, bb.ItemCount()-1, 1, 1, 0, 0, false)
 	return bb
 }
 

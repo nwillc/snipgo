@@ -36,16 +36,14 @@ var _ Slide = (*PreferencesPage)(nil)
 
 // NewPreferencesPage is a factory for PreferencesPage Slide.
 func NewPreferencesPage() *PreferencesPage {
-	inputField := tview.NewInputField().
+	var inputField = tview.NewInputField().
 		SetLabel("Enter File Name: ").
 		SetFieldWidth(60).
 		SetDoneFunc(func(key tcell.Key) {
 		})
-	page := PreferencesPage{
-		widgets.Center(70, 1, inputField),
-		nil,
-		nil,
-		inputField,
+	var page = PreferencesPage{
+		Primitive:  widgets.Center(70, 1, inputField),
+		inputField: inputField,
 	}
 	return &page
 }

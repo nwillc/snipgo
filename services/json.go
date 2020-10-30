@@ -23,7 +23,7 @@ type Json interface {
 	Marshal(v interface{}) ([]byte, error)
 }
 
-type JsonService struct {}
+type JsonService struct{}
 
 var JSON = JsonService{}
 

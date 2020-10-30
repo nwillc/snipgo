@@ -38,17 +38,11 @@ var _ Slide = (*SnippetPage)(nil)
 
 // NewSnippetPage is a factory for SnippetPage.
 func NewSnippetPage() *SnippetPage {
-	form := tview.NewForm()
+	var form = tview.NewForm()
 	form.SetBorder(true).SetTitle("New Snippet").SetTitleAlign(tview.AlignCenter)
-	page := SnippetPage{
-		widgets.Center(50, 11, form),
-		nil,
-		nil,
-		"",
-		"",
-		"",
+	var page = SnippetPage{
+		Primitive: widgets.Center(50, 11, form),
 	}
-
 	form.
 		AddInputField("Category", "", 20, nil, func(text string) {
 			page.setCategory(text)

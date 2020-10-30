@@ -40,5 +40,5 @@ func (suite *EditorTestSuite) TestText() {
 	editor := NewEditor()
 	text := "This is a\nTest"
 	editor.Text(text)
-	assert.Equal(suite.T(), text + "\n", editor.String())
+	assert.Equal(suite.T(), text+"\n", editor.String())
 }

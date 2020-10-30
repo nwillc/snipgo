@@ -33,9 +33,9 @@ var _ fmt.Stringer = (*Editor)(nil)
 
 // NewEditor is factory function for Editor.
 func NewEditor() *Editor {
-	buffer := femto.NewBufferFromString("", "")
+	var buffer = femto.NewBufferFromString("", "")
 	buffer.Settings["ruler"] = false
-	view := femto.NewView(buffer)
+	var view = femto.NewView(buffer)
 	return &Editor{buffer, view}
 }
 

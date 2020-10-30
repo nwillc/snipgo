@@ -18,9 +18,9 @@ package pages
 
 import (
 	"fmt"
+	"github.com/nwillc/snipgo/gen/version"
 	"github.com/nwillc/snipgo/model"
 	"github.com/nwillc/snipgo/ui/widgets"
-	"github.com/nwillc/snipgo/gen/version"
 	"github.com/rivo/tview"
 )
 
