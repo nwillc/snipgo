@@ -19,6 +19,7 @@ package model
 import (
 	"fmt"
 	"github.com/nwillc/snipgo/services"
+	"github.com/pkg/errors"
 	"os"
 )
 
@@ -58,7 +59,7 @@ func ReadPreferences(ctx *services.Context, filename string) (*Preferences, erro
 func (p *Preferences) Write(ctx *services.Context, filename string) error {
 	jsonString, err := ctx.JSON.Marshal(p)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "json marshal failed")
 	}
 	err = ctx.IoUtil.WriteFile(filename, jsonString, os.ModePerm)
 	if err != nil {

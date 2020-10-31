@@ -33,6 +33,8 @@ github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e h1:fD57ERR4JtEqsWb
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
 github.com/pgavlin/femto v0.0.0-20191028012355-31a9964a50b5 h1:jDmnr/0bMWhOta4Rk9F0RAeSpdr71SLvI34Ooav/CYM=
 github.com/pgavlin/femto v0.0.0-20191028012355-31a9964a50b5/go.mod h1:vBSdyXS0eulREXU3VHVmy2BnHekZx8HTO8oEMIe/I+M=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rivo/tview v0.0.0-20191018125527-685bf6da76c2/go.mod h1:/rBeY22VG2QprWnEqG57IBC8biVu3i0DOIjRLc9I8H0=

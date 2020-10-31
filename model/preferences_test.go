@@ -17,6 +17,9 @@
 package model
 
 import (
+	"fmt"
+	"github.com/golang/mock/gomock"
+	"github.com/nwillc/snipgo/mocks"
 	"github.com/nwillc/snipgo/services"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -72,7 +75,9 @@ func (suite *PreferencesTestSuite) TestMalformedFile() {
 	tempFile.WriteString("not json")
 
 	_, ok := ReadPreferences(suite.ctx, tempFile.Name())
-	assert.NotNil(suite.T(), ok)
+	if assert.NotNil(suite.T(), ok) {
+		assert.Errorf(suite.T(), ok, "json marshal failed")
+	}
 }
 
 func (suite *PreferencesTestSuite) TestWrite() {
@@ -85,6 +90,31 @@ func (suite *PreferencesTestSuite) TestWrite() {
 	read, err := ReadPreferences(suite.ctx, tempFile.Name())
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), p.DefaultFile, read.DefaultFile)
+}
+
+func (suite *PreferencesTestSuite) TestWriteMarshal() {
+	p := Preferences{DefaultFile: "foo"}
+	tempFile, err := ioutil.TempFile("", "prefs.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	mockJson := mocks.NewMockJson(mockCtrl)
+	mockJson.EXPECT().
+		Marshal(gomock.Any()).
+		Return([]byte{}, fmt.Errorf("mock error")).
+		Times(1)
+	var mockContext = services.Context{
+		JSON:   mockJson,
+		Os:     suite.ctx.Os,
+		IoUtil: suite.ctx.IoUtil,
+	}
+	err = p.Write(&mockContext, tempFile.Name())
+	if assert.NotNil(suite.T(), err) {
+		assert.Errorf(suite.T(), err, "json marshal failure")
+	}
 }
 
 
