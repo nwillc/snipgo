@@ -17,6 +17,7 @@
 package model
 
 import (
+	"github.com/nwillc/snipgo/services"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"io/ioutil"
@@ -28,21 +29,18 @@ const testSnippetsFile = "../test/files/snippets.json"
 
 type SnippetsTestSuite struct {
 	suite.Suite
+	ctx *services.Context
 	snippets     Snippets
 	badFilename  string
 	goodFilename string
 }
 
-func (suite *SnippetsTestSuite) TestStringer() {
-	snippet := Snippet{
-		Category: "Foo",
-		Title:    "Bar",
-		Body:     "Baz",
-	}
-	assert.Equal(suite.T(), "Foo: Bar", snippet.String())
+func TestSnippetsTestSuite(t *testing.T) {
+	suite.Run(t, new(SnippetsTestSuite))
 }
 
 func (suite *SnippetsTestSuite) SetupTest() {
+	suite.ctx = services.NewDefaultContext()
 	suite.snippets = []Snippet{
 		{
 			Category: "A",
@@ -57,13 +55,22 @@ func (suite *SnippetsTestSuite) SetupTest() {
 	suite.goodFilename = testSnippetsFile
 }
 
+func (suite *SnippetsTestSuite) TestStringer() {
+	snippet := Snippet{
+		Category: "Foo",
+		Title:    "Bar",
+		Body:     "Baz",
+	}
+	assert.Equal(suite.T(), "Foo: Bar", snippet.String())
+}
+
 func (suite *SnippetsTestSuite) TestNonExist() {
-	_, ok := ReadSnippets(suite.badFilename)
+	_, ok := ReadSnippets(suite.ctx, suite.badFilename)
 	assert.NotNil(suite.T(), ok)
 }
 
 func (suite *SnippetsTestSuite) TestExist() {
-	_, ok := ReadSnippets(suite.goodFilename)
+	_, ok := ReadSnippets(suite.ctx, suite.goodFilename)
 	assert.Nil(suite.T(), ok)
 }
 
@@ -72,11 +79,11 @@ func (suite *SnippetsTestSuite) TestWriteFile() {
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 
-	original, ok := ReadSnippets(suite.goodFilename)
+	original, ok := ReadSnippets(suite.ctx, suite.goodFilename)
 	assert.Nil(suite.T(), ok)
-	err = original.WriteSnippets(tempFile.Name())
+	err = original.WriteSnippets(suite.ctx, tempFile.Name())
 	assert.Nil(suite.T(), err)
-	read, ok := ReadSnippets(tempFile.Name())
+	read, ok := ReadSnippets(suite.ctx, tempFile.Name())
 	assert.Nil(suite.T(), ok)
 	assert.Equal(suite.T(), len(original), len(read))
 }
@@ -87,7 +94,7 @@ func (suite *SnippetsTestSuite) TestMalformedFile() {
 	defer os.Remove(tempFile.Name())
 	tempFile.WriteString("not json")
 
-	_, ok := ReadSnippets(tempFile.Name())
+	_, ok := ReadSnippets(suite.ctx, tempFile.Name())
 	assert.NotNil(suite.T(), ok)
 }
 
@@ -106,12 +113,7 @@ func (suite *SnippetsTestSuite) TestSwap() {
 	assert.False(suite.T(), suite.snippets.Less(0, 1))
 }
 
-func TestSnippetsTestSuite(t *testing.T) {
-
-	suite.Run(t, new(SnippetsTestSuite))
-}
-
-func TestSnippetsByCategory(t *testing.T) {
+func (suite *SnippetsTestSuite) TestSnippetsByCategory() {
 	tests := []struct {
 		name       string
 		snippets   Snippets
@@ -123,7 +125,7 @@ func TestSnippetsByCategory(t *testing.T) {
 			categories: Categories{},
 		},
 		{
-			name: "Two Snippets One Category",
+			name: "TwoSnippetOneCategory",
 			snippets: Snippets{
 				{
 					Category: "A",
@@ -142,7 +144,7 @@ func TestSnippetsByCategory(t *testing.T) {
 			},
 		},
 		{
-			name: "Two Snippets Two Categories",
+			name: "TwoSnippetTwoCategory",
 			snippets: Snippets{
 				{
 					Category: "A",
@@ -166,7 +168,7 @@ func TestSnippetsByCategory(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		suite.T().Run(test.name, func(t *testing.T) {
 			result := test.snippets.ByCategory()
 			assert.Equal(t, len(test.categories), len(result))
 			for i, category := range test.categories {

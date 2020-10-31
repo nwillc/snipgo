@@ -29,17 +29,17 @@ func TestCategorySort(t *testing.T) {
 		sorted     Categories
 	}{
 		{
-			name:       "empty",
+			name:       "Empty",
 			categories: Categories{},
 			sorted:     Categories{},
 		},
 		{
-			name:       "Sorted already",
+			name:       "Sorted",
 			categories: Categories{{Name: "A"}, {Name: "B"}, {Name: "C"}},
 			sorted:     Categories{{Name: "A"}, {Name: "B"}, {Name: "C"}},
 		},
 		{
-			name:       "Not sorted",
+			name:       "Unsorted",
 			categories: Categories{{Name: "B"}, {Name: "C"}, {Name: "A"}},
 			sorted:     Categories{{Name: "A"}, {Name: "B"}, {Name: "C"}},
 		},

@@ -17,6 +17,7 @@
 package model
 
 import (
+	"github.com/nwillc/snipgo/services"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"io/ioutil"
@@ -28,11 +29,17 @@ const testPrefFile = "../test/files/preferences.json"
 
 type PreferencesTestSuite struct {
 	suite.Suite
+	ctx *services.Context
 	badFilename  string
 	goodFilename string
 }
 
+func TestPreferencesTestSuite(t *testing.T) {
+	suite.Run(t, new(PreferencesTestSuite))
+}
+
 func (suite *PreferencesTestSuite) SetupTest() {
+	suite.ctx = services.NewDefaultContext()
 	suite.badFilename = "foo"
 	suite.goodFilename = testPrefFile
 }
@@ -49,12 +56,12 @@ func (suite *PreferencesTestSuite) SetupTest() {
 //}
 
 func (suite *PreferencesTestSuite) TestNonExistPrefs() {
-	_, ok := ReadPreferences(suite.badFilename)
+	_, ok := ReadPreferences(suite.ctx, suite.badFilename)
 	assert.NotNil(suite.T(), ok)
 }
 
 func (suite *PreferencesTestSuite) TestExistPrefs() {
-	_, ok := ReadPreferences(suite.goodFilename)
+	_, ok := ReadPreferences(suite.ctx, suite.goodFilename)
 	assert.Nil(suite.T(), ok)
 }
 
@@ -64,7 +71,7 @@ func (suite *PreferencesTestSuite) TestMalformedFile() {
 	defer os.Remove(tempFile.Name())
 	tempFile.WriteString("not json")
 
-	_, ok := ReadPreferences(tempFile.Name())
+	_, ok := ReadPreferences(suite.ctx, tempFile.Name())
 	assert.NotNil(suite.T(), ok)
 }
 
@@ -73,13 +80,11 @@ func (suite *PreferencesTestSuite) TestWrite() {
 	tempFile, err := ioutil.TempFile("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
-	err = p.Write(tempFile.Name())
+	err = p.Write(suite.ctx, tempFile.Name())
 	assert.Nil(suite.T(), err)
-	read, err := ReadPreferences(tempFile.Name())
+	read, err := ReadPreferences(suite.ctx, tempFile.Name())
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), p.DefaultFile, read.DefaultFile)
 }
 
-func TestPreferencesTestSuite(t *testing.T) {
-	suite.Run(t, new(PreferencesTestSuite))
-}
+
