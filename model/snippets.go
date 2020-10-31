@@ -59,7 +59,7 @@ func ReadSnippets(ctx *services.Context, filename string) (Snippets, error) {
 		return nil, err
 	}
 	var snippets []Snippet
-	if err = ctx.Json.Unmarshal(byteValue, &snippets); err != nil {
+	if err = ctx.JSON.Unmarshal(byteValue, &snippets); err != nil {
 		return nil, err
 	}
 	return snippets, nil
@@ -74,7 +74,7 @@ func (s *Snippets) WriteSnippets(ctx *services.Context, filename string) error {
 		}
 		filename = preferences.DefaultFile
 	}
-	jsonString, err := ctx.Json.Marshal(s)
+	jsonString, err := ctx.JSON.Marshal(s)
 	if err != nil {
 		return err
 	}

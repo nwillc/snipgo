@@ -47,7 +47,7 @@ func ReadPreferences(ctx *services.Context, filename string) (*Preferences, erro
 	defer jsonFile.Close()
 	byteValue, _ := ctx.IoUtil.ReadAll(jsonFile)
 	var preferences Preferences
-	err = ctx.Json.Unmarshal(byteValue, &preferences)
+	err = ctx.JSON.Unmarshal(byteValue, &preferences)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func ReadPreferences(ctx *services.Context, filename string) (*Preferences, erro
 
 // Write the preferences as JSON to filename.
 func (p *Preferences) Write(ctx *services.Context, filename string) error {
-	jsonString, err := ctx.Json.Marshal(p)
+	jsonString, err := ctx.JSON.Marshal(p)
 	if err != nil {
 		return err
 	}

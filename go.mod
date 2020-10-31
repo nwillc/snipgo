@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/atotto/clipboard v0.1.2
 	github.com/gdamore/tcell v1.4.0
+	github.com/golang/mock v1.4.4
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pgavlin/femto v0.0.0-20191028012355-31a9964a50b5

@@ -16,7 +16,9 @@
 
 package services
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type Json interface {
 	Unmarshal(data []byte, v interface{}) error
@@ -24,6 +26,8 @@ type Json interface {
 }
 
 type jsonService struct{}
+
+var _ Json = (*jsonService)(nil)
 
 func (s jsonService) Unmarshal(data []byte, v interface{}) error {
 	return json.Unmarshal(data, &v)

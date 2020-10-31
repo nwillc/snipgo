@@ -17,6 +17,9 @@
 package model
 
 import (
+	"fmt"
+	"github.com/golang/mock/gomock"
+	"github.com/nwillc/snipgo/mocks"
 	"github.com/nwillc/snipgo/services"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -29,7 +32,7 @@ const testSnippetsFile = "../test/files/snippets.json"
 
 type SnippetsTestSuite struct {
 	suite.Suite
-	ctx *services.Context
+	ctx          *services.Context
 	snippets     Snippets
 	badFilename  string
 	goodFilename string
@@ -72,6 +75,28 @@ func (suite *SnippetsTestSuite) TestNonExist() {
 func (suite *SnippetsTestSuite) TestExist() {
 	_, ok := ReadSnippets(suite.ctx, suite.goodFilename)
 	assert.Nil(suite.T(), ok)
+}
+
+func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
+	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	mockJson := mocks.NewMockJson(mockCtrl)
+	mockJson.EXPECT().
+		Unmarshal(gomock.Any(), gomock.Any()).
+		Return(fmt.Errorf("mock error")).
+		Times(1)
+	var mockContext = services.Context{
+		JSON:   mockJson,
+		Os:     suite.ctx.Os,
+		IoUtil: suite.ctx.IoUtil,
+	}
+	_, ok := ReadSnippets(&mockContext, suite.goodFilename)
+	assert.NotNil(suite.T(), ok)
 }
 
 func (suite *SnippetsTestSuite) TestWriteFile() {

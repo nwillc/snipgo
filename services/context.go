@@ -18,16 +18,16 @@ package services
 
 // Context for dependency injection.
 type Context struct {
-	Json   jsonService
-	Os     osService
-	IoUtil ioUtilService
+	JSON   Json
+	Os     *osService
+	IoUtil *ioUtilService
 }
 
 // NewDefaultContext create a dependency injection context with default Go behaviors.
 func NewDefaultContext() *Context {
 	return &Context{
-		Json:   jsonService{},
-		Os:     osService{},
-		IoUtil: ioUtilService{},
+		JSON:   &jsonService{},
+		Os:     &osService{},
+		IoUtil: &ioUtilService{},
 	}
 }
