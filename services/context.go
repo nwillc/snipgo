@@ -16,19 +16,18 @@
 
 package services
 
-import "encoding/json"
-
-type Json interface {
-	Unmarshal(data []byte, v interface{}) error
-	Marshal(v interface{}) ([]byte, error)
+// Context for dependency injection.
+type Context struct {
+	Json   jsonService
+	Os     osService
+	IoUtil ioUtilService
 }
 
-type jsonService struct{}
-
-func (s jsonService) Unmarshal(data []byte, v interface{}) error {
-	return json.Unmarshal(data, &v)
-}
-
-func (s jsonService) Marshal(v interface{}) ([]byte, error) {
-	return json.Marshal(v)
+// NewDefaultContext create a dependency injection context with default Go behaviors.
+func NewDefaultContext() *Context {
+	return &Context{
+		Json:   jsonService{},
+		Os:     osService{},
+		IoUtil: ioUtilService{},
+	}
 }

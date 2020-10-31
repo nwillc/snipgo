@@ -16,19 +16,23 @@
 
 package services
 
-import "encoding/json"
+import (
+	"io"
+	"io/ioutil"
+	"os"
+)
 
-type Json interface {
-	Unmarshal(data []byte, v interface{}) error
-	Marshal(v interface{}) ([]byte, error)
+type IoUtil interface {
+	ReadAll(r io.Reader) ([]byte, error)
+	WriteFile(filename string, data []byte, perm os.FileMode) error
 }
 
-type jsonService struct{}
+type ioUtilService struct{}
 
-func (s jsonService) Unmarshal(data []byte, v interface{}) error {
-	return json.Unmarshal(data, &v)
+func (s ioUtilService) ReadAll(r io.Reader) ([]byte, error) {
+	return ioutil.ReadAll(r)
 }
 
-func (s jsonService) Marshal(v interface{}) ([]byte, error) {
-	return json.Marshal(v)
+func (s ioUtilService) WriteFile(filename string, data []byte, perm os.FileMode) error {
+	return ioutil.WriteFile(filename, data, perm)
 }

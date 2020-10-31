@@ -18,6 +18,7 @@ package ui
 
 import (
 	"github.com/nwillc/snipgo/model"
+	"github.com/nwillc/snipgo/services"
 	"github.com/nwillc/snipgo/ui/pages"
 	"github.com/nwillc/snipgo/ui/widgets"
 	"github.com/rivo/tview"
@@ -35,10 +36,10 @@ type UI struct {
 var _ model.SetCategories = (*UI)(nil)
 
 // NewUI is a factory for UI.
-func NewUI() *UI {
+func NewUI(ctx *services.Context) *UI {
 	var app = tview.NewApplication()
 	var slides = []pages.Slide{
-		pages.NewBrowserPage(),
+		pages.NewBrowserPage(ctx),
 		pages.NewSnippetPage(),
 		pages.NewPreferencesPage(),
 		pages.NewAboutPage(),

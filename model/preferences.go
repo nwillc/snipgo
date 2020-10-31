@@ -19,7 +19,6 @@ package model
 import (
 	"fmt"
 	"github.com/nwillc/snipgo/services"
-	"io/ioutil"
 	"os"
 )
 
@@ -33,22 +32,22 @@ type Preferences struct {
 // ReadPreferences reads the file indicated by filename and returns a *Preferences structure.
 // If the filename is empty it will look for the default preferences file. If no file can be be
 // found or the file is malformed an error is returned.
-func ReadPreferences(filename string) (*Preferences, error) {
+func ReadPreferences(ctx *services.Context, filename string) (*Preferences, error) {
 	if filename == "" {
-		home, err := services.OS.UserHomeDir()
+		home, err := ctx.Os.UserHomeDir()
 		if err != nil {
 			panic("Could not get home directory")
 		}
 		filename = fmt.Sprintf("%s/%s", home, preferencesFile)
 	}
-	jsonFile, err := services.OS.Open(filename)
+	jsonFile, err := ctx.Os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer jsonFile.Close()
-	byteValue, _ := ioutil.ReadAll(jsonFile)
+	byteValue, _ := ctx.IoUtil.ReadAll(jsonFile)
 	var preferences Preferences
-	err = services.JSON.Unmarshal(byteValue, &preferences)
+	err = ctx.Json.Unmarshal(byteValue, &preferences)
 	if err != nil {
 		return nil, err
 	}
@@ -56,12 +55,12 @@ func ReadPreferences(filename string) (*Preferences, error) {
 }
 
 // Write the preferences as JSON to filename.
-func (p *Preferences) Write(filename string) error {
-	jsonString, err := services.JSON.Marshal(p)
+func (p *Preferences) Write(ctx *services.Context, filename string) error {
+	jsonString, err := ctx.Json.Marshal(p)
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(filename, jsonString, os.ModePerm)
+	err = ctx.IoUtil.WriteFile(filename, jsonString, os.ModePerm)
 	if err != nil {
 		return err
 	}

@@ -19,7 +19,6 @@ package model
 import (
 	"fmt"
 	"github.com/nwillc/snipgo/services"
-	"io/ioutil"
 	"os"
 	"sort"
 	"strings"
@@ -42,44 +41,44 @@ type Snippets []Snippet
 var _ sort.Interface = (*Snippets)(nil)
 
 // ReadSnippets accepts a filename, reads from the file and returns the Snippets found in the file.
-func ReadSnippets(filename string) (Snippets, error) {
+func ReadSnippets(ctx *services.Context, filename string) (Snippets, error) {
 	if filename == "" {
-		preferences, err := ReadPreferences("")
+		preferences, err := ReadPreferences(ctx, "")
 		if err != nil {
 			return nil, err
 		}
 		filename = preferences.DefaultFile
 	}
-	snippetFile, err := services.OS.Open(filename)
+	snippetFile, err := ctx.Os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer snippetFile.Close()
-	byteValue, err := ioutil.ReadAll(snippetFile)
+	byteValue, err := ctx.IoUtil.ReadAll(snippetFile)
 	if err != nil {
 		return nil, err
 	}
 	var snippets []Snippet
-	if err = services.JSON.Unmarshal(byteValue, &snippets); err != nil {
+	if err = ctx.Json.Unmarshal(byteValue, &snippets); err != nil {
 		return nil, err
 	}
 	return snippets, nil
 }
 
 // WriteSnippets writes Snippets to the file named.
-func (s *Snippets) WriteSnippets(filename string) error {
+func (s *Snippets) WriteSnippets(ctx *services.Context, filename string) error {
 	if filename == "" {
-		preferences, err := ReadPreferences("")
+		preferences, err := ReadPreferences(ctx, "")
 		if err != nil {
 			return err
 		}
 		filename = preferences.DefaultFile
 	}
-	jsonString, err := services.JSON.Marshal(s)
+	jsonString, err := ctx.Json.Marshal(s)
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(filename, jsonString, os.ModePerm)
+	err = ctx.IoUtil.WriteFile(filename, jsonString, os.ModePerm)
 	if err != nil {
 		return err
 	}

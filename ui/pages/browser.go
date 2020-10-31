@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"github.com/atotto/clipboard"
 	"github.com/nwillc/snipgo/model"
+	"github.com/nwillc/snipgo/services"
 	"github.com/nwillc/snipgo/ui/widgets"
 	"github.com/rivo/tview"
 )
@@ -35,6 +36,7 @@ var (
 // BrowserPage is the Slide implementation for browsing model.Categories.
 type BrowserPage struct {
 	tview.Primitive
+	ctx             *services.Context
 	editor          *widgets.Editor
 	categoryList    *tview.List
 	titleList       *tview.List
@@ -47,7 +49,7 @@ type BrowserPage struct {
 var _ Slide = (*BrowserPage)(nil)
 
 // NewBrowserPage is a factory for BrowserPage.
-func NewBrowserPage() *BrowserPage {
+func NewBrowserPage(ctx *services.Context) *BrowserPage {
 	editor := widgets.NewEditor()
 	grid := tview.NewGrid().
 		SetRows(rowsWeights...).
@@ -63,6 +65,7 @@ func NewBrowserPage() *BrowserPage {
 	menu := widgets.NewButtonBar()
 
 	var page = BrowserPage{
+		ctx:             ctx,
 		Primitive:       grid,
 		editor:          editor,
 		categoryList:    categoryList,
@@ -114,7 +117,7 @@ func (bp *BrowserPage) write() {
 	if err == nil {
 		snippet.Body = bp.editor.String()
 	}
-	bp.categories.ToSnippets().WriteSnippets("")
+	bp.categories.ToSnippets().WriteSnippets(bp.ctx, "")
 }
 
 func (bp *BrowserPage) loadCategories() {

@@ -18,19 +18,18 @@ package services
 
 import "os"
 
+// Os services dependency injection interface.
 type Os interface {
 	UserHomeDir() (string, error)
 	Open(name string) (*os.File, error)
 }
 
-type OsService struct{}
+type osService struct{}
 
-var OS = OsService{}
-
-func (s OsService) UserHomeDir() (string, error) {
+func (s osService) UserHomeDir() (string, error) {
 	return os.UserHomeDir()
 }
 
-func (s OsService) Open(name string) (*os.File, error) {
+func (s osService) Open(name string) (*os.File, error) {
 	return os.Open(name)
 }
