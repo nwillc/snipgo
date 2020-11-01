@@ -57,6 +57,21 @@ func (suite *PreferencesTestSuite) TestExistPrefs() {
 	assert.Nil(suite.T(), ok)
 }
 
+func (suite *PreferencesTestSuite) TestNoHomeDir() {
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	var mockOs = mocks.NewMockOs(mockCtrl)
+	mockOs.EXPECT().
+		UserHomeDir().
+		Return("", fmt.Errorf("foo")).
+		Times(1)
+
+	defer func() { recover() }()
+	_, _ = ReadPreferences(suite.ctx.CopyUpdateOs(mockOs), "")
+	suite.T().Errorf("did not panic")
+}
+
 func (suite *PreferencesTestSuite) TestMalformedFile() {
 	tempFile, err := ioutil.TempFile("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
