@@ -91,42 +91,56 @@ func (suite *SnippetsTestSuite) TestNoHomeDir() {
 	suite.T().Errorf("did not panic")
 }
 
-func (suite *SnippetsTestSuite)  TestHomeDir() {
+func (suite *SnippetsTestSuite) TestHomeDir() {
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 
 	var mockOs = mocks.NewMockOs(mockCtrl)
 	mockOs.EXPECT().
-			UserHomeDir().
-			Return(testFilesDir, nil).
-			Times(1)
+		UserHomeDir().
+		Return(testFilesDir, nil).
+		Times(1)
 	mockOs.EXPECT().
-			Open(testFilesDir + "/.snippets.json").
-			Return(suite.ctx.OS.Open(suite.testFilesDir + "/preferences.json")).
-			Times(1)
+		Open(testFilesDir + "/.snippets.json").
+		Return(suite.ctx.OS.Open(suite.testFilesDir + "/preferences.json")).
+		Times(1)
 	mockOs.EXPECT().
-				Open("/Users/nwillc/Documents/snippets.json").
-				Return(suite.ctx.OS.Open(suite.goodFilename)).
-				Times(1)
+		Open("/Users/nwillc/Documents/snippets.json").
+		Return(suite.ctx.OS.Open(suite.goodFilename)).
+		Times(1)
 	_, err := ReadSnippets(suite.ctx.CopyUpdateOs(mockOs), "")
 	assert.Nil(suite.T(), err)
 }
 
-func (suite *SnippetsTestSuite)  TestHomeDirNoPreferences() {
+func (suite *SnippetsTestSuite) TestHomeDirNoPreferences() {
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 
 	var mockOs = mocks.NewMockOs(mockCtrl)
 	mockOs.EXPECT().
-			UserHomeDir().
-			Return(testFilesDir, nil).
-			Times(1)
+		UserHomeDir().
+		Return(testFilesDir, nil).
+		Times(1)
 	mockOs.EXPECT().
-			Open(testFilesDir + "/.snippets.json").
-			Return(nil, fmt.Errorf("file not found")).
-			Times(1)
+		Open(testFilesDir+"/.snippets.json").
+		Return(nil, fmt.Errorf("file not found")).
+		Times(1)
 	_, err := ReadSnippets(suite.ctx.CopyUpdateOs(mockOs), "")
 	assert.NotNil(suite.T(), err)
+}
+
+func (suite *SnippetsTestSuite) TestUnableToRead() {
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	var mockIoUtil = mocks.NewMockIoUtil(mockCtrl)
+	mockIoUtil.EXPECT().
+		ReadAll(gomock.Any()).
+		Return(nil, fmt.Errorf("unable to read")).
+		Times(1)
+	_, err := ReadSnippets(suite.ctx.CopyUpdateIoUtil(mockIoUtil), "")
+	assert.NotNil(suite.T(), err)
+	assert.Errorf(suite.T(), err, "unable to read")
 }
 
 func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
