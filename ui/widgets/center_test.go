@@ -26,7 +26,7 @@ type CenterTestSuite struct {
 	suite.Suite
 }
 
-func CenterBarTestSuite(t *testing.T) {
+func TestCenterBarTestSuite(t *testing.T) {
 	suite.Run(t, new(CenterTestSuite))
 }
 
