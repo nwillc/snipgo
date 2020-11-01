@@ -81,7 +81,28 @@ func (suite *PreferencesTestSuite) TestWrite() {
 	assert.Equal(suite.T(), p.DefaultFile, read.DefaultFile)
 }
 
-func (suite *PreferencesTestSuite) TestWriteFail() {
+func (suite *PreferencesTestSuite) TestWriteMarshalFail() {
+	p := Preferences{DefaultFile: "foo"}
+	tempFile, err := ioutil.TempFile("", "prefs.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	var mockJson = mocks.NewMockJson(mockCtrl)
+	var errMsg = "json marshal failed"
+	mockJson.EXPECT().
+		Marshal(gomock.Any()).
+		Return([]byte{}, fmt.Errorf(errMsg)).
+		Times(1)
+
+	err = p.Write(suite.ctx.CopyUpdateJson(mockJson), tempFile.Name())
+	assert.NotNil(suite.T(), err)
+	assert.Errorf(suite.T(), err, errMsg)
+}
+
+func (suite *PreferencesTestSuite) TestWriteWriteFail() {
 	p := Preferences{DefaultFile: "foo"}
 	tempFile, err := ioutil.TempFile("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
