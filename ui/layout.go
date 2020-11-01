@@ -66,7 +66,7 @@ func NewUI(ctx *services.Context) *UI {
 	}
 	for _, slide := range slides {
 		slide.SetCategoryReceiver(func(categories *model.Categories) {
-			ui.SetCategories(categories)
+			ui.Categories(categories)
 		})
 	}
 
@@ -76,10 +76,10 @@ func NewUI(ctx *services.Context) *UI {
 	return &ui
 }
 
-// SetCategories sets the model.Categories used on the UI.
-func (ui *UI) SetCategories(categories *model.Categories) {
+// Categories sets the model.Categories used on the UI.
+func (ui *UI) Categories(categories *model.Categories) {
 	for _, slide := range ui.slides {
-		slide.SetCategories(categories)
+		slide.Categories(categories)
 	}
 	ui.pv.SwitchToPage("Browser")
 }

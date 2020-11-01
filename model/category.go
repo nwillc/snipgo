@@ -32,7 +32,7 @@ type Categories []Category
 
 // SetCategories is an interface indicating the ability to set Categories
 type SetCategories interface {
-	SetCategories(categories *Categories)
+	Categories(categories *Categories)
 }
 
 // Categories implements sort.Interface

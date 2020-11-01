@@ -106,8 +106,8 @@ func (bp *BrowserPage) GetName() string {
 	return "Browser"
 }
 
-// SetCategories sets the model.Categories used on the Slide.
-func (bp *BrowserPage) SetCategories(categories *model.Categories) {
+// Categories sets the model.Categories used on the Slide.
+func (bp *BrowserPage) Categories(categories *model.Categories) {
 	bp.categories = categories
 	bp.loadCategories()
 }
@@ -206,7 +206,7 @@ func (bp *BrowserPage) removeSnippet() {
 		}
 		break
 	}
-	bp.SetCategories(bp.categories)
+	bp.Categories(bp.categories)
 }
 
 // SetCategoryReceiver inform the Slide where to notify with changes of the model.Categories.

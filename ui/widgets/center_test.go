@@ -14,31 +14,23 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package main
+package widgets
 
 import (
-	"fmt"
-	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/services"
-	"github.com/nwillc/snipgo/ui"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
+	"testing"
 )
 
-//go:generate go run gorelease
+type CenterTestSuite struct {
+	suite.Suite
+}
 
-func main() {
-	var ctx = services.NewDefaultContext()
-	preferences, err := model.ReadPreferences(ctx, "")
-	if err != nil {
-		panic("Could not get preferences")
-	}
-	snippets, err := model.ReadSnippets(ctx, preferences.DefaultFile)
-	if err != nil {
-		panic(fmt.Sprintf("failed %v", err))
-	}
+func CenterBarTestSuite(t *testing.T) {
+	suite.Run(t, new(CenterTestSuite))
+}
 
-	categories := snippets.ByCategory()
-
-	homePage := ui.NewUI(ctx)
-	homePage.Categories(&categories)
-	homePage.Run()
+func (suite *CenterTestSuite) TestNew() {
+	center := NewCenter(10, 10, nil)
+	assert.NotNil(suite.T(), center)
 }

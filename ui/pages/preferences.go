@@ -42,14 +42,14 @@ func NewPreferencesPage() *PreferencesPage {
 		SetDoneFunc(func(key tcell.Key) {
 		})
 	var page = PreferencesPage{
-		Primitive:  widgets.Center(70, 1, inputField),
+		Primitive:  widgets.NewCenter(70, 1, inputField),
 		inputField: inputField,
 	}
 	return &page
 }
 
-// SetCategories sets the model.Categories used on the Slide.
-func (p PreferencesPage) SetCategories(categories *model.Categories) {
+// Categories sets the model.Categories used on the Slide.
+func (p PreferencesPage) Categories(categories *model.Categories) {
 	p.categories = categories
 }
 

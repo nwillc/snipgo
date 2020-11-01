@@ -41,7 +41,7 @@ func NewSnippetPage() *SnippetPage {
 	var form = tview.NewForm()
 	form.SetBorder(true).SetTitle("New Snippet").SetTitleAlign(tview.AlignCenter)
 	var page = SnippetPage{
-		Primitive: widgets.Center(50, 11, form),
+		Primitive: widgets.NewCenter(50, 11, form),
 	}
 	form.
 		AddInputField("Category", "", 20, nil, func(text string) {
@@ -60,8 +60,8 @@ func NewSnippetPage() *SnippetPage {
 	return &page
 }
 
-// SetCategories sets the model.Categories used on the Slide.
-func (s *SnippetPage) SetCategories(categories *model.Categories) {
+// Categories sets the model.Categories used on the Slide.
+func (s *SnippetPage) Categories(categories *model.Categories) {
 	s.categories = categories
 }
 

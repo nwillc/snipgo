@@ -38,7 +38,7 @@ func NewAboutPage() *AboutPage {
 	fmt.Fprintln(textView, "Snippets Manager")
 	fmt.Fprintln(textView, "See https://github.com/nwillc/snipgo")
 	fmt.Fprintln(textView, "Version ", version.Version)
-	page := AboutPage{widgets.Center(40, 3, textView)}
+	page := AboutPage{widgets.NewCenter(40, 3, textView)}
 	return &page
 }
 
@@ -47,8 +47,8 @@ func (a *AboutPage) GetName() string {
 	return "About"
 }
 
-// SetCategories sets the model.Categories used on the Slide.
-func (a *AboutPage) SetCategories(categories *model.Categories) {
+// Categories sets the model.Categories used on the Slide.
+func (a *AboutPage) Categories(categories *model.Categories) {
 	// NoOp
 }
 

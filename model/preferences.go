@@ -43,14 +43,14 @@ func ReadPreferences(ctx *services.Context, filename string) (*Preferences, erro
 	}
 	jsonFile, err := ctx.OS.Open(filename)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "unable to open " + filename)
 	}
 	defer jsonFile.Close()
 	byteValue, _ := ctx.IOUTIL.ReadAll(jsonFile)
 	var preferences Preferences
 	err = ctx.JSON.Unmarshal(byteValue, &preferences)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "unable to unmarshal")
 	}
 	return &preferences, nil
 }
