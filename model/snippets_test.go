@@ -138,7 +138,7 @@ func (suite *SnippetsTestSuite) TestUnableToRead() {
 		ReadAll(gomock.Any()).
 		Return(nil, fmt.Errorf("unable to read")).
 		Times(1)
-	_, err := ReadSnippets(suite.ctx.CopyUpdateIoUtil(mockIoUtil), "")
+	_, err := ReadSnippets(suite.ctx.CopyUpdateIoUtil(mockIoUtil), suite.goodFilename)
 	assert.NotNil(suite.T(), err)
 	assert.Errorf(suite.T(), err, "unable to read")
 }
