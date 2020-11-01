@@ -85,17 +85,12 @@ func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 
-	mockJson := mocks.NewMockJson(mockCtrl)
+	var mockJson = mocks.NewMockJson(mockCtrl)
 	mockJson.EXPECT().
 		Unmarshal(gomock.Any(), gomock.Any()).
 		Return(fmt.Errorf("mock error")).
 		Times(1)
-	var mockContext = services.Context{
-		JSON:   mockJson,
-		Os:     suite.ctx.Os,
-		IoUtil: suite.ctx.IoUtil,
-	}
-	_, ok := ReadSnippets(&mockContext, suite.goodFilename)
+	_, ok := ReadSnippets(suite.ctx.CopyUpdateJson(mockJson), suite.goodFilename)
 	assert.NotNil(suite.T(), ok)
 }
 
@@ -117,7 +112,7 @@ func (suite *SnippetsTestSuite) TestMalformedFile() {
 	tempFile, err := ioutil.TempFile("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
-	tempFile.WriteString("not json")
+	_, _ = tempFile.WriteString("not json")
 
 	_, ok := ReadSnippets(suite.ctx, tempFile.Name())
 	assert.NotNil(suite.T(), ok)

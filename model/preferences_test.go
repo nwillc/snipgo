@@ -32,7 +32,7 @@ const testPrefFile = "../test/files/preferences.json"
 
 type PreferencesTestSuite struct {
 	suite.Suite
-	ctx *services.Context
+	ctx          *services.Context
 	badFilename  string
 	goodFilename string
 }
@@ -46,17 +46,6 @@ func (suite *PreferencesTestSuite) SetupTest() {
 	suite.badFilename = "foo"
 	suite.goodFilename = testPrefFile
 }
-
-//func (suite *PreferencesTestSuite) TestBadHomeDir() {
-//	defaultUserHomeGet := userHomeGet
-//	userHomeGet = failingHomeDirMock{}
-//	defer func() {
-//		userHomeGet = defaultUserHomeGet
-//		recover()
-//	}()
-//	_, _ = ReadPreferences("")
-//	suite.T().Errorf("expected panic")
-//}
 
 func (suite *PreferencesTestSuite) TestNonExistPrefs() {
 	_, ok := ReadPreferences(suite.ctx, suite.badFilename)
@@ -72,7 +61,7 @@ func (suite *PreferencesTestSuite) TestMalformedFile() {
 	tempFile, err := ioutil.TempFile("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
-	tempFile.WriteString("not json")
+	_, _ = tempFile.WriteString("not json")
 
 	_, ok := ReadPreferences(suite.ctx, tempFile.Name())
 	if assert.NotNil(suite.T(), ok) {
@@ -92,7 +81,7 @@ func (suite *PreferencesTestSuite) TestWrite() {
 	assert.Equal(suite.T(), p.DefaultFile, read.DefaultFile)
 }
 
-func (suite *PreferencesTestSuite) TestWriteMarshal() {
+func (suite *PreferencesTestSuite) TestWriteFail() {
 	p := Preferences{DefaultFile: "foo"}
 	tempFile, err := ioutil.TempFile("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
@@ -101,20 +90,14 @@ func (suite *PreferencesTestSuite) TestWriteMarshal() {
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 
-	mockJson := mocks.NewMockJson(mockCtrl)
-	mockJson.EXPECT().
-		Marshal(gomock.Any()).
-		Return([]byte{}, fmt.Errorf("mock error")).
+	var mockIoUtil = mocks.NewMockIoUtil(mockCtrl)
+	var errMsg = "write file failed"
+	mockIoUtil.EXPECT().
+		WriteFile(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(fmt.Errorf(errMsg)).
 		Times(1)
-	var mockContext = services.Context{
-		JSON:   mockJson,
-		Os:     suite.ctx.Os,
-		IoUtil: suite.ctx.IoUtil,
-	}
-	err = p.Write(&mockContext, tempFile.Name())
-	if assert.NotNil(suite.T(), err) {
-		assert.Errorf(suite.T(), err, "json marshal failure")
-	}
+
+	err = p.Write(suite.ctx.CopyUpdateIoUtil(mockIoUtil), tempFile.Name())
+	assert.NotNil(suite.T(), err)
+	assert.Errorf(suite.T(), err, errMsg)
 }
-
-

@@ -19,15 +19,39 @@ package services
 // Context for dependency injection.
 type Context struct {
 	JSON   Json
-	Os     *osService
-	IoUtil *ioUtilService
+	OS     Os
+	IOUTIL IoUtil
 }
 
 // NewDefaultContext create a dependency injection context with default Go behaviors.
 func NewDefaultContext() *Context {
 	return &Context{
 		JSON:   &jsonService{},
-		Os:     &osService{},
-		IoUtil: &ioUtilService{},
+		OS:     &osService{},
+		IOUTIL: &ioUtilService{},
+	}
+}
+
+func (ctx *Context) CopyUpdateJson(json Json) *Context {
+	return &Context{
+		JSON: json,
+		OS: ctx.OS,
+		IOUTIL: ctx.IOUTIL,
+	}
+}
+
+func (ctx *Context) CopyUpdateOs(os Os) *Context {
+	return &Context{
+		JSON: ctx.JSON,
+		OS: os,
+		IOUTIL: ctx.IOUTIL,
+	}
+}
+
+func (ctx *Context) CopyUpdateIoUtil(ioUtil IoUtil) *Context {
+	return &Context{
+		JSON: ctx.JSON,
+		OS: ctx.OS,
+		IOUTIL: ioUtil,
 	}
 }

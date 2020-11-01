@@ -35,18 +35,18 @@ type Preferences struct {
 // found or the file is malformed an error is returned.
 func ReadPreferences(ctx *services.Context, filename string) (*Preferences, error) {
 	if filename == "" {
-		home, err := ctx.Os.UserHomeDir()
+		home, err := ctx.OS.UserHomeDir()
 		if err != nil {
 			panic("Could not get home directory")
 		}
 		filename = fmt.Sprintf("%s/%s", home, preferencesFile)
 	}
-	jsonFile, err := ctx.Os.Open(filename)
+	jsonFile, err := ctx.OS.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer jsonFile.Close()
-	byteValue, _ := ctx.IoUtil.ReadAll(jsonFile)
+	byteValue, _ := ctx.IOUTIL.ReadAll(jsonFile)
 	var preferences Preferences
 	err = ctx.JSON.Unmarshal(byteValue, &preferences)
 	if err != nil {
@@ -61,9 +61,9 @@ func (p *Preferences) Write(ctx *services.Context, filename string) error {
 	if err != nil {
 		return errors.Wrap(err, "json marshal failed")
 	}
-	err = ctx.IoUtil.WriteFile(filename, jsonString, os.ModePerm)
+	err = ctx.IOUTIL.WriteFile(filename, jsonString, os.ModePerm)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "write file failed")
 	}
 	return nil
 }

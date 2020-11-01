@@ -49,12 +49,12 @@ func ReadSnippets(ctx *services.Context, filename string) (Snippets, error) {
 		}
 		filename = preferences.DefaultFile
 	}
-	snippetFile, err := ctx.Os.Open(filename)
+	snippetFile, err := ctx.OS.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer snippetFile.Close()
-	byteValue, err := ctx.IoUtil.ReadAll(snippetFile)
+	byteValue, err := ctx.IOUTIL.ReadAll(snippetFile)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (s *Snippets) WriteSnippets(ctx *services.Context, filename string) error {
 	if err != nil {
 		return err
 	}
-	err = ctx.IoUtil.WriteFile(filename, jsonString, os.ModePerm)
+	err = ctx.IOUTIL.WriteFile(filename, jsonString, os.ModePerm)
 	if err != nil {
 		return err
 	}
