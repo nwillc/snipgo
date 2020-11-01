@@ -28,7 +28,10 @@ import (
 	"testing"
 )
 
-const testPrefFile = "../test/files/preferences.json"
+const (
+	testFilesDir = "../test/files"
+	testPrefFile = testFilesDir + "/preferences.json"
+)
 
 type PreferencesTestSuite struct {
 	suite.Suite
@@ -70,6 +73,23 @@ func (suite *PreferencesTestSuite) TestNoHomeDir() {
 	defer func() { recover() }()
 	_, _ = ReadPreferences(suite.ctx.CopyUpdateOs(mockOs), "")
 	suite.T().Errorf("did not panic")
+}
+
+func (suite *PreferencesTestSuite) TestHomeDir() {
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	var mockOs = mocks.NewMockOs(mockCtrl)
+	mockOs.EXPECT().
+		UserHomeDir().
+		Return(testFilesDir, nil).
+		Times(1)
+	mockOs.EXPECT().
+		Open(testFilesDir + "/.snippets.json").
+		Return(suite.ctx.OS.Open(testFilesDir + "/snippets.json")).
+		Times(1)
+	err, _ := ReadPreferences(suite.ctx.CopyUpdateOs(mockOs), "")
+	assert.Nil(suite.T(), err)
 }
 
 func (suite *PreferencesTestSuite) TestMalformedFile() {
