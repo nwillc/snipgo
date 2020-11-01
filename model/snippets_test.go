@@ -28,12 +28,11 @@ import (
 	"testing"
 )
 
-const testSnippetsFile = "../test/files/snippets.json"
-
 type SnippetsTestSuite struct {
 	suite.Suite
 	ctx          *services.Context
 	snippets     Snippets
+	testFilesDir string
 	badFilename  string
 	goodFilename string
 }
@@ -54,8 +53,9 @@ func (suite *SnippetsTestSuite) SetupTest() {
 			Title:    "B",
 		},
 	}
-	suite.badFilename = "foo"
-	suite.goodFilename = testSnippetsFile
+	suite.testFilesDir = "../test/files"
+	suite.badFilename = suite.testFilesDir + "/foo"
+	suite.goodFilename = suite.testFilesDir + "/snippets.json"
 }
 
 func (suite *SnippetsTestSuite) TestStringer() {
@@ -77,6 +77,40 @@ func (suite *SnippetsTestSuite) TestExist() {
 	assert.Nil(suite.T(), ok)
 }
 
+func (suite *SnippetsTestSuite) TestNoHomeDir() {
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	var mockOs = mocks.NewMockOs(mockCtrl)
+	mockOs.EXPECT().
+		UserHomeDir().
+		Return("", fmt.Errorf("foo")).
+		Times(1)
+	defer func() { recover() }()
+	_, _ = ReadSnippets(suite.ctx.CopyUpdateOs(mockOs), "")
+	suite.T().Errorf("did not panic")
+}
+
+func (suite *SnippetsTestSuite)  TestHomeDir() {
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	var mockOs = mocks.NewMockOs(mockCtrl)
+	mockOs.EXPECT().
+			UserHomeDir().
+			Return(testFilesDir, nil).
+			Times(1)
+	mockOs.EXPECT().
+			Open(testFilesDir + "/.snippets.json").
+			Return(suite.ctx.OS.Open(suite.testFilesDir + "/preferences.json")).
+			Times(1)
+	mockOs.EXPECT().
+				Open("/Users/nwillc/Documents/snippets.json").
+				Return(suite.ctx.OS.Open(suite.goodFilename)).
+				Times(1)
+	_, err := ReadSnippets(suite.ctx.CopyUpdateOs(mockOs), "")
+	assert.Nil(suite.T(), err)
+}
 func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
 	tempFile, err := ioutil.TempFile("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
