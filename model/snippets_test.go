@@ -158,6 +158,24 @@ func (suite *SnippetsTestSuite) TestWriteDefaultNoHome() {
 	suite.T().Errorf("did not panic")
 }
 
+func (suite *SnippetsTestSuite) TestWriteDefaultNoPreferences() {
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	var mockOs = mocks.NewMockOs(mockCtrl)
+	mockOs.EXPECT().
+		UserHomeDir().
+		Return(testFilesDir, nil).
+		Times(1)
+	mockOs.EXPECT().
+		Open(testFilesDir+"/.snippets.json").
+		Return(nil, fmt.Errorf("file not found")).
+		Times(1)
+	var snippets = Snippets{}
+	err := snippets.WriteSnippets(suite.ctx.CopyUpdateOs(mockOs), "")
+	assert.NotNil(suite.T(), err)
+}
+
 func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
 	tempFile, err := ioutil.TempFile("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
