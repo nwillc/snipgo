@@ -143,6 +143,21 @@ func (suite *SnippetsTestSuite) TestUnableToRead() {
 	assert.Errorf(suite.T(), err, "unable to read")
 }
 
+func (suite *SnippetsTestSuite) TestWriteDefaultNoHome() {
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	var mockOs = mocks.NewMockOs(mockCtrl)
+	mockOs.EXPECT().
+		UserHomeDir().
+		Return("", fmt.Errorf("foo")).
+		Times(1)
+	defer func() { recover() }()
+	var snippets = Snippets{}
+	_ = snippets.WriteSnippets(suite.ctx.CopyUpdateOs(mockOs), "")
+	suite.T().Errorf("did not panic")
+}
+
 func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
 	tempFile, err := ioutil.TempFile("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
