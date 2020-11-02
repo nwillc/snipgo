@@ -43,7 +43,7 @@ func ReadPreferences(ctx *services.Context, filename string) (*Preferences, erro
 	}
 	jsonFile, err := ctx.OS.Open(filename)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to open " + filename)
+		return nil, errors.Wrap(err, "unable to open "+filename)
 	}
 	defer jsonFile.Close()
 	byteValue, _ := ctx.IOUTIL.ReadAll(jsonFile)

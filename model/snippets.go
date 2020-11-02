@@ -19,6 +19,7 @@ package model
 import (
 	"fmt"
 	"github.com/nwillc/snipgo/services"
+	"github.com/pkg/errors"
 	"os"
 	"sort"
 	"strings"
@@ -51,7 +52,7 @@ func ReadSnippets(ctx *services.Context, filename string) (Snippets, error) {
 	}
 	snippetFile, err := ctx.OS.Open(filename)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, fmt.Sprintf("failed opening %s", filename))
 	}
 	defer snippetFile.Close()
 	byteValue, err := ctx.IOUTIL.ReadAll(snippetFile)

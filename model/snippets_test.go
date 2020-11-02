@@ -105,7 +105,7 @@ func (suite *SnippetsTestSuite) TestHomeDir() {
 		Return(suite.ctx.OS.Open(suite.testFilesDir + "/preferences.json")).
 		Times(1)
 	mockOs.EXPECT().
-		Open("/Users/nwillc/Documents/snippets.json").
+		Open(suite.goodFilename).
 		Return(suite.ctx.OS.Open(suite.goodFilename)).
 		Times(1)
 	_, err := ReadSnippets(suite.ctx.CopyUpdateOs(mockOs), "")
@@ -174,6 +174,53 @@ func (suite *SnippetsTestSuite) TestWriteDefaultNoPreferences() {
 	var snippets = Snippets{}
 	err := snippets.WriteSnippets(suite.ctx.CopyUpdateOs(mockOs), "")
 	assert.NotNil(suite.T(), err)
+}
+
+func (suite *SnippetsTestSuite) TestWriteDefault() {
+	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	testSnippets, ok := ReadSnippets(suite.ctx, suite.goodFilename)
+	assert.Nil(suite.T(), ok)
+	testSnippetsBytes, err := suite.ctx.JSON.Marshal(testSnippets)
+	assert.Nil(suite.T(), err)
+
+	testPrefs, err := ReadPreferences(suite.ctx, suite.testFilesDir+"/preferences.json")
+	assert.Nil(suite.T(), err)
+	testPrefsBytes, err := suite.ctx.JSON.Marshal(testPrefs)
+	assert.Nil(suite.T(), err)
+
+	var mockOs = mocks.NewMockOs(mockCtrl)
+	mockOs.EXPECT().
+		UserHomeDir().
+		Return(testFilesDir, nil).
+		Times(1)
+	mockOs.EXPECT().
+		Open(testFilesDir + "/.snippets.json").
+		Return(suite.ctx.OS.Open(suite.testFilesDir + "/preferences.json")).
+		Times(1)
+
+	var mockIoUtil = mocks.NewMockIoUtil(mockCtrl)
+	mockIoUtil.EXPECT().
+		ReadAll(gomock.Any()).
+		Return(testPrefsBytes, nil).
+		Times(1)
+
+	mockIoUtil.EXPECT().
+		WriteFile(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(suite.ctx.IOUTIL.WriteFile(tempFile.Name(), testSnippetsBytes, os.ModePerm)).
+		Times(1)
+
+	err = testSnippets.WriteSnippets(suite.ctx.CopyUpdateOs(mockOs).CopyUpdateIoUtil(mockIoUtil), "")
+	assert.Nil(suite.T(), err)
+
+	read, ok := ReadSnippets(suite.ctx, tempFile.Name())
+	assert.Nil(suite.T(), ok)
+	assert.Equal(suite.T(), len(testSnippets), len(read))
 }
 
 func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
