@@ -223,7 +223,7 @@ func (suite *SnippetsTestSuite) TestWriteDefault() {
 	assert.Equal(suite.T(), len(testSnippets), len(read))
 }
 
-func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
+func (suite *SnippetsTestSuite) TestReadMarshalFail() {
 	tempFile, err := ioutil.TempFile("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
@@ -237,6 +237,45 @@ func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
 		Return(fmt.Errorf("mock error")).
 		Times(1)
 	_, ok := ReadSnippets(suite.ctx.CopyUpdateJson(mockJson), suite.goodFilename)
+	assert.NotNil(suite.T(), ok)
+}
+
+func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
+	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	var mockJson = mocks.NewMockJson(mockCtrl)
+	mockJson.EXPECT().
+		Marshal(gomock.Any()).
+		Return(nil, fmt.Errorf("mock error")).
+		Times(1)
+	var testSnippets = Snippets{}
+	ok := testSnippets.WriteSnippets(suite.ctx.CopyUpdateJson(mockJson), suite.goodFilename)
+	assert.NotNil(suite.T(), ok)
+}
+
+func (suite *SnippetsTestSuite) TestWriteFail() {
+	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	assert.Nil(suite.T(), err)
+	defer os.Remove(tempFile.Name())
+
+	testSnippets, ok := ReadSnippets(suite.ctx, suite.goodFilename)
+	assert.Nil(suite.T(), ok)
+
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+
+	var mockIoUtil = mocks.NewMockIoUtil(mockCtrl)
+	mockIoUtil.EXPECT().
+		WriteFile(tempFile.Name(), gomock.Any(), gomock.Any()).
+		Return(fmt.Errorf("foo")).
+		Times(1)
+
+	ok = testSnippets.WriteSnippets(suite.ctx.CopyUpdateIoUtil(mockIoUtil), tempFile.Name())
 	assert.NotNil(suite.T(), ok)
 }
 
