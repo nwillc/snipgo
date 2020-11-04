@@ -33,22 +33,22 @@ type Preferences struct {
 // ReadPreferences reads the file indicated by filename and returns a *Preferences structure.
 // If the filename is empty it will look for the default preferences file. If no file can be be
 // found or the file is malformed an error is returned.
-func ReadPreferences(ctx *services.Context, filename string) (*Preferences, error) {
+func ReadPreferences(json services.Json, os services.Os, ioutil services.IoUtil, filename string) (*Preferences, error) {
 	if filename == "" {
-		home, err := ctx.OS.UserHomeDir()
+		home, err := os.UserHomeDir()
 		if err != nil {
 			panic("Could not get home directory")
 		}
 		filename = fmt.Sprintf("%s/%s", home, preferencesFile)
 	}
-	jsonFile, err := ctx.OS.Open(filename)
+	jsonFile, err := os.Open(filename)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to open "+filename)
 	}
 	defer jsonFile.Close()
-	byteValue, _ := ctx.IOUTIL.ReadAll(jsonFile)
+	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var preferences Preferences
-	err = ctx.JSON.Unmarshal(byteValue, &preferences)
+	err = json.Unmarshal(byteValue, &preferences)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to unmarshal")
 	}
@@ -56,12 +56,12 @@ func ReadPreferences(ctx *services.Context, filename string) (*Preferences, erro
 }
 
 // Write the preferences as JSON to filename.
-func (p *Preferences) Write(ctx *services.Context, filename string) error {
-	jsonString, err := ctx.JSON.Marshal(p)
+func (p *Preferences) Write(json services.Json, ioutil services.IoUtil, filename string) error {
+	jsonString, err := json.Marshal(p)
 	if err != nil {
 		return errors.Wrap(err, "json marshal failed")
 	}
-	err = ctx.IOUTIL.WriteFile(filename, jsonString, os.ModePerm)
+	err = ioutil.WriteFile(filename, jsonString, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "write file failed")
 	}

@@ -42,44 +42,44 @@ type Snippets []Snippet
 var _ sort.Interface = (*Snippets)(nil)
 
 // ReadSnippets accepts a filename, reads from the file and returns the Snippets found in the file.
-func ReadSnippets(ctx *services.Context, filename string) (Snippets, error) {
+func ReadSnippets(json services.Json, os services.Os, ioutil services.IoUtil, filename string) (Snippets, error) {
 	if filename == "" {
-		preferences, err := ReadPreferences(ctx, "")
+		preferences, err := ReadPreferences(json, os, ioutil, "")
 		if err != nil {
 			return nil, err
 		}
 		filename = preferences.DefaultFile
 	}
-	snippetFile, err := ctx.OS.Open(filename)
+	snippetFile, err := os.Open(filename)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("failed opening %s", filename))
 	}
 	defer snippetFile.Close()
-	byteValue, err := ctx.IOUTIL.ReadAll(snippetFile)
+	byteValue, err := ioutil.ReadAll(snippetFile)
 	if err != nil {
 		return nil, err
 	}
 	var snippets []Snippet
-	if err = ctx.JSON.Unmarshal(byteValue, &snippets); err != nil {
+	if err = json.Unmarshal(byteValue, &snippets); err != nil {
 		return nil, err
 	}
 	return snippets, nil
 }
 
 // WriteSnippets writes Snippets to the file named.
-func (s *Snippets) WriteSnippets(ctx *services.Context, filename string) error {
+func (s *Snippets) WriteSnippets(json services.Json, o services.Os, ioutil services.IoUtil, filename string) error {
 	if filename == "" {
-		preferences, err := ReadPreferences(ctx, "")
+		preferences, err := ReadPreferences(json, o, ioutil, "")
 		if err != nil {
 			return err
 		}
 		filename = preferences.DefaultFile
 	}
-	jsonString, err := ctx.JSON.Marshal(s)
+	jsonString, err := json.Marshal(s)
 	if err != nil {
 		return err
 	}
-	err = ctx.IOUTIL.WriteFile(filename, jsonString, os.ModePerm)
+	err = ioutil.WriteFile(filename, jsonString, os.ModePerm)
 	if err != nil {
 		return err
 	}

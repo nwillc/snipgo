@@ -18,27 +18,47 @@ package main
 
 import (
 	"fmt"
+	"github.com/goava/di"
 	"github.com/nwillc/snipgo/model"
 	"github.com/nwillc/snipgo/services"
 	"github.com/nwillc/snipgo/ui"
+	"log"
 )
 
 //go:generate go run gorelease
 
 func main() {
+	c, err := di.New(
+		di.Provide(newContext),
+		di.Provide(newUI),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
 	var ctx = services.NewDefaultContext()
-	preferences, err := model.ReadPreferences(ctx, "")
+	preferences, err := model.ReadPreferences(ctx.JSON, ctx.OS, ctx.IOUTIL, "")
 	if err != nil {
 		panic("Could not get preferences")
 	}
-	snippets, err := model.ReadSnippets(ctx, preferences.DefaultFile)
+	snippets, err := model.ReadSnippets(ctx.JSON, ctx.OS, ctx.IOUTIL, preferences.DefaultFile)
 	if err != nil {
 		panic(fmt.Sprintf("failed %v", err))
 	}
 
 	categories := snippets.ByCategory()
 
-	homePage := ui.NewUI(ctx)
-	homePage.Categories(&categories)
-	homePage.Run()
+	var ui *ui.UI
+	if err = c.Resolve(&ui); err != nil {
+		log.Fatal("Unable to create ui ", err)
+	}
+	ui.Categories(&categories)
+	ui.Run()
+}
+
+func newContext() *services.Context {
+	return services.NewDefaultContext()
+}
+
+func newUI(ctx *services.Context) *ui.UI {
+	return ui.NewUI(ctx)
 }

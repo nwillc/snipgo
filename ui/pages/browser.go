@@ -117,7 +117,7 @@ func (bp *BrowserPage) write() {
 	if err == nil {
 		snippet.Body = bp.editor.String()
 	}
-	bp.categories.ToSnippets().WriteSnippets(bp.ctx, "")
+	bp.categories.ToSnippets().WriteSnippets(bp.ctx.JSON, bp.ctx.OS, bp.ctx.IOUTIL, "")
 }
 
 func (bp *BrowserPage) loadCategories() {

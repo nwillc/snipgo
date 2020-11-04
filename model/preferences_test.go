@@ -51,12 +51,12 @@ func (suite *PreferencesTestSuite) SetupTest() {
 }
 
 func (suite *PreferencesTestSuite) TestNonExistPrefs() {
-	_, ok := ReadPreferences(suite.ctx, suite.badFilename)
+	_, ok := ReadPreferences(suite.ctx.JSON, suite.ctx.OS, suite.ctx.IOUTIL, suite.badFilename)
 	assert.NotNil(suite.T(), ok)
 }
 
 func (suite *PreferencesTestSuite) TestExistPrefs() {
-	_, ok := ReadPreferences(suite.ctx, suite.goodFilename)
+	_, ok := ReadPreferences(suite.ctx.JSON, suite.ctx.OS, suite.ctx.IOUTIL, suite.goodFilename)
 	assert.Nil(suite.T(), ok)
 }
 
@@ -71,7 +71,7 @@ func (suite *PreferencesTestSuite) TestNoHomeDir() {
 		Times(1)
 
 	defer func() { recover() }()
-	_, _ = ReadPreferences(suite.ctx.CopyUpdateOs(mockOs), "")
+	_, _ = ReadPreferences(suite.ctx.JSON, mockOs, suite.ctx.IOUTIL, "")
 	suite.T().Errorf("did not panic")
 }
 
@@ -88,7 +88,7 @@ func (suite *PreferencesTestSuite) TestHomeDir() {
 		Open(testFilesDir + "/.snippets.json").
 		Return(suite.ctx.OS.Open(testFilesDir + "/snippets.json")).
 		Times(1)
-	err, _ := ReadPreferences(suite.ctx.CopyUpdateOs(mockOs), "")
+	err, _ := ReadPreferences(suite.ctx.JSON, mockOs, suite.ctx.IOUTIL, "")
 	assert.Nil(suite.T(), err)
 }
 
@@ -98,7 +98,7 @@ func (suite *PreferencesTestSuite) TestMalformedFile() {
 	defer os.Remove(tempFile.Name())
 	_, _ = tempFile.WriteString("not json")
 
-	_, ok := ReadPreferences(suite.ctx, tempFile.Name())
+	_, ok := ReadPreferences(suite.ctx.JSON, suite.ctx.OS, suite.ctx.IOUTIL, tempFile.Name())
 	if assert.NotNil(suite.T(), ok) {
 		assert.Errorf(suite.T(), ok, "json marshal failed")
 	}
@@ -109,9 +109,9 @@ func (suite *PreferencesTestSuite) TestWrite() {
 	tempFile, err := ioutil.TempFile("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
-	err = p.Write(suite.ctx, tempFile.Name())
+	err = p.Write(suite.ctx.JSON, suite.ctx.IOUTIL, tempFile.Name())
 	assert.Nil(suite.T(), err)
-	read, err := ReadPreferences(suite.ctx, tempFile.Name())
+	read, err := ReadPreferences(suite.ctx.JSON, suite.ctx.OS, suite.ctx.IOUTIL, tempFile.Name())
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), p.DefaultFile, read.DefaultFile)
 }
@@ -132,7 +132,7 @@ func (suite *PreferencesTestSuite) TestWriteMarshalFail() {
 		Return([]byte{}, fmt.Errorf(errMsg)).
 		Times(1)
 
-	err = p.Write(suite.ctx.CopyUpdateJson(mockJson), tempFile.Name())
+	err = p.Write(mockJson, suite.ctx.IOUTIL, tempFile.Name())
 	assert.NotNil(suite.T(), err)
 	assert.Errorf(suite.T(), err, errMsg)
 }
@@ -153,7 +153,7 @@ func (suite *PreferencesTestSuite) TestWriteWriteFail() {
 		Return(fmt.Errorf(errMsg)).
 		Times(1)
 
-	err = p.Write(suite.ctx.CopyUpdateIoUtil(mockIoUtil), tempFile.Name())
+	err = p.Write(suite.ctx.JSON, mockIoUtil, tempFile.Name())
 	assert.NotNil(suite.T(), err)
 	assert.Errorf(suite.T(), err, errMsg)
 }

@@ -31,27 +31,3 @@ func NewDefaultContext() *Context {
 		IOUTIL: &ioUtilService{},
 	}
 }
-
-func (ctx *Context) CopyUpdateJson(json Json) *Context {
-	return &Context{
-		JSON:   json,
-		OS:     ctx.OS,
-		IOUTIL: ctx.IOUTIL,
-	}
-}
-
-func (ctx *Context) CopyUpdateOs(os Os) *Context {
-	return &Context{
-		JSON:   ctx.JSON,
-		OS:     os,
-		IOUTIL: ctx.IOUTIL,
-	}
-}
-
-func (ctx *Context) CopyUpdateIoUtil(ioUtil IoUtil) *Context {
-	return &Context{
-		JSON:   ctx.JSON,
-		OS:     ctx.OS,
-		IOUTIL: ioUtil,
-	}
-}
