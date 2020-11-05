@@ -8,3 +8,12 @@
 Playing around with a Go and curses based program to manage my snippets. A terminal version, in Go of my KSnip project.
 
 ![UI](./snipgo.png)
+
+## What's Here
+This project was used to learn the following in Go:
+
+ - Terminal based UI: github.com/rivo/tview
+ - Unit testing: github.com/stretchr/testify
+ - Mocking: github.com/golang/mock
+ - Dependency injection patterns
+ - Github Actions for Go: actions/setup-go@v2
