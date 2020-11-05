@@ -36,10 +36,15 @@ type UI struct {
 var _ model.SetCategories = (*UI)(nil)
 
 // NewUI is a factory for UI.
-func NewUI(ctx *services.Context) *UI {
+func NewUI(
+	json services.Json,
+	os services.Os,
+	ioUtil services.IoUtil,
+	categories *model.Categories,
+) *UI {
 	var app = tview.NewApplication()
 	var slides = []pages.Slide{
-		pages.NewBrowserPage(ctx),
+		pages.NewBrowserPage(json, os, ioUtil),
 		pages.NewSnippetPage(),
 		pages.NewPreferencesPage(),
 		pages.NewAboutPage(),
@@ -73,6 +78,7 @@ func NewUI(ctx *services.Context) *UI {
 	menu.AddButton("Quit", func() {
 		app.Stop()
 	})
+	ui.Categories(categories)
 	return &ui
 }
 

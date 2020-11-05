@@ -27,6 +27,10 @@ type IoUtil interface {
 	WriteFile(filename string, data []byte, perm os.FileMode) error
 }
 
+func NewIoUtil() IoUtil {
+	return &ioUtilService{}
+}
+
 type ioUtilService struct{}
 
 func (s ioUtilService) ReadAll(r io.Reader) ([]byte, error) {

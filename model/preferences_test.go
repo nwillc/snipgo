@@ -35,9 +35,11 @@ const (
 
 type PreferencesTestSuite struct {
 	suite.Suite
-	ctx          *services.Context
 	badFilename  string
 	goodFilename string
+	json         services.Json
+	os           services.Os
+	ioUtil       services.IoUtil
 }
 
 func TestPreferencesTestSuite(t *testing.T) {
@@ -45,18 +47,20 @@ func TestPreferencesTestSuite(t *testing.T) {
 }
 
 func (suite *PreferencesTestSuite) SetupTest() {
-	suite.ctx = services.NewDefaultContext()
 	suite.badFilename = "foo"
 	suite.goodFilename = testPrefFile
+	suite.json = services.NewJson()
+	suite.os = services.NewOs()
+	suite.ioUtil = services.NewIoUtil()
 }
 
 func (suite *PreferencesTestSuite) TestNonExistPrefs() {
-	_, ok := ReadPreferences(suite.ctx.JSON, suite.ctx.OS, suite.ctx.IOUTIL, suite.badFilename)
+	_, ok := ReadPreferences(suite.json, suite.os, suite.ioUtil, suite.badFilename)
 	assert.NotNil(suite.T(), ok)
 }
 
 func (suite *PreferencesTestSuite) TestExistPrefs() {
-	_, ok := ReadPreferences(suite.ctx.JSON, suite.ctx.OS, suite.ctx.IOUTIL, suite.goodFilename)
+	_, ok := ReadPreferences(suite.json, suite.os, suite.ioUtil, suite.goodFilename)
 	assert.Nil(suite.T(), ok)
 }
 
@@ -71,7 +75,7 @@ func (suite *PreferencesTestSuite) TestNoHomeDir() {
 		Times(1)
 
 	defer func() { recover() }()
-	_, _ = ReadPreferences(suite.ctx.JSON, mockOs, suite.ctx.IOUTIL, "")
+	_, _ = ReadPreferences(suite.json, mockOs, suite.ioUtil, "")
 	suite.T().Errorf("did not panic")
 }
 
@@ -86,9 +90,9 @@ func (suite *PreferencesTestSuite) TestHomeDir() {
 		Times(1)
 	mockOs.EXPECT().
 		Open(testFilesDir + "/.snippets.json").
-		Return(suite.ctx.OS.Open(testFilesDir + "/snippets.json")).
+		Return(suite.os.Open(testFilesDir + "/snippets.json")).
 		Times(1)
-	err, _ := ReadPreferences(suite.ctx.JSON, mockOs, suite.ctx.IOUTIL, "")
+	err, _ := ReadPreferences(suite.json, mockOs, suite.ioUtil, "")
 	assert.Nil(suite.T(), err)
 }
 
@@ -98,7 +102,7 @@ func (suite *PreferencesTestSuite) TestMalformedFile() {
 	defer os.Remove(tempFile.Name())
 	_, _ = tempFile.WriteString("not json")
 
-	_, ok := ReadPreferences(suite.ctx.JSON, suite.ctx.OS, suite.ctx.IOUTIL, tempFile.Name())
+	_, ok := ReadPreferences(suite.json, suite.os, suite.ioUtil, tempFile.Name())
 	if assert.NotNil(suite.T(), ok) {
 		assert.Errorf(suite.T(), ok, "json marshal failed")
 	}
@@ -109,9 +113,9 @@ func (suite *PreferencesTestSuite) TestWrite() {
 	tempFile, err := ioutil.TempFile("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
-	err = p.Write(suite.ctx.JSON, suite.ctx.IOUTIL, tempFile.Name())
+	err = p.Write(suite.json, suite.ioUtil, tempFile.Name())
 	assert.Nil(suite.T(), err)
-	read, err := ReadPreferences(suite.ctx.JSON, suite.ctx.OS, suite.ctx.IOUTIL, tempFile.Name())
+	read, err := ReadPreferences(suite.json, suite.os, suite.ioUtil, tempFile.Name())
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), p.DefaultFile, read.DefaultFile)
 }
@@ -132,7 +136,7 @@ func (suite *PreferencesTestSuite) TestWriteMarshalFail() {
 		Return([]byte{}, fmt.Errorf(errMsg)).
 		Times(1)
 
-	err = p.Write(mockJson, suite.ctx.IOUTIL, tempFile.Name())
+	err = p.Write(mockJson, suite.ioUtil, tempFile.Name())
 	assert.NotNil(suite.T(), err)
 	assert.Errorf(suite.T(), err, errMsg)
 }
@@ -153,7 +157,7 @@ func (suite *PreferencesTestSuite) TestWriteWriteFail() {
 		Return(fmt.Errorf(errMsg)).
 		Times(1)
 
-	err = p.Write(suite.ctx.JSON, mockIoUtil, tempFile.Name())
+	err = p.Write(suite.json, mockIoUtil, tempFile.Name())
 	assert.NotNil(suite.T(), err)
 	assert.Errorf(suite.T(), err, errMsg)
 }

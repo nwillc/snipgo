@@ -25,6 +25,10 @@ type Json interface {
 	Marshal(v interface{}) ([]byte, error)
 }
 
+func NewJson() Json {
+	return &jsonService{}
+}
+
 type jsonService struct{}
 
 var _ Json = (*jsonService)(nil)

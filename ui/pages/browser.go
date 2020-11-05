@@ -36,20 +36,26 @@ var (
 // BrowserPage is the Slide implementation for browsing model.Categories.
 type BrowserPage struct {
 	tview.Primitive
-	ctx             *services.Context
 	editor          *widgets.Editor
 	categoryList    *tview.List
 	titleList       *tview.List
 	categories      *model.Categories
 	currentCategory int
 	currentSnippet  int
+	json            services.Json
+	os              services.Os
+	ioUtil          services.IoUtil
 }
 
 // Implements Slide
 var _ Slide = (*BrowserPage)(nil)
 
 // NewBrowserPage is a factory for BrowserPage.
-func NewBrowserPage(ctx *services.Context) *BrowserPage {
+func NewBrowserPage(
+	json services.Json,
+	os services.Os,
+	ioUtil services.IoUtil,
+) *BrowserPage {
 	editor := widgets.NewEditor()
 	grid := tview.NewGrid().
 		SetRows(rowsWeights...).
@@ -65,13 +71,15 @@ func NewBrowserPage(ctx *services.Context) *BrowserPage {
 	menu := widgets.NewButtonBar()
 
 	var page = BrowserPage{
-		ctx:             ctx,
 		Primitive:       grid,
 		editor:          editor,
 		categoryList:    categoryList,
 		titleList:       titleList,
 		currentCategory: -1,
 		currentSnippet:  -1,
+		json:            json,
+		os:              os,
+		ioUtil:          ioUtil,
 	}
 	menu.
 		AddButton("Copy", func() {
@@ -117,7 +125,7 @@ func (bp *BrowserPage) write() {
 	if err == nil {
 		snippet.Body = bp.editor.String()
 	}
-	bp.categories.ToSnippets().WriteSnippets(bp.ctx.JSON, bp.ctx.OS, bp.ctx.IOUTIL, "")
+	bp.categories.ToSnippets().WriteSnippets(bp.json, bp.os, bp.ioUtil, "")
 }
 
 func (bp *BrowserPage) loadCategories() {

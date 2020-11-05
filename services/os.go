@@ -24,6 +24,10 @@ type Os interface {
 	Open(name string) (*os.File, error)
 }
 
+func NewOs() Os {
+	return &osService{}
+}
+
 type osService struct{}
 
 func (s osService) UserHomeDir() (string, error) {

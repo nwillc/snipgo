@@ -29,36 +29,44 @@ import (
 
 func main() {
 	c, err := di.New(
-		di.Provide(newContext),
+		di.Provide(services.NewJson),
+		di.Provide(services.NewOs),
+		di.Provide(services.NewIoUtil),
 		di.Provide(newUI),
+		di.Provide(defaultCategories),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	var ctx = services.NewDefaultContext()
-	preferences, err := model.ReadPreferences(ctx.JSON, ctx.OS, ctx.IOUTIL, "")
+	if err = c.Invoke(startUI); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func startUI(u *ui.UI) error {
+	u.Run()
+	return nil
+}
+
+func newUI(
+	json services.Json,
+	os services.Os,
+	ioUtil services.IoUtil,
+	categories *model.Categories,
+) *ui.UI {
+	return ui.NewUI(json, os, ioUtil, categories)
+}
+
+func defaultCategories(json services.Json, os services.Os, ioUtil services.IoUtil) *model.Categories {
+	preferences, err := model.ReadPreferences(json, os, ioUtil, "")
 	if err != nil {
 		panic("Could not get preferences")
 	}
-	snippets, err := model.ReadSnippets(ctx.JSON, ctx.OS, ctx.IOUTIL, preferences.DefaultFile)
+	snippets, err := model.ReadSnippets(json, os, ioUtil, preferences.DefaultFile)
 	if err != nil {
 		panic(fmt.Sprintf("failed %v", err))
 	}
 
 	categories := snippets.ByCategory()
-
-	var ui *ui.UI
-	if err = c.Resolve(&ui); err != nil {
-		log.Fatal("Unable to create ui ", err)
-	}
-	ui.Categories(&categories)
-	ui.Run()
-}
-
-func newContext() *services.Context {
-	return services.NewDefaultContext()
-}
-
-func newUI(ctx *services.Context) *ui.UI {
-	return ui.NewUI(ctx)
+	return &categories
 }
