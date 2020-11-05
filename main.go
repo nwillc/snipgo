@@ -18,43 +18,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/goava/di"
 	"github.com/nwillc/snipgo/model"
 	"github.com/nwillc/snipgo/services"
 	"github.com/nwillc/snipgo/ui"
-	"log"
 )
 
 //go:generate go run gorelease
 
 func main() {
-	c, err := di.New(
-		di.Provide(services.NewJson),
-		di.Provide(services.NewOs),
-		di.Provide(services.NewIoUtil),
-		di.Provide(newUI),
-		di.Provide(defaultCategories),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err = c.Invoke(startUI); err != nil {
-		log.Fatal(err)
-	}
-}
+	var os = services.NewOs()
+	var json = services.NewJson()
+	var ioUtils = services.NewIoUtil()
 
-func startUI(u *ui.UI) error {
-	u.Run()
-	return nil
-}
-
-func newUI(
-	json services.Json,
-	os services.Os,
-	ioUtil services.IoUtil,
-	categories *model.Categories,
-) *ui.UI {
-	return ui.NewUI(json, os, ioUtil, categories)
+	var categories = defaultCategories(json, os, ioUtils)
+	ui.NewUI(json, os, ioUtils, categories).Run()
 }
 
 func defaultCategories(json services.Json, os services.Os, ioUtil services.IoUtil) *model.Categories {
