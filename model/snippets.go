@@ -17,9 +17,10 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/nwillc/snipgo/services"
 	"github.com/pkg/errors"
+	"io/ioutil"
 	"os"
 	"sort"
 	"strings"
@@ -42,9 +43,9 @@ type Snippets []Snippet
 var _ sort.Interface = (*Snippets)(nil)
 
 // ReadSnippets accepts a filename, reads from the file and returns the Snippets found in the file.
-func ReadSnippets(json services.Json, os services.Os, ioutil services.IoUtil, filename string) (Snippets, error) {
+func ReadSnippets(filename string) (Snippets, error) {
 	if filename == "" {
-		preferences, err := ReadPreferences(json, os, ioutil, "")
+		preferences, err := ReadPreferences("")
 		if err != nil {
 			return nil, err
 		}
@@ -67,9 +68,9 @@ func ReadSnippets(json services.Json, os services.Os, ioutil services.IoUtil, fi
 }
 
 // WriteSnippets writes Snippets to the file named.
-func (s *Snippets) WriteSnippets(json services.Json, o services.Os, ioutil services.IoUtil, filename string) error {
+func (s *Snippets) WriteSnippets(filename string) error {
 	if filename == "" {
-		preferences, err := ReadPreferences(json, o, ioutil, "")
+		preferences, err := ReadPreferences("")
 		if err != nil {
 			return err
 		}

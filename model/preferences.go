@@ -17,9 +17,10 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/nwillc/snipgo/services"
 	"github.com/pkg/errors"
+	"io/ioutil"
 	"os"
 )
 
@@ -33,7 +34,7 @@ type Preferences struct {
 // ReadPreferences reads the file indicated by filename and returns a *Preferences structure.
 // If the filename is empty it will look for the default preferences file. If no file can be be
 // found or the file is malformed an error is returned.
-func ReadPreferences(json services.Json, os services.Os, ioutil services.IoUtil, filename string) (*Preferences, error) {
+func ReadPreferences(filename string) (*Preferences, error) {
 	if filename == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {
@@ -56,7 +57,7 @@ func ReadPreferences(json services.Json, os services.Os, ioutil services.IoUtil,
 }
 
 // Write the preferences as JSON to filename.
-func (p *Preferences) Write(json services.Json, ioutil services.IoUtil, filename string) error {
+func (p *Preferences) Write(filename string) error {
 	jsonString, err := json.Marshal(p)
 	if err != nil {
 		return errors.Wrap(err, "json marshal failed")

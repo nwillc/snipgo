@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"github.com/atotto/clipboard"
 	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/services"
 	"github.com/nwillc/snipgo/ui/widgets"
 	"github.com/rivo/tview"
 )
@@ -42,20 +41,13 @@ type BrowserPage struct {
 	categories      *model.Categories
 	currentCategory int
 	currentSnippet  int
-	json            services.Json
-	os              services.Os
-	ioUtil          services.IoUtil
 }
 
 // Implements Slide
 var _ Slide = (*BrowserPage)(nil)
 
 // NewBrowserPage is a factory for BrowserPage.
-func NewBrowserPage(
-	json services.Json,
-	os services.Os,
-	ioUtil services.IoUtil,
-) *BrowserPage {
+func NewBrowserPage() *BrowserPage {
 	editor := widgets.NewEditor()
 	grid := tview.NewGrid().
 		SetRows(rowsWeights...).
@@ -77,9 +69,6 @@ func NewBrowserPage(
 		titleList:       titleList,
 		currentCategory: -1,
 		currentSnippet:  -1,
-		json:            json,
-		os:              os,
-		ioUtil:          ioUtil,
 	}
 	menu.
 		AddButton("Copy", func() {
@@ -125,7 +114,7 @@ func (bp *BrowserPage) write() {
 	if err == nil {
 		snippet.Body = bp.editor.String()
 	}
-	bp.categories.ToSnippets().WriteSnippets(bp.json, bp.os, bp.ioUtil, "")
+	bp.categories.ToSnippets().WriteSnippets("")
 }
 
 func (bp *BrowserPage) loadCategories() {

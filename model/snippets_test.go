@@ -17,10 +17,7 @@
 package model
 
 import (
-	"fmt"
-	"github.com/golang/mock/gomock"
-	"github.com/nwillc/snipgo/mocks"
-	"github.com/nwillc/snipgo/services"
+	"bou.ke/monkey"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"io/ioutil"
@@ -34,9 +31,6 @@ type SnippetsTestSuite struct {
 	testFilesDir string
 	badFilename  string
 	goodFilename string
-	json         services.Json
-	os           services.Os
-	ioUtil       services.IoUtil
 }
 
 func TestSnippetsTestSuite(t *testing.T) {
@@ -57,9 +51,6 @@ func (suite *SnippetsTestSuite) SetupTest() {
 	suite.testFilesDir = "../test/files"
 	suite.badFilename = suite.testFilesDir + "/foo"
 	suite.goodFilename = suite.testFilesDir + "/snippets.json"
-	suite.json = services.NewJson()
-	suite.os = services.NewOs()
-	suite.ioUtil = services.NewIoUtil()
 }
 
 func (suite *SnippetsTestSuite) TestStringer() {
@@ -72,215 +63,145 @@ func (suite *SnippetsTestSuite) TestStringer() {
 }
 
 func (suite *SnippetsTestSuite) TestNonExist() {
-	_, ok := ReadSnippets(suite.json, suite.os, suite.ioUtil, suite.badFilename)
+	_, ok := ReadSnippets(suite.badFilename)
 	assert.NotNil(suite.T(), ok)
 }
 
 func (suite *SnippetsTestSuite) TestExist() {
-	_, ok := ReadSnippets(suite.json, suite.os, suite.ioUtil, suite.goodFilename)
+	_, ok := ReadSnippets(suite.goodFilename)
 	assert.Nil(suite.T(), ok)
 }
 
 func (suite *SnippetsTestSuite) TestNoHomeDir() {
-	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
+	defer monkey.UnpatchAll()
 
-	var mockOs = mocks.NewMockOs(mockCtrl)
-	mockOs.EXPECT().
-		UserHomeDir().
-		Return("", fmt.Errorf("foo")).
-		Times(1)
+	PatchNoHomeDir()
+
 	defer func() { recover() }()
-	_, _ = ReadSnippets(suite.json, mockOs, suite.ioUtil, "")
+	_, _ = ReadSnippets("")
 	suite.T().Errorf("did not panic")
 }
 
 func (suite *SnippetsTestSuite) TestHomeDir() {
-	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
+	defer monkey.UnpatchAll()
 
-	var mockOs = mocks.NewMockOs(mockCtrl)
-	mockOs.EXPECT().
-		UserHomeDir().
-		Return(testFilesDir, nil).
-		Times(1)
-	mockOs.EXPECT().
-		Open(testFilesDir + "/.snippets.json").
-		Return(suite.os.Open(suite.testFilesDir + "/preferences.json")).
-		Times(1)
-	mockOs.EXPECT().
-		Open(suite.goodFilename).
-		Return(suite.os.Open(suite.goodFilename)).
-		Times(1)
-	_, err := ReadSnippets(suite.json, mockOs, suite.ioUtil, "")
-	assert.Nil(suite.T(), err)
+	PatchHomeDir(testFilesDir)
+
+	_, err := ReadSnippets("")
+	assert.NoError(suite.T(), err)
 }
 
 func (suite *SnippetsTestSuite) TestHomeDirNoPreferences() {
-	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
+	defer monkey.UnpatchAll()
 
-	var mockOs = mocks.NewMockOs(mockCtrl)
-	mockOs.EXPECT().
-		UserHomeDir().
-		Return(testFilesDir, nil).
-		Times(1)
-	mockOs.EXPECT().
-		Open(testFilesDir+"/.snippets.json").
-		Return(nil, fmt.Errorf("file not found")).
-		Times(1)
-	_, err := ReadSnippets(suite.json, mockOs, suite.ioUtil, "")
-	assert.NotNil(suite.T(), err)
+	PatchHomeDir(testFilesDir)
+	PatchOpenFail()
+
+	_, err := ReadSnippets("")
+	if assert.Error(suite.T(), err) {
+		assert.Errorf(suite.T(), err, "open fail")
+	}
 }
 
 func (suite *SnippetsTestSuite) TestUnableToRead() {
-	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
+	defer monkey.UnpatchAll()
 
-	var mockIoUtil = mocks.NewMockIoUtil(mockCtrl)
-	mockIoUtil.EXPECT().
-		ReadAll(gomock.Any()).
-		Return(nil, fmt.Errorf("unable to read")).
-		Times(1)
-	_, err := ReadSnippets(suite.json, suite.os, mockIoUtil, suite.goodFilename)
-	assert.NotNil(suite.T(), err)
-	assert.Errorf(suite.T(), err, "unable to read")
+	PatchReadAllFail()
+
+	_, err := ReadSnippets(suite.goodFilename)
+	if assert.Error(suite.T(), err) {
+		assert.Errorf(suite.T(), err, "read all fail")
+	}
 }
 
 func (suite *SnippetsTestSuite) TestWriteDefaultNoHome() {
-	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
+	defer monkey.UnpatchAll()
 
-	var mockOs = mocks.NewMockOs(mockCtrl)
-	mockOs.EXPECT().
-		UserHomeDir().
-		Return("", fmt.Errorf("foo")).
-		Times(1)
+	PatchNoHomeDir()
+
 	defer func() { recover() }()
 	var snippets = Snippets{}
-	_ = snippets.WriteSnippets(suite.json, mockOs, suite.ioUtil, "")
+	_ = snippets.WriteSnippets("")
 	suite.T().Errorf("did not panic")
 }
 
 func (suite *SnippetsTestSuite) TestWriteDefaultNoPreferences() {
-	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
+	defer monkey.UnpatchAll()
 
-	var mockOs = mocks.NewMockOs(mockCtrl)
-	mockOs.EXPECT().
-		UserHomeDir().
-		Return(testFilesDir, nil).
-		Times(1)
-	mockOs.EXPECT().
-		Open(testFilesDir+"/.snippets.json").
-		Return(nil, fmt.Errorf("file not found")).
-		Times(1)
+	PatchHomeDir(testFilesDir)
+	PatchOpenFail()
+
 	var snippets = Snippets{}
-	err := snippets.WriteSnippets(suite.json, mockOs, suite.ioUtil, "")
-	assert.NotNil(suite.T(), err)
+	err := snippets.WriteSnippets("")
+	if assert.Error(suite.T(), err) {
+		assert.Errorf(suite.T(), err, "open fail")
+	}
 }
 
 func (suite *SnippetsTestSuite) TestWriteDefault() {
+	defer monkey.UnpatchAll()
+
+	PatchHomeDir(testFilesDir)
+
 	tempFile, err := ioutil.TempFile("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 
-	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
-
-	testSnippets, ok := ReadSnippets(suite.json, suite.os, suite.ioUtil, suite.goodFilename)
+	testSnippets, ok := ReadSnippets(suite.goodFilename)
 	assert.Nil(suite.T(), ok)
-	testSnippetsBytes, err := suite.json.Marshal(testSnippets)
+
+	PatchWriteFileRedirect(tempFile.Name())
+
+	err = testSnippets.WriteSnippets("")
 	assert.Nil(suite.T(), err)
 
-	testPrefs, err := ReadPreferences(suite.json, suite.os, suite.ioUtil, suite.testFilesDir+"/preferences.json")
-	assert.Nil(suite.T(), err)
-	testPrefsBytes, err := suite.json.Marshal(testPrefs)
-	assert.Nil(suite.T(), err)
-
-	var mockOs = mocks.NewMockOs(mockCtrl)
-	mockOs.EXPECT().
-		UserHomeDir().
-		Return(testFilesDir, nil).
-		Times(1)
-	mockOs.EXPECT().
-		Open(testFilesDir + "/.snippets.json").
-		Return(suite.os.Open(suite.testFilesDir + "/preferences.json")).
-		Times(1)
-
-	var mockIoUtil = mocks.NewMockIoUtil(mockCtrl)
-	mockIoUtil.EXPECT().
-		ReadAll(gomock.Any()).
-		Return(testPrefsBytes, nil).
-		Times(1)
-
-	mockIoUtil.EXPECT().
-		WriteFile(gomock.Any(), gomock.Any(), gomock.Any()).
-		Return(suite.ioUtil.WriteFile(tempFile.Name(), testSnippetsBytes, os.ModePerm)).
-		Times(1)
-
-	err = testSnippets.WriteSnippets(suite.json, mockOs, mockIoUtil, "")
-	assert.Nil(suite.T(), err)
-
-	read, ok := ReadSnippets(suite.json, suite.os, suite.ioUtil, tempFile.Name())
+	read, ok := ReadSnippets(tempFile.Name())
 	assert.Nil(suite.T(), ok)
 	assert.Equal(suite.T(), len(testSnippets), len(read))
 }
 
-func (suite *SnippetsTestSuite) TestReadMarshalFail() {
-	tempFile, err := ioutil.TempFile("", "snippets.*.json")
-	assert.Nil(suite.T(), err)
-	defer os.Remove(tempFile.Name())
+func (suite *SnippetsTestSuite) TestReadUnmarshalFail() {
+	defer monkey.UnpatchAll()
 
-	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
+	PatchJsonUnmarshalFail()
 
-	var mockJson = mocks.NewMockJson(mockCtrl)
-	mockJson.EXPECT().
-		Unmarshal(gomock.Any(), gomock.Any()).
-		Return(fmt.Errorf("mock error")).
-		Times(1)
-	_, ok := ReadSnippets(mockJson, suite.os, suite.ioUtil, suite.goodFilename)
-	assert.NotNil(suite.T(), ok)
+	_, err := ReadSnippets(suite.goodFilename)
+	if assert.Error(suite.T(), err) {
+		assert.Errorf(suite.T(), err, "json unmarshal fail")
+	}
 }
 
 func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
+	defer monkey.UnpatchAll()
+
+	PatchJsonMarshalFail()
+
 	tempFile, err := ioutil.TempFile("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 
-	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
-
-	var mockJson = mocks.NewMockJson(mockCtrl)
-	mockJson.EXPECT().
-		Marshal(gomock.Any()).
-		Return(nil, fmt.Errorf("mock error")).
-		Times(1)
 	var testSnippets = Snippets{}
-	ok := testSnippets.WriteSnippets(mockJson, suite.os, suite.ioUtil, suite.goodFilename)
-	assert.NotNil(suite.T(), ok)
+	err = testSnippets.WriteSnippets(suite.goodFilename)
+	if assert.Error(suite.T(), err) {
+		assert.Errorf(suite.T(), err, "json marshal fail")
+	}
 }
 
 func (suite *SnippetsTestSuite) TestWriteFail() {
+	defer monkey.UnpatchAll()
+	PatchWriteFileFail()
+
 	tempFile, err := ioutil.TempFile("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 
-	testSnippets, ok := ReadSnippets(suite.json, suite.os, suite.ioUtil, suite.goodFilename)
+	testSnippets, ok := ReadSnippets(suite.goodFilename)
 	assert.Nil(suite.T(), ok)
 
-	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
-
-	var mockIoUtil = mocks.NewMockIoUtil(mockCtrl)
-	mockIoUtil.EXPECT().
-		WriteFile(tempFile.Name(), gomock.Any(), gomock.Any()).
-		Return(fmt.Errorf("foo")).
-		Times(1)
-
-	ok = testSnippets.WriteSnippets(suite.json, suite.os, mockIoUtil, tempFile.Name())
-	assert.NotNil(suite.T(), ok)
+	err = testSnippets.WriteSnippets(tempFile.Name())
+	if assert.Error(suite.T(), err) {
+		assert.Errorf(suite.T(), err, "write file fail")
+	}
 }
 
 func (suite *SnippetsTestSuite) TestWriteFile() {
@@ -288,11 +209,11 @@ func (suite *SnippetsTestSuite) TestWriteFile() {
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 
-	original, ok := ReadSnippets(suite.json, suite.os, suite.ioUtil, suite.goodFilename)
+	original, ok := ReadSnippets(suite.goodFilename)
 	assert.Nil(suite.T(), ok)
-	err = original.WriteSnippets(suite.json, suite.os, suite.ioUtil, tempFile.Name())
+	err = original.WriteSnippets(tempFile.Name())
 	assert.Nil(suite.T(), err)
-	read, ok := ReadSnippets(suite.json, suite.os, suite.ioUtil, tempFile.Name())
+	read, ok := ReadSnippets(tempFile.Name())
 	assert.Nil(suite.T(), ok)
 	assert.Equal(suite.T(), len(original), len(read))
 }
@@ -303,7 +224,7 @@ func (suite *SnippetsTestSuite) TestMalformedFile() {
 	defer os.Remove(tempFile.Name())
 	_, _ = tempFile.WriteString("not json")
 
-	_, ok := ReadSnippets(suite.json, suite.os, suite.ioUtil, tempFile.Name())
+	_, ok := ReadSnippets(tempFile.Name())
 	assert.NotNil(suite.T(), ok)
 }
 

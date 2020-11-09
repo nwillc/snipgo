@@ -19,27 +19,22 @@ package main
 import (
 	"fmt"
 	"github.com/nwillc/snipgo/model"
-	"github.com/nwillc/snipgo/services"
 	"github.com/nwillc/snipgo/ui"
 )
 
 //go:generate go run gorelease
 
 func main() {
-	var os = services.NewOs()
-	var json = services.NewJson()
-	var ioUtils = services.NewIoUtil()
-
-	var categories = defaultCategories(json, os, ioUtils)
-	ui.NewUI(json, os, ioUtils, categories).Run()
+	var categories = defaultCategories()
+	ui.NewUI(categories).Run()
 }
 
-func defaultCategories(json services.Json, os services.Os, ioUtil services.IoUtil) *model.Categories {
-	preferences, err := model.ReadPreferences(json, os, ioUtil, "")
+func defaultCategories() *model.Categories {
+	preferences, err := model.ReadPreferences("")
 	if err != nil {
 		panic("Could not get preferences")
 	}
-	snippets, err := model.ReadSnippets(json, os, ioUtil, preferences.DefaultFile)
+	snippets, err := model.ReadSnippets(preferences.DefaultFile)
 	if err != nil {
 		panic(fmt.Sprintf("failed %v", err))
 	}
