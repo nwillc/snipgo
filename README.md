@@ -10,10 +10,10 @@ Playing around with a Go and curses based program to manage my snippets. A termi
 ![UI](./snipgo.png)
 
 ## What's Here
-This project was used to learn the following in Go:
+This project is for learning in Go:
 
  - Terminal based UI: github.com/rivo/tview
  - Unit testing: github.com/stretchr/testify
- - Mocking: github.com/golang/mock
+ - Mocking (github.com/golang/mock) vs Monkey Patching (github/bouk/monkey)
  - Dependency injection patterns
  - Github Actions for Go: actions/setup-go@v2
