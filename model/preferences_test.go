@@ -101,7 +101,7 @@ func (suite *PreferencesTestSuite) TestWrite() {
 
 func (suite *PreferencesTestSuite) TestWriteMarshalFail() {
 	defer monkey.UnpatchAll()
-	PatchJsonMarshalFail()
+	PatchJSONMarshalFail()
 
 	p := Preferences{DefaultFile: "foo"}
 	tempFile, err := ioutil.TempFile("", "prefs.*.json")

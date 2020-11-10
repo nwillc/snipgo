@@ -77,7 +77,7 @@ func (s *SnippetPage) SetCategoryReceiver(receiver CategoryReceiver) {
 
 func (s *SnippetPage) addSnippet() {
 	updated := *s.categories
-	snippet := model.Snippets{{s.category, s.title, s.body}}
+	snippet := model.Snippets{{Category: s.category, Title: s.title, Body: s.body}}
 	found := false
 	for i, category := range updated {
 		if category.Name == s.category {

@@ -20,11 +20,13 @@ import (
 	"github.com/rivo/tview"
 )
 
+//ButtonBar provides a horizontal bar to which buttons with actions can be added.
 type ButtonBar struct {
 	*tview.Grid
 	actions []func()
 }
 
+//NewButtonBar factory function to create a new ButtonBar.
 func NewButtonBar() *ButtonBar {
 	var grid = tview.NewGrid().
 		SetRows(1).
@@ -33,10 +35,12 @@ func NewButtonBar() *ButtonBar {
 	return &bb
 }
 
+//ItemCount return the count of buttons in the ButtonBar.
 func (bb *ButtonBar) ItemCount() int {
 	return len(bb.actions)
 }
 
+//AddButton a button with it's action to the ButtonBar.
 func (bb *ButtonBar) AddButton(label string, action func()) *ButtonBar {
 	bb.actions = append(bb.actions, action)
 	var button = tview.NewButton("[ " + label + " ]").SetSelectedFunc(action)

@@ -163,7 +163,7 @@ func (suite *SnippetsTestSuite) TestWriteDefault() {
 func (suite *SnippetsTestSuite) TestReadUnmarshalFail() {
 	defer monkey.UnpatchAll()
 
-	PatchJsonUnmarshalFail()
+	PatchJSONUnmarshalFail()
 
 	_, err := ReadSnippets(suite.goodFilename)
 	if assert.Error(suite.T(), err) {
@@ -174,7 +174,7 @@ func (suite *SnippetsTestSuite) TestReadUnmarshalFail() {
 func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
 	defer monkey.UnpatchAll()
 
-	PatchJsonMarshalFail()
+	PatchJSONMarshalFail()
 
 	tempFile, err := ioutil.TempFile("", "snippets.*.json")
 	assert.Nil(suite.T(), err)

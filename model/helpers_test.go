@@ -21,13 +21,13 @@ func PatchHomeDir(dir string) {
 	})
 }
 
-func PatchJsonMarshalFail() {
+func PatchJSONMarshalFail() {
 	monkey.Patch(json.Marshal, func(v interface{}) ([]byte, error) {
 		return nil, fmt.Errorf("json marshal fail")
 	})
 }
 
-func PatchJsonUnmarshalFail() {
+func PatchJSONUnmarshalFail() {
 	monkey.Patch(json.Unmarshal, func(b []byte, v interface{}) error {
 		return fmt.Errorf("json unmarshal fail")
 	})
