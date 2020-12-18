@@ -17,7 +17,7 @@
 package pages
 
 import (
-	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/v2"
 	"github.com/nwillc/snipgo/model"
 	"github.com/nwillc/snipgo/ui/widgets"
 	"github.com/rivo/tview"
