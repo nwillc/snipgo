@@ -22,8 +22,6 @@ import (
 	"github.com/nwillc/snipgo/ui"
 )
 
-//go:generate go run gorelease
-
 func main() {
 	var categories = defaultCategories()
 	ui.NewUI(categories).Run()
