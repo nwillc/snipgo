@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
-	"io/ioutil"
+	"io"
 	"os"
 	"sort"
 	"strings"
@@ -56,7 +56,7 @@ func ReadSnippets(filename string) (Snippets, error) {
 		return nil, errors.Wrap(err, fmt.Sprintf("failed opening %s", filename))
 	}
 	defer snippetFile.Close()
-	byteValue, err := ioutil.ReadAll(snippetFile)
+	byteValue, err := io.ReadAll(snippetFile)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (s *Snippets) WriteSnippets(filename string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(filename, jsonString, os.ModePerm)
+	err = os.WriteFile(filename, jsonString, os.ModePerm)
 	if err != nil {
 		return err
 	}

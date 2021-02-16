@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
-	"io/ioutil"
+	"io"
 	"os"
 )
 
@@ -47,7 +47,7 @@ func ReadPreferences(filename string) (*Preferences, error) {
 		return nil, errors.Wrap(err, "unable to open "+filename)
 	}
 	defer jsonFile.Close()
-	byteValue, _ := ioutil.ReadAll(jsonFile)
+	byteValue, _ := io.ReadAll(jsonFile)
 	var preferences Preferences
 	err = json.Unmarshal(byteValue, &preferences)
 	if err != nil {
@@ -62,7 +62,7 @@ func (p *Preferences) Write(filename string) error {
 	if err != nil {
 		return errors.Wrap(err, "json marshal failed")
 	}
-	err = ioutil.WriteFile(filename, jsonString, os.ModePerm)
+	err = os.WriteFile(filename, jsonString, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "write file failed")
 	}

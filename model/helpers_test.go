@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 )
 
@@ -34,7 +33,7 @@ func PatchJSONUnmarshalFail() {
 }
 
 func PatchWriteFileFail() {
-	monkey.Patch(ioutil.WriteFile, func(filename string, data []byte, perm os.FileMode) error {
+	monkey.Patch(os.WriteFile, func(filename string, data []byte, perm os.FileMode) error {
 		return fmt.Errorf("write file fail")
 	})
 }
@@ -42,11 +41,11 @@ func PatchWriteFileFail() {
 var fileRedirectGuard *monkey.PatchGuard
 
 func PatchWriteFileRedirect(redirectTo string) {
-	fileRedirectGuard = monkey.Patch(ioutil.WriteFile, func(filename string, data []byte, perm os.FileMode) error {
+	fileRedirectGuard = monkey.Patch(os.WriteFile, func(filename string, data []byte, perm os.FileMode) error {
 		fileRedirectGuard.Unpatch()
 		defer fileRedirectGuard.Restore()
 
-		return ioutil.WriteFile(redirectTo, data, perm)
+		return os.WriteFile(redirectTo, data, perm)
 	})
 }
 
@@ -57,7 +56,7 @@ func PatchOpenFail() {
 }
 
 func PatchReadAllFail() {
-	monkey.Patch(ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
+	monkey.Patch(io.ReadAll, func(r io.Reader) ([]byte, error) {
 		return nil, fmt.Errorf("read all fail")
 	})
 }

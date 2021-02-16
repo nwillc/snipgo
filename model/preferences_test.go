@@ -19,7 +19,6 @@ package model
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -76,7 +75,7 @@ func (suite *PreferencesTestSuite) TestHomeDir() {
 }
 
 func (suite *PreferencesTestSuite) TestMalformedFile() {
-	tempFile, err := ioutil.TempFile("", "prefs.*.json")
+	tempFile, err := os.CreateTemp("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 	_, _ = tempFile.WriteString("not json")
@@ -89,7 +88,7 @@ func (suite *PreferencesTestSuite) TestMalformedFile() {
 
 func (suite *PreferencesTestSuite) TestWrite() {
 	p := Preferences{DefaultFile: "foo"}
-	tempFile, err := ioutil.TempFile("", "prefs.*.json")
+	tempFile, err := os.CreateTemp("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 	err = p.Write(tempFile.Name())
@@ -104,7 +103,7 @@ func (suite *PreferencesTestSuite) TestWriteMarshalFail() {
 	PatchJSONMarshalFail()
 
 	p := Preferences{DefaultFile: "foo"}
-	tempFile, err := ioutil.TempFile("", "prefs.*.json")
+	tempFile, err := os.CreateTemp("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 
@@ -119,7 +118,7 @@ func (suite *PreferencesTestSuite) TestWriteWriteFail() {
 	PatchWriteFileFail()
 
 	p := Preferences{DefaultFile: "foo"}
-	tempFile, err := ioutil.TempFile("", "prefs.*.json")
+	tempFile, err := os.CreateTemp("", "prefs.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 

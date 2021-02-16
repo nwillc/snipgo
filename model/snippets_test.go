@@ -20,7 +20,6 @@ import (
 	"bou.ke/monkey"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -143,7 +142,7 @@ func (suite *SnippetsTestSuite) TestWriteDefault() {
 
 	PatchHomeDir(testFilesDir)
 
-	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	tempFile, err := os.CreateTemp("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 
@@ -176,7 +175,7 @@ func (suite *SnippetsTestSuite) TestWriteMarshalFail() {
 
 	PatchJSONMarshalFail()
 
-	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	tempFile, err := os.CreateTemp("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 
@@ -191,7 +190,7 @@ func (suite *SnippetsTestSuite) TestWriteFail() {
 	defer monkey.UnpatchAll()
 	PatchWriteFileFail()
 
-	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	tempFile, err := os.CreateTemp("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 
@@ -205,7 +204,7 @@ func (suite *SnippetsTestSuite) TestWriteFail() {
 }
 
 func (suite *SnippetsTestSuite) TestWriteFile() {
-	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	tempFile, err := os.CreateTemp("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 
@@ -219,7 +218,7 @@ func (suite *SnippetsTestSuite) TestWriteFile() {
 }
 
 func (suite *SnippetsTestSuite) TestMalformedFile() {
-	tempFile, err := ioutil.TempFile("", "snippets.*.json")
+	tempFile, err := os.CreateTemp("", "snippets.*.json")
 	assert.Nil(suite.T(), err)
 	defer os.Remove(tempFile.Name())
 	_, _ = tempFile.WriteString("not json")
