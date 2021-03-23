@@ -93,7 +93,7 @@ func (suite *SnippetsTestSuite) TestHomeDir() {
 func (suite *SnippetsTestSuite) TestHomeDirNoPreferences() {
 	defer monkey.UnpatchAll()
 
-	PatchHomeDir(testFilesDir)
+	PatchHomeDir(".")
 	PatchOpenFail()
 
 	_, err := ReadSnippets("")
@@ -127,7 +127,7 @@ func (suite *SnippetsTestSuite) TestWriteDefaultNoHome() {
 func (suite *SnippetsTestSuite) TestWriteDefaultNoPreferences() {
 	defer monkey.UnpatchAll()
 
-	PatchHomeDir(testFilesDir)
+	PatchHomeDir(".")
 	PatchOpenFail()
 
 	var snippets = Snippets{}
