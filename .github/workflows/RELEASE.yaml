@@ -42,13 +42,17 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
 
     steps:
-    - uses: actions/checkout@master
+    - name: Checkout code
+      uses: actions/checkout@v2
     - name: Create Release
       id: create_release
-      uses: "marvinpinto/action-automatic-releases@latest"
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       with:
-        repo_token: "${{ secrets.RELEASE_TOKEN }}"
-        automatic_release_tag: "${{ github.ref }}"
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
         prerelease: false
 
   # Add all the builds as assets to the release
