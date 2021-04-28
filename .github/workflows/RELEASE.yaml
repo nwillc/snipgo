@@ -49,6 +49,7 @@ jobs:
       with:
         repo_token: "${{ secrets.RELEASE_TOKEN }}"
         automatic_release_tag: "${{ github.ref }}"
+        prerelease: false
 
   # Add all the builds as assets to the release
   add:
