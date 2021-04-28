@@ -45,11 +45,10 @@ jobs:
     - uses: actions/checkout@master
     - name: Create Release
       id: create_release
-      uses: elgohr/Github-Release-Action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      uses: "marvinpinto/action-automatic-releases@latest"
       with:
-        args: ${{ github.ref }}
+        repo_token: "${{ secrets.RELEASE_TOKEN }}"
+        automatic_release_tag: "${{ github.ref }}"
 
   # Add all the builds as assets to the release
   add:
